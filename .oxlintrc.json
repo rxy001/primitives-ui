@@ -1,0 +1,47 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "import", "jsx-a11y", "typescript"],
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "options": {
+    "typeAware": true
+  },
+  "ignorePatterns": [
+    "**/.next",
+    "**/*.css",
+    "**/dist",
+    "**/public",
+    "**/node_modules",
+    "**/assets",
+    "**/notes",
+    ".husky/*",
+    "**/*.yaml",
+    "**/build",
+    "**/.turbo",
+    "**/bin/*.js",
+    "**/.git",
+    "**/tmp",
+    "**/.cache",
+    "**/coverage",
+    "**/*.d.ts"
+  ],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "pedantic": "off"
+  },
+  "rules": {
+    "no-else-return": "error",
+    "prefer-const": "error",
+    "no-useless-rename": "error",
+    "arrow-body-style": ["error", "as-needed"],
+
+    "react/react-in-jsx-scope": "off",
+
+    "typescript/dot-notation": "error",
+
+    "import/no-unassigned-import": ["error", { "allow": ["**/*.css"] }]
+  }
+}
