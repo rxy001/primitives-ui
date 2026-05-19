@@ -1,4 +1,4 @@
 {
-  "**/*.{cjs,mjs,js,jsx,ts,tsx,css,json}": "oxfmt --write --no-error-on-unmatched-pattern",
-  "**/*.{cjs,mjs,js,jsx,ts,tsx}": "oxlint --fix"
+  "**/*.{cjs,mjs,js,jsx,ts,tsx,css,json}": "pnpm run format --no-error-on-unmatched-pattern",
+  "**/*.{cjs,mjs,js,jsx,ts,tsx}": "pnpm run lint"
 }
