@@ -13,9 +13,6 @@
     "url": "https://github.com/rxy001/primitives-ui.git",
     "directory": "packages/react"
   },
-  "files": [
-    "dist"
-  ],
   "type": "module",
   "sideEffects": false,
   "exports": {
@@ -24,7 +21,8 @@
   },
   "scripts": {
     "test": "VITEST_ENV=jsdom vitest run",
-    "test:watch": "VITEST_ENV=jsdom vitest"
+    "test:watch": "VITEST_ENV=jsdom vitest",
+    "build": "node ../../scripts/build.ts"
   },
   "dependencies": {
     "@primitives-ui/utils": "workspace:*",

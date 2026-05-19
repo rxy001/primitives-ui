@@ -10,15 +10,16 @@
     "url": "https://github.com/rxy001/primitives-ui.git",
     "directory": "packages/utils"
   },
-  "files": [
-    "dist"
-  ],
   "type": "module",
   "sideEffects": false,
   "exports": {
     ".": "./src/index.ts"
   },
-  "scripts": {},
+  "scripts": {
+    "test": "VITEST_ENV=jsdom vitest run",
+    "test:watch": "VITEST_ENV=jsdom vitest",
+    "build": "node ../../scripts/build.ts"
+  },
   "dependencies": {},
   "peerDependencies": {}
 }
