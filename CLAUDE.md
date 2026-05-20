@@ -45,6 +45,7 @@ For publishing, `scripts/resolve-workspace-dependencies.ts` replaces `workspace:
 ### Testing
 
 Vitest with two modes controlled by the `VITEST_ENV` env var:
+
 - **`jsdom`** (default) — Standard unit tests with `@testing-library/react`. Files: `*.test.{ts,tsx}`. Global setup adds jest-dom matchers (`toBeInTheDocument`, etc.).
 - **Browser** (`chromium`/`firefox`/`webkit`) — Runs `*.browser.test.{ts,tsx}` files via `@vitest/browser-playwright` in headless mode. Used for tests that need real browser behavior.
 
