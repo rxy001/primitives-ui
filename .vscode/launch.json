@@ -1,0 +1,47 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run Vitest Browser Chromium",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+      "args": [
+        "run",
+        "${relativeFile}",
+        "--inspect-brk",
+        "--no-file-parallelism",
+        "--test-timeout=0"
+      ],
+      "env": {
+        "VITEST_ENV": "chromium"
+      },
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
+    },
+    {
+      "name": "Attach to Vitest Browser",
+      "type": "chrome",
+      "request": "attach",
+      "port": 9229,
+      "webRoot": "${workspaceFolder}",
+      "sourceMapPathOverrides": {
+        "vite:///*": "${workspaceFolder}/*",
+        "/@fs/*": "/*",
+        "file:///*": "/*"
+      },
+      "timeout": 30000
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Debug Current Vitest Browser Test",
+      "configurations": [
+        "Attach to Vitest Browser",
+        "Run Vitest Browser Chromium"
+      ],
+      "stopAll": true
+    }
+  ]
+}

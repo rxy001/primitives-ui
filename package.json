@@ -27,7 +27,6 @@
     "test:firefox": "VITEST_ENV=firefox pnpm test:unit",
     "test:webkit": "VITEST_ENV=webkit pnpm test:unit",
     "test:browsers": "VITEST_ENV=all-browsers pnpm test:unit",
-    "test:coverage": "pnpm test:jsdom --coverage && pnpm test:chromium --coverage",
     "prepare": "husky"
   },
   "devDependencies": {

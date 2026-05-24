@@ -17,7 +17,8 @@
   "sideEffects": false,
   "exports": {
     ".": "./src/index.ts",
-    "./button": "./src/button/index.ts"
+    "./button": "./src/button/index.ts",
+    "./command": "./src/command/index.ts"
   },
   "scripts": {
     "test": "VITEST_ENV=jsdom vitest run",
