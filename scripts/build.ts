@@ -26,7 +26,10 @@ function sourceEntryToOutputEntry(value: string) {
   }
 }
 
-async function writePackageJson(packageJsonPath: string, packageJson: PackageJson) {
+async function writePackageJson(
+  packageJsonPath: string,
+  packageJson: PackageJson,
+) {
   const outputPackageJson = {
     ...packageJson,
     exports: Object.fromEntries(
@@ -39,7 +42,10 @@ async function writePackageJson(packageJsonPath: string, packageJson: PackageJso
     types: './index.d.ts',
   }
 
-  await fs.writeFile(packageJsonPath, `${JSON.stringify(outputPackageJson, null, 2)}\n`)
+  await fs.writeFile(
+    packageJsonPath,
+    `${JSON.stringify(outputPackageJson, null, 2)}\n`,
+  )
 }
 
 async function build() {
@@ -48,8 +54,9 @@ async function build() {
   const resolve = (...args: string[]) => path.resolve(dir, ...args)
 
   const packageJsonPath = resolve('package.json')
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-  const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf8')) as PackageJson
+  const packageJson = JSON.parse(
+    await fs.readFile(packageJsonPath, 'utf8'),
+  ) as PackageJson
   const entry = Object.values(packageJson.exports)
 
   await tsdownBuild({

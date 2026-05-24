@@ -4,6 +4,7 @@
   "tabWidth": 2,
   "useTabs": false,
   "jsxSingleQuote": true,
+  "printWidth": 80,
   "endOfLine": "lf",
   "ignorePatterns": [".next/**", "dist/**", "public/**", "assets/**", "*.yaml"],
   "sortImports": {

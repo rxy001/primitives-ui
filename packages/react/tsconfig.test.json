@@ -2,7 +2,16 @@
   "extends": ["../../tsconfig.base.json"],
   "compilerOptions": {
     "types": ["vitest/globals"],
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "paths": {
+      "#test": ["./test"],
+      "#test/*": ["./test/*"]
+    }
   },
-  "include": ["src/**/*.test.ts", "src/**/*.test.tsx", "vitest.config.ts"]
+  "include": [
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "vitest.config.ts",
+    "test/*.ts"
+  ]
 }

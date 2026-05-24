@@ -20,7 +20,6 @@ const dependencyFields = [
 ] as const
 
 async function readPackageJson(packageJsonPath: string) {
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
   return JSON.parse(await fs.readFile(packageJsonPath, 'utf8')) as PackageJson
 }
 
@@ -45,7 +44,9 @@ async function resolveWorkspacePackages(workspaceRoot: string) {
   const workspacePackages = new Map<string, string>()
 
   for (const packageDir of await resolvePackageDirs(workspaceRoot)) {
-    const packageJson = await readPackageJson(path.join(packageDir, 'package.json'))
+    const packageJson = await readPackageJson(
+      path.join(packageDir, 'package.json'),
+    )
 
     if (packageJson.name && packageJson.version) {
       workspacePackages.set(packageJson.name, packageJson.version)
@@ -116,15 +117,21 @@ function resolveWorkspaceDependencies(
 async function main() {
   const workspaceRoot = await findWorkspaceRoot()
   const workspacePackages = await resolveWorkspacePackages(workspaceRoot)
-  const packageJsonPaths = (await resolvePackageDirs(workspaceRoot)).map((packageDir) =>
-    path.join(packageDir, 'build', 'package.json'),
+  const packageJsonPaths = (await resolvePackageDirs(workspaceRoot)).map(
+    (packageDir) => path.join(packageDir, 'build', 'package.json'),
   )
 
   for (const packageJsonPath of packageJsonPaths) {
     const packageJson = await readPackageJson(packageJsonPath)
-    const outputPackageJson = resolveWorkspaceDependencies(packageJson, workspacePackages)
+    const outputPackageJson = resolveWorkspaceDependencies(
+      packageJson,
+      workspacePackages,
+    )
 
-    await fs.writeFile(packageJsonPath, `${JSON.stringify(outputPackageJson, null, 2)}\n`)
+    await fs.writeFile(
+      packageJsonPath,
+      `${JSON.stringify(outputPackageJson, null, 2)}\n`,
+    )
   }
 }
 

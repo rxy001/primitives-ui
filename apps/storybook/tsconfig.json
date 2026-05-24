@@ -1,6 +1,11 @@
 {
   "extends": "../../tsconfig.base.json",
-  "include": ["stories/*.tsx", ".storybook/*.ts", "./vite.config.ts", "css.d.ts"],
+  "include": [
+    "stories/*.tsx",
+    ".storybook/*.ts",
+    "./vite.config.ts",
+    "css.d.ts"
+  ],
   "compilerOptions": {
     "jsx": "react-jsx"
   }

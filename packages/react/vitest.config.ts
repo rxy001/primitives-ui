@@ -9,5 +9,13 @@ export default mergeConfig(
     test: {
       name: '@primitives-ui/react',
     },
+    optimizeDeps: {
+      include: ['@testing-library/react'],
+    },
+    resolve: {
+      alias: {
+        '#test': '../../../test',
+      },
+    },
   }),
 )

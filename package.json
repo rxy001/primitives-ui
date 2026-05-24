@@ -8,7 +8,7 @@
   "author": "X1ng Yu",
   "type": "module",
   "scripts": {
-    "dev": "turbo dev",
+    "dev:sb": "turbo dev --filter='./apps/storybook'",
     "build:packages": "turbo build --filter='./packages/*'",
     "lint": "oxlint -c ./.oxlintrc.json",
     "lint:fix": "pnpm lint --fix",
@@ -27,6 +27,7 @@
     "test:firefox": "VITEST_ENV=firefox pnpm test:unit",
     "test:webkit": "VITEST_ENV=webkit pnpm test:unit",
     "test:browsers": "VITEST_ENV=all-browsers pnpm test:unit",
+    "test:coverage": "pnpm test:jsdom --coverage && pnpm test:chromium --coverage",
     "prepare": "husky"
   },
   "devDependencies": {
@@ -35,6 +36,7 @@
     "@testing-library/jest-dom": "6.9.1",
     "@types/node": "25.9.0",
     "@vitest/browser-playwright": "4.1.6",
+    "@vitest/coverage-istanbul": "4.1.6",
     "husky": "9.1.7",
     "jsdom": "29.1.1",
     "lint-staged": "17.0.4",

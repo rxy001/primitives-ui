@@ -8,6 +8,7 @@ const preview: Preview = {
         color: /(background|color)$/i,
         date: /Date$/i,
       },
+      exclude: ['className', 'children', 'render'],
     },
 
     a11y: {
