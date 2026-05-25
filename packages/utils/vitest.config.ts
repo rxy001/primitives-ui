@@ -1,11 +1,13 @@
-import { defineProject, mergeConfig } from 'vitest/config'
-import configShared from '../../vitest.shared'
+import { dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { defineProject } from 'vitest/config'
 
-export default mergeConfig(
-  configShared,
-  defineProject({
-    test: {
-      name: '@primitives-ui/utils',
-    },
-  }),
-)
+const PACKAGE_ROOT = dirname(fileURLToPath(import.meta.url))
+
+export default defineProject({
+  root: PACKAGE_ROOT,
+  test: {
+    globals: true,
+    name: '@primitives-ui/utils',
+  },
+})

@@ -1,21 +1,23 @@
 import react from '@vitejs/plugin-react'
-import { defineProject, mergeConfig } from 'vitest/config'
-import configShared from '../../vitest.shared'
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { defineProject } from 'vitest/config'
 
-export default mergeConfig(
-  configShared,
-  defineProject({
-    plugins: [react()],
-    test: {
-      name: '@primitives-ui/react',
+const PACKAGE_ROOT = dirname(fileURLToPath(import.meta.url))
+
+export default defineProject({
+  root: PACKAGE_ROOT,
+  plugins: [react()],
+  test: {
+    globals: true,
+    name: '@primitives-ui/react',
+  },
+  optimizeDeps: {
+    include: ['@testing-library/react'],
+  },
+  resolve: {
+    alias: {
+      '#test': resolve(PACKAGE_ROOT, 'test'),
     },
-    optimizeDeps: {
-      include: ['@testing-library/react'],
-    },
-    resolve: {
-      alias: {
-        '#test': '../../../test',
-      },
-    },
-  }),
-)
+  },
+})

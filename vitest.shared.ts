@@ -5,62 +5,52 @@ import { fileURLToPath } from 'node:url'
 
 const WORKSPACE_ROOT = dirname(fileURLToPath(import.meta.url))
 const SETUP_FILE = resolve(WORKSPACE_ROOT, 'test/vitest.setup.ts')
-const DEFAULT_ENVIRONMENT = 'jsdom'
-const environment = process.env.VITEST_ENV ?? DEFAULT_ENVIRONMENT
+const DEFAULT_BROWSER_ENVIRONMENT = 'all-browsers'
 
 const supportedBrowsers = ['chromium', 'webkit', 'firefox'] as const
+
 type SupportedBrowser = (typeof supportedBrowsers)[number]
 type BrowserInstance = { browser: SupportedBrowser }
 
-function isSupportedBrowser(env: string): env is SupportedBrowser {
-  return supportedBrowsers.some((browser) => browser === env)
+export function getJsdomTestConfig(): UserWorkspaceConfig['test'] {
+  return {
+    include: ['**/!(*.browser).test.{ts,tsx}'],
+    setupFiles: [SETUP_FILE],
+    environment: 'jsdom',
+  }
 }
 
-function getBrowserInstances(env: string): BrowserInstance[] | undefined {
-  if (env === 'all-browsers') {
-    return supportedBrowsers.map((browser) => ({ browser }))
+function getBrowserInstances(environment: string): BrowserInstance[] {
+  let instances: BrowserInstance[] = []
+
+  if (environment === DEFAULT_BROWSER_ENVIRONMENT) {
+    instances = supportedBrowsers.map((browser) => ({ browser }))
   }
 
-  if (isSupportedBrowser(env)) {
-    return [{ browser: env }]
+  if (supportedBrowsers.some((browser) => browser === environment)) {
+    instances = [{ browser: environment as SupportedBrowser }]
   }
 
-  return undefined
+  return instances
 }
 
-function getTestConfig(): UserWorkspaceConfig['test'] {
-  if (environment === DEFAULT_ENVIRONMENT) {
-    return {
-      include: ['**/!(*.browser).test.{ts,tsx}'],
-      setupFiles: [SETUP_FILE],
-      environment: 'jsdom',
-    }
-  }
+export function getBrowserTestConfig(): UserWorkspaceConfig['test'] {
+  const environment = process.env.VITEST_ENV ?? DEFAULT_BROWSER_ENVIRONMENT
 
   const instances = getBrowserInstances(environment)
 
-  if (!instances) {
-    return undefined
+  if (!instances.length) {
+    throw new Error(`Unsupported browser test environment "${environment}".}.`)
   }
 
   return {
     browser: {
+      instances,
       enabled: true,
       provider: playwright(),
       screenshotFailures: false,
       headless: true,
-      instances,
     },
     include: ['**/*.browser.test.{ts,tsx}'],
   }
 }
-
-const config: UserWorkspaceConfig = {
-  test: {
-    exclude: ['node_modules'],
-    globals: true,
-    ...getTestConfig(),
-  },
-}
-
-export default config
