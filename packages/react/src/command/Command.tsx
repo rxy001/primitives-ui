@@ -38,9 +38,6 @@ export const useCommand = createHook<'div', CommandOwnProps, CommandState>(
       if (event.target !== event.currentTarget) return
       if (element.isContentEditable) return
 
-      const shouldClickOnEnter = clickOnEnter && event.key === 'Enter'
-      const shouldClickOnSpace = clickOnSpace && event.key === ' '
-
       if (
         (event.key === 'Enter' && !clickOnEnter) ||
         (event.key === ' ' && !clickOnSpace)
@@ -49,17 +46,16 @@ export const useCommand = createHook<'div', CommandOwnProps, CommandState>(
         return
       }
 
-      if (!shouldClickOnEnter && !shouldClickOnSpace) return
       if (isNativeSupportClick(event)) return
 
-      if (event.metaKey) return
+      const shouldClickOnEnter = clickOnEnter && event.key === 'Enter'
+      const shouldClickOnSpace = clickOnSpace && event.key === ' '
 
       if (shouldClickOnEnter) {
         element.click()
         event.preventDefault()
       }
 
-      if (event.ctrlKey || event.altKey) return
       if (shouldClickOnSpace) {
         activeRef.current = true
         event.preventDefault()
