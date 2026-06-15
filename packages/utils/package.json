@@ -16,8 +16,6 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "test": "VITEST_ENV=jsdom vitest run",
-    "test:watch": "VITEST_ENV=jsdom vitest",
     "typecheck": "tsc -noEmit",
     "build": "node ../../scripts/build.ts"
   },

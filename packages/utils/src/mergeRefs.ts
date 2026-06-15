@@ -1,6 +1,6 @@
 export function mergeRefs<T>(
   ...refs: (React.Ref<T> | undefined | null)[]
-): React.RefCallback<T> {
+): (instance: T | null) => void {
   const list = refs.filter((ref) => ref)
 
   return (node: T | null) => {
