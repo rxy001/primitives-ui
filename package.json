@@ -8,7 +8,7 @@
   "author": "X1ng Yu",
   "type": "module",
   "scripts": {
-    "dev:sb": "turbo dev --filter='./apps/storybook'",
+    "dev:sb": "pnpm --filter='./apps/storybook' dev",
     "build:packages": "turbo build --filter='./packages/*'",
     "lint": "oxlint -c ./.oxlintrc.json",
     "lint:fix": "pnpm lint --fix",
