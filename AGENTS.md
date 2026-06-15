@@ -18,8 +18,9 @@ the root TypeScript configs.
 - `pnpm build:packages`: build all packages into each package `build/`
   directory.
 - `pnpm typecheck`: run package TypeScript checks through Turbo.
-- `pnpm test`: run browser tests with Chromium by default.
+- `pnpm test`: run all Vitest projects: jsdom tests plus browser tests in Chromium.
 - `pnpm test:jsdom`: run non-browser Vitest projects.
+- `pnpm test:chromium` / `pnpm test:firefox` / `pnpm test:webkit`: run browser tests in one browser.
 - `pnpm test:browsers`: run browser tests across Chromium, Firefox, and WebKit.
 - `pnpm lint` / `pnpm format:check`: validate oxlint and oxfmt rules.
 
@@ -44,10 +45,9 @@ behavior changes, especially for focus, keyboard, and disabled-state behavior.
 
 Commits are checked with commitlint and follow Conventional Commits, as in
 `feat: add Button and Command components` or `chore: update vitest.config.ts`.
-Before opening a PR, run `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, and
-the relevant tests. PRs should describe the change, mention affected packages,
-link issues when applicable, and include Storybook screenshots for visible UI
-changes.
+Before opening a PR, run `pnpm lint`, `pnpm format:check`, `pnpm typecheck`,
+`pnpm build:packages`, and the relevant tests. Use `pnpm test` for normal PR
+coverage and `pnpm test:browsers` for browser-sensitive changes or release checks.
 
 ## Environment Notes
 
