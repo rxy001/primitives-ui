@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react'
+import { getMetadataProps } from '../metadata'
 import { useFocusableWhenDisabled } from '../useFocusableWhenDisabled'
 
 interface TestComponentProps<T extends React.ElementType> {
@@ -19,7 +20,7 @@ function TestComponent<T extends React.ElementType = 'button'>({
 }: TestComponentProps<T>) {
   const Element = as ?? 'button'
 
-  const { props: focusableProps } = useFocusableWhenDisabled(props)
+  const focusableProps = getMetadataProps(useFocusableWhenDisabled(props))
 
   return <Element data-testid={testid} {...focusableProps} />
 }

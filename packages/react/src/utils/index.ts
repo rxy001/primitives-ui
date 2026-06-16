@@ -1,5 +1,6 @@
 export * from './createPrimitive'
 export * from './createHook'
+export * from './metadata'
 export * from './useTagName'
 export * from './useFocusRing'
 export * from './isFocusable'

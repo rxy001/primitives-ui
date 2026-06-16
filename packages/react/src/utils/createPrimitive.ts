@@ -1,36 +1,44 @@
 import { isFunction, mergeProps } from '@primitives-ui/utils'
 import { cloneElement, createElement, isValidElement } from 'react'
-import type { HTMLProps, HTMLElements } from './types'
+import type { HTMLProps, HTMLElements, Directory } from './types'
+import {
+  getMetadataProps,
+  getMetadataProvider,
+  getMetadataState,
+  InferMetadataStateFromProps,
+  MetadataProps,
+} from './metadata'
 
 export type CreatePrimitiveParams<
   T extends HTMLElements,
-  State extends Record<string, any>,
+  State extends Directory | undefined,
 > = {
-  state: State
   render?:
     | ((props: HTMLProps<T>, state: State) => React.ReactNode)
     | React.JSX.Element
   stateAttributesMapping?: StateAttributesMapping<State>
-  provider?: (element: React.ReactNode) => React.ReactNode
 }
 
 export function createPrimitive<
   Element extends HTMLElements,
-  State extends Record<string, any>,
+  Props extends MetadataProps,
 >(
   tag: Element,
-  props: HTMLProps<Element>,
-  params: CreatePrimitiveParams<Element, State>,
+  props: Props,
+  params: CreatePrimitiveParams<Element, InferMetadataStateFromProps<Props>>,
 ) {
-  const { render, state, stateAttributesMapping, provider } = params
+  const { render, stateAttributesMapping } = params
+  const state = getMetadataState(props)
+  const provider = getMetadataProvider(props)
+  const elementProps = getMetadataProps(props)
   const stateProps = getStateAttributesProps(state, stateAttributesMapping)
 
-  const mergedProps = mergeProps(props, stateProps) as HTMLProps<Element>
+  const mergedProps = mergeProps(elementProps, stateProps) as HTMLProps<Element>
 
   let element
 
   if (isFunction(render)) {
-    element = render(mergedProps, state ?? ({} as State))
+    element = render(mergedProps, state)
   } else if (isValidElement<any>(render)) {
     element = cloneElement(render, mergeProps(render.props, mergedProps))
   } else {
@@ -47,14 +55,18 @@ export function createPrimitive<
 type StateAttributesMapping<State> = {
   [Property in keyof State]?: (
     state: State[Property],
-  ) => Record<string, string> | null
+  ) => Directory<string> | null
 }
 
-export function getStateAttributesProps<State extends Record<string, any>>(
-  state: State,
+export function getStateAttributesProps<State extends Directory>(
+  state?: State,
   customMapping?: StateAttributesMapping<State>,
 ) {
-  const props: Record<string, string> = {}
+  const props: Directory<string> = {}
+
+  if (!state) {
+    return props
+  }
 
   for (const key in state) {
     const value = state[key]

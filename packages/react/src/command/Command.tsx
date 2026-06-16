@@ -1,13 +1,10 @@
 'use client'
 
-/**
- * https://w3c.github.io/aria/#command
- */
-
 import { useEvent } from '@primitives-ui/utils'
 import { useRef } from 'react'
 import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
 import {
+  withMetadata,
   useFocusRing,
   createPrimitive,
   createHook,
@@ -23,6 +20,7 @@ export const useCommand = createHook<'div', CommandOwnProps, CommandState>(
     ...props
   }: UseCommandProps) {
     const activeRef = useRef(false)
+    const { disabled = false } = props
 
     const { onKeyDown } = props
     const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -74,20 +72,18 @@ export const useCommand = createHook<'div', CommandOwnProps, CommandState>(
           event.preventDefault()
         }
       },
-      props.disabled,
+      disabled,
     )
 
-    const handleClick = useDisableEvent(props.onClick, props.disabled)
+    const handleClick = useDisableEvent(props.onClick, disabled)
 
-    const handleMouseDown = useDisableEvent(props.onMouseDown, props.disabled)
+    const handleMouseDown = useDisableEvent(props.onMouseDown, disabled)
 
-    const handlePointerDown = useDisableEvent(
-      props.onPointerDown,
-      props.disabled,
-    )
+    const handlePointerDown = useDisableEvent(props.onPointerDown, disabled)
 
     props = {
       ...props,
+      disabled,
       onKeyDown: handleKeyDown,
       onKeyUp: handleKeyUp,
       onClick: handleClick,
@@ -95,30 +91,26 @@ export const useCommand = createHook<'div', CommandOwnProps, CommandState>(
       onPointerDown: handlePointerDown,
     }
 
-    const state: CommandState = {
-      disabled: props.disabled,
-    }
-
-    ;({ props } = useFocusableWhenDisabled({
+    const focusableProps = useFocusableWhenDisabled({
       focusableWhenDisabled,
       ...props,
-    }))
+    })
 
-    ;({ props, focusVisible: state.focusVisible } = useFocusRing(props))
+    const focusRingProps = useFocusRing(focusableProps)
 
-    return {
-      props,
-      state,
-    }
+    return withMetadata(focusRingProps, {
+      state: {
+        disabled,
+      },
+    })
   },
 )
 
 export function Command({ render, ...other }: CommandProps) {
-  const { props, state } = useCommand(other)
+  const props = useCommand(other)
 
   return createPrimitive('div', props, {
     render,
-    state,
   })
 }
 
@@ -176,8 +168,8 @@ interface CommandOwnProps {
 }
 
 export interface CommandState {
-  focusVisible?: boolean
-  disabled?: boolean
+  focusVisible: boolean
+  disabled: boolean
 }
 
 export type UseCommandProps<Element extends HTMLElements = 'div'> = HookProps<

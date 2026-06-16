@@ -1,13 +1,16 @@
 import { focus } from '#test'
 import { render } from 'vitest-browser-react'
 import { userEvent } from 'vitest/browser'
+import { getMetadataProps } from '../metadata'
 import { useFocusableWhenDisabled } from '../useFocusableWhenDisabled'
 
 function TestButton(inProps: React.ButtonHTMLAttributes<HTMLButtonElement>) {
-  const { props } = useFocusableWhenDisabled({
-    focusableWhenDisabled: true,
-    ...inProps,
-  })
+  const props = getMetadataProps(
+    useFocusableWhenDisabled({
+      focusableWhenDisabled: true,
+      ...inProps,
+    }),
+  )
 
   return (
     <button {...props} type='button'>

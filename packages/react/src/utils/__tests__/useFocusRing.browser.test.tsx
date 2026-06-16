@@ -1,27 +1,34 @@
 import { render } from 'vitest-browser-react'
 import { userEvent } from 'vitest/browser'
+import { getMetadataProps, getMetadataState } from '../metadata'
 import { useFocusRing } from '../useFocusRing'
 
 function TestButton(props: { autoFocus?: boolean; disabled?: boolean }) {
-  const { focusVisible, props: focusRingProps } = useFocusRing({
+  const focusRingProps = useFocusRing({
     autoFocus: props.autoFocus,
     disabled: props.disabled,
   })
+  const { focusVisible } = getMetadataState(focusRingProps)
 
   return (
-    <button {...focusRingProps} disabled={props.disabled} type='button'>
+    <button
+      {...getMetadataProps(focusRingProps)}
+      disabled={props.disabled}
+      type='button'
+    >
       {focusVisible ? 'visible' : 'hidden'}
     </button>
   )
 }
 
 function TestInput() {
-  const { focusVisible, props } = useFocusRing({})
+  const props = useFocusRing({})
+  const { focusVisible } = getMetadataState(props)
 
   return (
     <label>
       Name
-      <input {...props} aria-label='name' />
+      <input {...getMetadataProps(props)} aria-label='name' />
       <span>{focusVisible ? 'visible' : 'hidden'}</span>
     </label>
   )
