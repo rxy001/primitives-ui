@@ -14,17 +14,11 @@ export type RenderProp<
   },
 > = ((props: Props, state: State) => React.ReactNode) | React.JSX.Element
 
-export type HookProps<
-  Element extends HTMLElements,
-  OwnProps extends Record<string, any>,
-> = Overwrite<HTMLProps<Element>, OwnProps>
-
 export type Directory<T = any> = Record<string, T>
 
-export type HookReturnResult<Element extends HTMLElements, State> = {
-  props: HTMLProps<Element>
-  state: State
-  provider?: (element: React.ReactNode) => React.ReactNode
-}
-
 export type Orientation = 'horizontal' | 'vertical'
+
+export type HookProps<
+  Element extends HTMLElements,
+  OwnProps extends Directory = Directory,
+> = Overwrite<HTMLProps<Element>, OwnProps>

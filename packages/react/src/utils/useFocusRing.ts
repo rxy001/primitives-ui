@@ -9,6 +9,7 @@ import {
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { hasFocus } from './hasFocus'
 import { isFocusable } from './isFocusable'
+import { withMetadata } from './metadata'
 
 let hasInstalledGlobalEventListeners = false
 
@@ -153,10 +154,11 @@ export function useFocusRing<T extends UseFocusRingProps>(props: T) {
     onFocusCapture: handleFocusCapture,
   }
 
-  return {
-    focusVisible,
-    props,
-  }
+  return withMetadata(props, {
+    state: {
+      focusVisible,
+    },
+  })
 }
 
 function isFocusEventOutside(event: React.FocusEvent): boolean {
@@ -229,4 +231,8 @@ export interface UseFocusRingProps {
   onBlur?: React.FocusEventHandler
   onFocusCapture?: React.FocusEventHandler
   onKeyDownCapture?: React.KeyboardEventHandler
+}
+
+export interface UseFocusRingState {
+  focusVisible: boolean
 }

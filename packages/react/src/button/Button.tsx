@@ -8,37 +8,31 @@ import { useCommand } from '../command'
 import { createHook, createPrimitive, useTagName } from '../utils'
 
 export const useButton = createHook<'button', ButtonOwnProps, ButtonState>(
-  function useButton({ nativeButton = true, ...props }: UseButtonProps) {
+  function useButton({ nativeButton = true, ...props }) {
     const ref = useRef<HTMLButtonElement>(null)
     const tagName = useTagName(ref)
     const mergedRefs = useMergeRefs(props.ref, ref)
 
-    const command = useCommand<'button'>({
+    const commandProps = useCommand<'button'>({
       ...props,
       ref: mergedRefs,
       clickOnEnter: true,
       clickOnSpace: true,
     })
 
-    props = {
-      ...command.props,
-      role: !nativeButton && tagName !== 'a' ? 'button' : undefined,
-      type: nativeButton ? command.props.type || 'button' : undefined,
-    }
-
     return {
-      props,
-      state: command.state,
+      ...commandProps,
+      role: !nativeButton && tagName !== 'a' ? 'button' : undefined,
+      type: nativeButton ? commandProps.type || 'button' : undefined,
     }
   },
 )
 
 export function Button({ render, ...other }: ButtonProps) {
-  const { props, state } = useButton(other)
+  const props = useButton(other)
 
   return createPrimitive('button', props, {
     render,
-    state,
   })
 }
 

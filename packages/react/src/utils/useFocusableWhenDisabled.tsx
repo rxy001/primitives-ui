@@ -43,24 +43,22 @@ export function useFocusableWhenDisabled<
   const trulyDisabled = props.disabled && !focusableWhenDisabled
 
   return {
-    props: {
-      'aria-disabled':
-        !trulyDisabled || !supportsDisabled ? props.disabled : undefined,
-      ...props,
-      tabIndex,
-      ref: mergedRefs,
-      disabled: trulyDisabled && supportsDisabled ? props.disabled : undefined,
-      onKeyDown(event: React.KeyboardEvent) {
-        if (props.disabled && focusableWhenDisabled && event.key !== 'Tab') {
-          event.preventDefault()
-        }
+    'aria-disabled':
+      !trulyDisabled || !supportsDisabled ? props.disabled : undefined,
+    ...props,
+    tabIndex,
+    ref: mergedRefs,
+    disabled: trulyDisabled && supportsDisabled ? props.disabled : undefined,
+    onKeyDown(event: React.KeyboardEvent) {
+      if (props.disabled && focusableWhenDisabled && event.key !== 'Tab') {
+        event.preventDefault()
+      }
 
-        if (props.disabled) {
-          event.stopPropagation()
-          return
-        }
-        onKeyDown?.(event)
-      },
+      if (props.disabled) {
+        event.stopPropagation()
+        return
+      }
+      onKeyDown?.(event)
     },
   }
 }
