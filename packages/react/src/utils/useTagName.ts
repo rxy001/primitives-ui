@@ -1,4 +1,5 @@
-import { useLayoutEffect, useState } from 'react'
+import { useState } from 'react'
+import { useIsoLayoutEffect } from '../utils'
 
 export function useTagName(
   ref: React.RefObject<HTMLElement | null>,
@@ -8,7 +9,7 @@ export function useTagName(
 
   // We intentionally run after every commit so ref.current DOM swaps are observed.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     const nextTagName = ref.current?.tagName.toLowerCase() || type
     setTagName((prevTagName) =>
       prevTagName === nextTagName ? prevTagName : nextTagName,

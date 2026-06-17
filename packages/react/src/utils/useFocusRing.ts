@@ -6,7 +6,8 @@ import {
   addEventListener,
   ownerDocument,
 } from '@primitives-ui/utils'
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useIsoLayoutEffect } from '../utils'
 import { hasFocus } from './hasFocus'
 import { isFocusable } from './isFocusable'
 import { withMetadata } from './metadata'
@@ -48,7 +49,7 @@ export function useFocusRing<T extends UseFocusRingProps>(props: T) {
   }, [props.disabled, focusVisible])
 
   // Handles both native autofocus and programmatic autoFocus on mount:
-  useLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     const element = ref.current
     if (!element) return
     // Case 1 — native autofocus: the browser focuses the element before React

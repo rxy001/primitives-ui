@@ -1,6 +1,6 @@
 'use client'
 
-import { useId, useLayoutEffect } from 'react'
+import { useId } from 'react'
 import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
 import type { CollapsibleRootState } from './CollapsibleRoot'
 import {
@@ -9,6 +9,7 @@ import {
   createPrimitive,
   getMetadataState,
 } from '../utils'
+import { useIsoLayoutEffect } from '../utils'
 import { useCollapsibleRootContext } from './CollapsibleContext'
 import { openStateAttributeMapping } from './stateAttributeMapping'
 
@@ -22,7 +23,7 @@ export const useCollapsiblePanel = createHook<
 
   const { setPanelId } = rootContext
 
-  useLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setPanelId(props.id || defaultId)
 
     return () => setPanelId(undefined)
