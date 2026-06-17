@@ -1,0 +1,103 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: "en-US"
+tone_instructions: "Be concise, specific, and actionable. Prioritize correctness, accessibility, public API stability, and tests over style-only feedback."
+focus: "balanced"
+
+reviews:
+  profile: "chill"
+  request_changes_workflow: false
+  high_level_summary: true
+  review_status: true
+  review_details: false
+  collapse_walkthrough: true
+  changed_files_summary: true
+  sequence_diagrams: false
+  estimate_code_review_effort: true
+  assess_linked_issues: true
+  related_issues: true
+  related_prs: true
+  suggested_labels: true
+  suggested_reviewers: false
+  in_progress_fortune: false
+  poem: false
+  enable_prompt_for_ai_agents: false
+
+  path_filters:
+    - "!**/build/**"
+    - "!**/coverage/**"
+    - "!**/node_modules/**"
+    - "!**/.turbo/**"
+
+  path_instructions:
+    - path: "packages/react/src/**"
+      instructions: "Review React primitive changes for accessible keyboard/focus behavior, disabled-state semantics, polymorphic rendering, ref composition, public API stability, and React 19 compatibility. Prefer existing package patterns over new abstractions."
+    - path: "packages/utils/src/**"
+      instructions: "Review shared utility changes for minimal API surface, strong TypeScript inference, stable declaration output, and behavior that works across React and DOM edge cases."
+    - path: "**/__tests__/**"
+      instructions: "Check that tests cover observable behavior and edge cases without overfitting implementation details. Prefer focused colocated tests for changed primitives and utilities."
+    - path: "**/*.browser.test.tsx"
+      instructions: "Review browser tests for real focus, keyboard, pointer, and disabled-state behavior. Browser-sensitive changes should use the appropriate Vitest browser project."
+    - path: "scripts/**"
+      instructions: "Review scripts for deterministic pnpm/Turbo workspace behavior, ESM compatibility, clear failures, and no accidental writes outside expected build or publish output."
+
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
+    auto_pause_after_reviewed_commits: 5
+    drafts: false
+
+  finishing_touches:
+    docstrings:
+      enabled: false
+    unit_tests:
+      enabled: true
+    simplify:
+      enabled: false
+
+  pre_merge_checks:
+    title:
+      mode: "warning"
+      requirements: "Use Conventional Commit style, for example feat:, fix:, chore:, test:, refactor:, or docs:."
+    custom_checks:
+      - mode: "warning"
+        name: "Validation matches risk"
+        instructions: "Pass when the PR description or comments mention validation appropriate to the changed files. Public API, hook, type, or package-build changes should mention pnpm typecheck and pnpm build:packages. Behavior changes should mention focused jsdom or browser tests. Docs-only changes may use lighter validation."
+
+  tools:
+    github-checks:
+      enabled: true
+      timeout_ms: 900000
+    oxc:
+      enabled: false
+    eslint:
+      enabled: false
+    biome:
+      enabled: false
+    markdownlint:
+      enabled: false
+    yamllint:
+      enabled: true
+    actionlint:
+      enabled: true
+    zizmor:
+      enabled: true
+    shellcheck:
+      enabled: true
+    gitleaks:
+      enabled: true
+    trufflehog:
+      enabled: true
+
+chat:
+  auto_reply: true
+  art: false
+
+knowledge_base:
+  web_search:
+    enabled: true
+  code_guidelines:
+    enabled: true
+  learnings:
+    scope: "local"
+  pull_requests:
+    scope: "local"
