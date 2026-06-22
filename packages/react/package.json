@@ -19,7 +19,8 @@
     ".": "./src/index.ts",
     "./button": "./src/button/index.ts",
     "./command": "./src/command/index.ts",
-    "./collapsible": "./src/collapsible/index.ts"
+    "./collapsible": "./src/collapsible/index.ts",
+    "./collection": "./src/collection/index.ts"
   },
   "scripts": {
     "typecheck": "tsc -noEmit",

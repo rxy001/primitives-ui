@@ -1,8 +1,9 @@
 'use client'
 
+import type { ButtonState } from '../button'
 import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
 import type { CollapsibleRootState } from './CollapsibleRoot'
-import { ButtonState, useButton } from '../button'
+import { useButton } from '../button'
 import { withMetadata, createHook, createPrimitive } from '../utils'
 import { useCollapsibleRootContext } from './CollapsibleContext'
 import { openStateAttributeMapping } from './stateAttributeMapping'

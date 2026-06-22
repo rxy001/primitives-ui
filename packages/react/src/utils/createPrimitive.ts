@@ -1,12 +1,11 @@
 import { isFunction, mergeProps } from '@primitives-ui/utils'
 import { cloneElement, createElement, isValidElement } from 'react'
+import type { InferMetadataStateFromProps, MetadataProps } from './metadata'
 import type { HTMLProps, HTMLElements, Directory } from './types'
 import {
   getMetadataProps,
   getMetadataProvider,
   getMetadataState,
-  InferMetadataStateFromProps,
-  MetadataProps,
 } from './metadata'
 
 export type CreatePrimitiveParams<
