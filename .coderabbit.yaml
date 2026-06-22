@@ -9,7 +9,10 @@ reviews:
   high_level_summary: true
   review_status: true
   review_details: false
-  collapse_walkthrough: true
+  collapse_walkthrough: false
+  changed_files_summary: false
+  sequence_diagrams: false
+  suggested_labels: false
   changed_files_summary: true
   sequence_diagrams: false
   estimate_code_review_effort: true
@@ -21,6 +24,10 @@ reviews:
   in_progress_fortune: false
   poem: false
   enable_prompt_for_ai_agents: false
+
+  pre_merge_checks:
+    docstrings:
+      mode: "off"
 
   path_filters:
     - "!**/build/**"
@@ -53,15 +60,6 @@ reviews:
       enabled: true
     simplify:
       enabled: false
-
-  pre_merge_checks:
-    title:
-      mode: "warning"
-      requirements: "Use Conventional Commit style, for example feat:, fix:, chore:, test:, refactor:, or docs:."
-    custom_checks:
-      - mode: "warning"
-        name: "Validation matches risk"
-        instructions: "Pass when the PR description or comments mention validation appropriate to the changed files. Public API, hook, type, or package-build changes should mention pnpm typecheck and pnpm build:packages. Behavior changes should mention focused jsdom or browser tests. Docs-only changes may use lighter validation."
 
   tools:
     github-checks:
