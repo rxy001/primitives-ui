@@ -21,8 +21,8 @@ type HookResult<
 type HookImpl<
   Element extends HTMLElements,
   OwnProps extends Directory,
-  State extends MetadataState | undefined,
-  HasProvider extends boolean,
+  State extends MetadataState | undefined = undefined,
+  HasProvider extends boolean = false,
 > = (
   props: HookProps<Element, OwnProps>,
 ) => HookResult<HookProps<Element, OwnProps>, State, HasProvider>
@@ -36,6 +36,32 @@ export type PolymorphicHook<
   props: HookProps<T, OwnProps>,
 ) => HookResult<HookProps<T, OwnProps>, State, HasProvider>
 
+export function createHook<
+  Element extends HTMLElements,
+  OwnProps extends Directory,
+>(hook: HookImpl<Element, OwnProps>): PolymorphicHook<Element, OwnProps>
+export function createHook<
+  Element extends HTMLElements,
+  OwnProps extends Directory,
+  HasProvider extends boolean = false,
+>(
+  hook: HookImpl<Element, OwnProps, undefined, HasProvider>,
+): PolymorphicHook<Element, OwnProps, undefined, HasProvider>
+export function createHook<
+  Element extends HTMLElements,
+  OwnProps extends Directory,
+  State extends MetadataState,
+>(
+  hook: HookImpl<Element, OwnProps, State>,
+): PolymorphicHook<Element, OwnProps, State>
+export function createHook<
+  Element extends HTMLElements,
+  OwnProps extends Directory,
+  State extends MetadataState,
+  HasProvider extends boolean,
+>(
+  hook: HookImpl<Element, OwnProps, State, HasProvider>,
+): PolymorphicHook<Element, OwnProps, State, HasProvider>
 export function createHook<
   Element extends HTMLElements,
   OwnProps extends Directory,

@@ -8,7 +8,7 @@ export type HTMLProps<Element extends HTMLElements> =
   }
 
 export type RenderProp<
-  State,
+  State = undefined,
   Props = React.HTMLAttributes<any> & {
     ref?: React.Ref<any>
   },

@@ -1,11 +1,7 @@
+import type { UserWorkspaceConfig } from 'vitest/config'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import {
-  defineConfig,
-  defineProject,
-  mergeConfig,
-  type UserWorkspaceConfig,
-} from 'vitest/config'
+import { defineConfig, defineProject, mergeConfig } from 'vitest/config'
 import reactConfig from './packages/react/vitest.config'
 import utilsConfig from './packages/utils/vitest.config'
 import { getBrowserTestConfig, getJsdomTestConfig } from './vitest.shared'

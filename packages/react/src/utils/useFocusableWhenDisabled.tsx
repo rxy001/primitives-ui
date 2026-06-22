@@ -1,3 +1,5 @@
+'use client'
+
 import { useMergeRefs } from '@primitives-ui/utils'
 import { useMemo, useRef } from 'react'
 import { useTagName } from '../utils'

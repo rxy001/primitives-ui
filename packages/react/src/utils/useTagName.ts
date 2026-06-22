@@ -1,5 +1,7 @@
+'use client'
+
 import { useState } from 'react'
-import { useIsoLayoutEffect } from '../utils'
+import { useIsoLayoutEffect } from './useIsoLayoutEffect'
 
 export function useTagName(
   ref: React.RefObject<HTMLElement | null>,
