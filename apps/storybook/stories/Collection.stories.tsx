@@ -41,9 +41,9 @@ export function Controlled() {
     <>
       <div className='flex gap-3'>
         <button onClick={() => setCount((prev) => Math.max(prev - 1, 0))}>
-          Decrease
+          Decrement
         </button>
-        <button onClick={() => setCount((prev) => prev + 1)}>Increase</button>
+        <button onClick={() => setCount((prev) => prev + 1)}>Increment</button>
       </div>
       <Collection.Root store={collection}>
         {Array(count)

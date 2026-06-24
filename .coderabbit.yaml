@@ -13,13 +13,10 @@ reviews:
   changed_files_summary: false
   sequence_diagrams: false
   suggested_labels: false
-  changed_files_summary: true
-  sequence_diagrams: false
   estimate_code_review_effort: true
   assess_linked_issues: true
   related_issues: true
   related_prs: true
-  suggested_labels: true
   suggested_reviewers: false
   in_progress_fortune: false
   poem: false

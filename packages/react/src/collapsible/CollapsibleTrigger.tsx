@@ -6,7 +6,7 @@ import type { CollapsibleRootState } from './CollapsibleRoot'
 import { useButton } from '../button'
 import { withMetadata, createHook, createPrimitive } from '../utils'
 import { useCollapsibleRootContext } from './CollapsibleContext'
-import { openStateAttributeMapping } from './stateAttributeMapping'
+import { stateAttributesMapping } from './stateAttributesMapping'
 
 export const useCollapsibleTrigger = createHook<
   'button',
@@ -29,7 +29,10 @@ export const useCollapsibleTrigger = createHook<
     onClick: handleClick,
   }
 
-  const buttonProps = useButton(props)
+  const buttonProps = useButton({
+    ...props,
+    focusableWhenDisabled: true,
+  })
 
   return withMetadata(buttonProps, {
     state: rootContext.state,
@@ -44,13 +47,15 @@ export function CollapsibleTrigger({
 
   return createPrimitive('button', props, {
     render,
-    stateAttributesMapping: {
-      open: openStateAttributeMapping,
-    },
+    stateAttributesMapping,
   })
 }
 
-interface CollapsibleTriggerOwnProps {}
+CollapsibleTrigger.displayName = 'CollapsibleTrigger'
+
+interface CollapsibleTriggerOwnProps {
+  nativeButton?: boolean
+}
 
 export interface CollapsibleTriggerState
   extends CollapsibleRootState, ButtonState {}

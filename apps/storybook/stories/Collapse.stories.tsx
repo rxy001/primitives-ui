@@ -11,7 +11,7 @@ export function Default() {
   return (
     <Collapsible.Root>
       <Collapsible.Trigger>Trigger</Collapsible.Trigger>
-      <Collapsible.Panel keepMounted>Test</Collapsible.Panel>
+      <Collapsible.Panel>Test</Collapsible.Panel>
     </Collapsible.Root>
   )
 }

@@ -4,7 +4,7 @@ import type {
   WithMetadataResult,
   MetadataProps,
 } from './metadata'
-import type { HookProps, HTMLElements, Directory } from './types'
+import type { HookProps, HTMLElements, Directory, HTMLProps } from './types'
 
 type HookMetadataData<
   State extends MetadataState | undefined,
@@ -25,7 +25,7 @@ type HookImpl<
   HasProvider extends boolean = false,
 > = (
   props: HookProps<Element, OwnProps>,
-) => HookResult<HookProps<Element, OwnProps>, State, HasProvider>
+) => HookResult<HTMLProps<Element>, State, HasProvider>
 
 export type PolymorphicHook<
   Element extends HTMLElements,
@@ -34,7 +34,7 @@ export type PolymorphicHook<
   HasProvider extends boolean = false,
 > = <T extends HTMLElements = Element>(
   props: HookProps<T, OwnProps>,
-) => HookResult<HookProps<T, OwnProps>, State, HasProvider>
+) => HookResult<HTMLProps<T>, State, HasProvider>
 
 export function createHook<
   Element extends HTMLElements,

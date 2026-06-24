@@ -1,11 +1,11 @@
 'use client'
 
 import { useControlledState } from '@primitives-ui/utils'
-import { useMemo, useState } from 'react'
+import { useId, useMemo, useState } from 'react'
 import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
 import { withMetadata, createHook, createPrimitive } from '../utils'
 import { CollapsibleRootProvider } from './CollapsibleContext'
-import { openStateAttributeMapping } from './stateAttributeMapping'
+import { stateAttributesMapping } from './stateAttributesMapping'
 
 export const useCollapsibleRoot = createHook<
   'div',
@@ -25,6 +25,7 @@ export const useCollapsibleRoot = createHook<
     onOpenChange,
   )
 
+  const defaultPanelId = useId()
   const [panelId, setPanelId] = useState<string>()
 
   const state: CollapsibleRootState = useMemo(
@@ -32,15 +33,22 @@ export const useCollapsibleRoot = createHook<
     [open, disabled],
   )
 
-  const context = useMemo(
-    () => ({ open, disabled, setOpen, panelId, setPanelId, state }),
-    [disabled, open, panelId, setOpen, state],
+  const rootContext = useMemo(
+    () => ({
+      open,
+      disabled,
+      setOpen,
+      setPanelId,
+      state,
+      panelId: panelId ?? defaultPanelId,
+    }),
+    [disabled, open, panelId, defaultPanelId, setOpen, state],
   )
 
   return withMetadata(props, {
     state,
     provider: (element: React.ReactNode) => (
-      <CollapsibleRootProvider value={context}>
+      <CollapsibleRootProvider value={rootContext}>
         {element}
       </CollapsibleRootProvider>
     ),
@@ -52,11 +60,11 @@ export function CollapsibleRoot({ render, ...other }: CollapsibleRootProps) {
 
   return createPrimitive('div', props, {
     render,
-    stateAttributesMapping: {
-      open: openStateAttributeMapping,
-    },
+    stateAttributesMapping,
   })
 }
+
+CollapsibleRoot.displayName = 'CollapsibleRoot'
 
 interface CollapsibleRootOwnProps {
   open?: boolean

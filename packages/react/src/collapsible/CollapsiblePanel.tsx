@@ -1,6 +1,5 @@
 'use client'
 
-import { useId } from 'react'
 import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
 import type { CollapsibleRootState } from './CollapsibleRoot'
 import {
@@ -11,7 +10,7 @@ import {
 } from '../utils'
 import { useIsoLayoutEffect } from '../utils'
 import { useCollapsibleRootContext } from './CollapsibleContext'
-import { openStateAttributeMapping } from './stateAttributeMapping'
+import { stateAttributesMapping } from './stateAttributesMapping'
 
 export const useCollapsiblePanel = createHook<
   'div',
@@ -19,19 +18,17 @@ export const useCollapsiblePanel = createHook<
   CollapsiblePanelState
 >(function useCollapsiblePanel(props: UseCollapsiblePanelProps) {
   const rootContext = useCollapsibleRootContext()
-  const defaultId = useId()
-
-  const { setPanelId } = rootContext
 
   useIsoLayoutEffect(() => {
-    setPanelId(props.id || defaultId)
+    if (!props.id) return
+    rootContext.setPanelId(props.id)
 
-    return () => setPanelId(undefined)
-  }, [setPanelId, defaultId, props.id])
+    return () => rootContext.setPanelId(undefined)
+  }, [props.id])
 
   props = {
-    id: rootContext.panelId,
     ...props,
+    id: props.id ?? rootContext.panelId,
   }
 
   return withMetadata(props, {
@@ -47,22 +44,22 @@ export function CollapsiblePanel({
   const props = useCollapsiblePanel(other)
   const state = getMetadataState(props)
 
-  if (!keepMounted && !state?.open) return null
+  if (!keepMounted && !state.open) return null
 
   return createPrimitive('div', props, {
     render,
-    stateAttributesMapping: {
-      open: openStateAttributeMapping,
-    },
+    stateAttributesMapping,
   })
 }
 
-interface CollapsiblePanelOwnProps {
-  keepMounted?: boolean
-}
+CollapsiblePanel.displayName = 'CollapsiblePanel'
+
+interface CollapsiblePanelOwnProps {}
 
 export interface CollapsiblePanelProps extends UseCollapsiblePanelProps {
   render?: RenderProp<CollapsiblePanelState>
+
+  keepMounted?: boolean
 }
 
 export interface CollapsiblePanelState extends CollapsibleRootState {}
