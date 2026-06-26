@@ -12,48 +12,50 @@ export const useCollapsibleRoot = createHook<
   CollapsibleRootOwnProps,
   CollapsibleRootState,
   true
->(function useCollapsibleRoot({
-  disabled = false,
-  open: openProp,
-  defaultOpen = false,
-  onOpenChange,
-  ...props
-}: UseCollapsibleRootProps) {
-  const [open, setOpen] = useControlledState(
-    openProp,
-    defaultOpen,
+>(
+  ({
+    disabled = false,
+    open: openProp,
+    defaultOpen = false,
     onOpenChange,
-  )
+    ...props
+  }: UseCollapsibleRootProps) => {
+    const [open, setOpen] = useControlledState(
+      openProp,
+      defaultOpen,
+      onOpenChange,
+    )
 
-  const defaultPanelId = useId()
-  const [panelId, setPanelId] = useState<string>()
+    const defaultPanelId = useId()
+    const [panelId, setPanelId] = useState<string>()
 
-  const state: CollapsibleRootState = useMemo(
-    () => ({ open, disabled }),
-    [open, disabled],
-  )
+    const state: CollapsibleRootState = useMemo(
+      () => ({ open, disabled }),
+      [open, disabled],
+    )
 
-  const rootContext = useMemo(
-    () => ({
-      open,
-      disabled,
-      setOpen,
-      setPanelId,
+    const rootContext = useMemo(
+      () => ({
+        open,
+        disabled,
+        setOpen,
+        setPanelId,
+        state,
+        panelId: panelId ?? defaultPanelId,
+      }),
+      [disabled, open, panelId, defaultPanelId, setOpen, state],
+    )
+
+    return withMetadata(props, {
       state,
-      panelId: panelId ?? defaultPanelId,
-    }),
-    [disabled, open, panelId, defaultPanelId, setOpen, state],
-  )
-
-  return withMetadata(props, {
-    state,
-    provider: (element: React.ReactNode) => (
-      <CollapsibleRootProvider value={rootContext}>
-        {element}
-      </CollapsibleRootProvider>
-    ),
-  })
-})
+      provider: (element: React.ReactNode) => (
+        <CollapsibleRootProvider value={rootContext}>
+          {element}
+        </CollapsibleRootProvider>
+      ),
+    })
+  },
+)
 
 export function CollapsibleRoot({ render, ...other }: CollapsibleRootProps) {
   const props = useCollapsibleRoot(other)

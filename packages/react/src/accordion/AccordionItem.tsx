@@ -22,67 +22,69 @@ export const useAccordionItem = createHook<
   'div',
   AccordionItemOwnProps,
   AccordionItemState
->(function useAccordionItem({
-  onOpenChange,
-  disabled: disabledProp,
-  value: valueProp,
-  ...props
-}: UseAccordionItemProps) {
-  const rootContext = useAccordionRootContext()
-  const defaultValue = useId()
-  const defaultTriggerId = useId()
+>(
+  ({
+    onOpenChange,
+    disabled: disabledProp,
+    value: valueProp,
+    ...props
+  }: UseAccordionItemProps) => {
+    const rootContext = useAccordionRootContext()
+    const defaultValue = useId()
+    const defaultTriggerId = useId()
 
-  const value = valueProp ?? defaultValue
-  const disabled = disabledProp || rootContext.disabled
-  const [triggerId, setTriggerId] = useState<string>()
+    const value = valueProp ?? defaultValue
+    const disabled = disabledProp || rootContext.disabled
+    const [triggerId, setTriggerId] = useState<string>()
 
-  const open = useMemo(() => {
-    if (!rootContext.value.length) return false
+    const open = useMemo(() => {
+      if (!rootContext.value.length) return false
 
-    return rootContext.value.includes(value)
-  }, [rootContext.value, value])
+      return rootContext.value.includes(value)
+    }, [rootContext.value, value])
 
-  const handleOpenChange = (nextOpen: boolean) => {
-    onOpenChange?.(nextOpen)
+    const handleOpenChange = (nextOpen: boolean) => {
+      onOpenChange?.(nextOpen)
 
-    rootContext.handleValueChange(value, nextOpen)
-  }
+      rootContext.handleValueChange(value, nextOpen)
+    }
 
-  const collapsibleRootProps = useCollapsibleRoot({
-    open,
-    disabled,
-    onOpenChange: handleOpenChange,
-    ...props,
-  })
+    const collapsibleRootProps = useCollapsibleRoot({
+      open,
+      disabled,
+      onOpenChange: handleOpenChange,
+      ...props,
+    })
 
-  const collapsibleRootState = getMetadataState(collapsibleRootProps)
+    const collapsibleRootState = getMetadataState(collapsibleRootProps)
 
-  const state: AccordionItemState = useMemo(
-    () => ({
-      ...rootContext.state,
-      ...collapsibleRootState,
-    }),
-    [rootContext.state, collapsibleRootState],
-  )
+    const state: AccordionItemState = useMemo(
+      () => ({
+        ...rootContext.state,
+        ...collapsibleRootState,
+      }),
+      [rootContext.state, collapsibleRootState],
+    )
 
-  const itemContext: AccordionItemContextValue = useMemo(
-    () => ({
+    const itemContext: AccordionItemContextValue = useMemo(
+      () => ({
+        state,
+        setTriggerId,
+        triggerId: triggerId ?? defaultTriggerId,
+      }),
+      [state, triggerId, defaultTriggerId],
+    )
+
+    return withMetadata(collapsibleRootProps, {
       state,
-      setTriggerId,
-      triggerId: triggerId ?? defaultTriggerId,
-    }),
-    [state, triggerId, defaultTriggerId],
-  )
-
-  return withMetadata(collapsibleRootProps, {
-    state,
-    provider: (element) => (
-      <AccordionItemProvider value={itemContext}>
-        {element}
-      </AccordionItemProvider>
-    ),
-  })
-})
+      provider: (element) => (
+        <AccordionItemProvider value={itemContext}>
+          {element}
+        </AccordionItemProvider>
+      ),
+    })
+  },
+)
 
 export function AccordionItem({ render, ...other }: AccordionItemProps) {
   const props = useAccordionItem(other)

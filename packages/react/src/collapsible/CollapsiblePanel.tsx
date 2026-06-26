@@ -16,7 +16,7 @@ export const useCollapsiblePanel = createHook<
   'div',
   CollapsiblePanelOwnProps,
   CollapsiblePanelState
->(function useCollapsiblePanel(props: UseCollapsiblePanelProps) {
+>((props: UseCollapsiblePanelProps) => {
   const rootContext = useCollapsibleRootContext()
 
   useIsoLayoutEffect(() => {
@@ -44,11 +44,10 @@ export function CollapsiblePanel({
   const props = useCollapsiblePanel(other)
   const state = getMetadataState(props)
 
-  if (!keepMounted && !state.open) return null
-
   return createPrimitive('div', props, {
     render,
     stateAttributesMapping,
+    shouldRender: state.open || keepMounted,
   })
 }
 

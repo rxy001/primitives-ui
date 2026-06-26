@@ -8,11 +8,7 @@ import { createHook, createPrimitive, useIsoLayoutEffect } from '../utils'
 import { useCollectionContext } from './CollectionContext'
 
 export const useCollectionItem = createHook<'div', UseCollectionItemOwnProps>(
-  function useCollectionItem({
-    getItem,
-    store,
-    ...props
-  }: UseCollectionItemProps) {
+  ({ getItem, store, ...props }: UseCollectionItemProps) => {
     const context = useCollectionContext()
     const { register, unregister } = store ?? context ?? {}
 

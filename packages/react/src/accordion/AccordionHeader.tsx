@@ -10,7 +10,7 @@ export const useAccordionHeader = createHook<
   'h3',
   AccordionHeaderOwnProps,
   AccordionHeaderState
->(function useAccordionHeader(props) {
+>((props: UseAccordionHeaderProps) => {
   const itemContext = useAccordionItemContext()
 
   return withMetadata(props, {

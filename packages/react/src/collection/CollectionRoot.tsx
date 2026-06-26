@@ -9,7 +9,7 @@ export const useCollectionRoot = createHook<
   'div',
   UseCollectionRootOwnProps,
   true
->(function useCollection({ store, ...props }: UseCollectionRootProps) {
+>(({ store, ...props }: UseCollectionRootProps) => {
   const context = useCollectionContext()
 
   return withMetadata(props, {
