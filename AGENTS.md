@@ -52,6 +52,6 @@ coverage and `pnpm test:browsers` for browser-sensitive changes or release check
 ## Environment Notes
 
 Use Node `v22.22.2` from `.nvmrc`. Do not edit generated `build/`, `coverage/`,
-or `node_modules/` output. Package publishing rewrites `workspace:*`
-dependencies via `scripts/resolve-workspace-dependencies.ts`, so keep dependency
-versions accurate in package manifests.
+or `node_modules/` output. Package publishing uses pnpm workspace publishing:
+source `exports` point at TypeScript entry points, while `publishConfig.exports`
+points at built JavaScript and declaration files.

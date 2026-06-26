@@ -13,6 +13,10 @@
     "url": "https://github.com/rxy001/primitives-ui.git",
     "directory": "packages/react"
   },
+  "files": [
+    "build",
+    "README.md"
+  ],
   "type": "module",
   "sideEffects": false,
   "exports": {
@@ -22,6 +26,36 @@
     "./collapsible": "./src/collapsible/index.ts",
     "./collection": "./src/collection/index.ts",
     "./accordion": "./src/accordion/index.ts"
+  },
+  "publishConfig": {
+    "main": "./build/index.js",
+    "types": "./build/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./build/index.d.ts",
+        "import": "./build/index.js"
+      },
+      "./button": {
+        "types": "./build/button/index.d.ts",
+        "import": "./build/button/index.js"
+      },
+      "./command": {
+        "types": "./build/command/index.d.ts",
+        "import": "./build/command/index.js"
+      },
+      "./collapsible": {
+        "types": "./build/collapsible/index.d.ts",
+        "import": "./build/collapsible/index.js"
+      },
+      "./collection": {
+        "types": "./build/collection/index.d.ts",
+        "import": "./build/collection/index.js"
+      },
+      "./accordion": {
+        "types": "./build/accordion/index.d.ts",
+        "import": "./build/accordion/index.js"
+      }
+    }
   },
   "scripts": {
     "typecheck": "tsc -noEmit",
