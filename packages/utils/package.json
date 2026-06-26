@@ -10,10 +10,24 @@
     "url": "https://github.com/rxy001/primitives-ui.git",
     "directory": "packages/utils"
   },
+  "files": [
+    "build",
+    "README.md"
+  ],
   "type": "module",
   "sideEffects": false,
   "exports": {
     ".": "./src/index.ts"
+  },
+  "publishConfig": {
+    "main": "./build/index.js",
+    "types": "./build/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./build/index.d.ts",
+        "import": "./build/index.js"
+      }
+    }
   },
   "scripts": {
     "typecheck": "tsc -noEmit",
