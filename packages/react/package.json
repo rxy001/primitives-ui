@@ -25,7 +25,8 @@
     "./command": "./src/command/index.ts",
     "./collapsible": "./src/collapsible/index.ts",
     "./collection": "./src/collection/index.ts",
-    "./accordion": "./src/accordion/index.ts"
+    "./accordion": "./src/accordion/index.ts",
+    "./avatar": "./src/avatar/index.ts"
   },
   "publishConfig": {
     "main": "./build/index.js",
@@ -51,9 +52,9 @@
         "types": "./build/collection/index.d.ts",
         "import": "./build/collection/index.js"
       },
-      "./accordion": {
-        "types": "./build/accordion/index.d.ts",
-        "import": "./build/accordion/index.js"
+      "./avatar": {
+        "types": "./build/avatar/index.d.ts",
+        "import": "./build/avatar/index.js"
       }
     }
   },
