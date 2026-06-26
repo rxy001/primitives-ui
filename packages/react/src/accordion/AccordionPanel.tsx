@@ -45,11 +45,10 @@ export function AccordionPanel({
   const state = getMetadataState(props)
   const context = useAccordionPanelDefaultsContext()
 
-  if (!(keepMounted || context.keepMounted) && !state.open) return null
-
   return createPrimitive('div', props, {
     render,
     stateAttributesMapping,
+    shouldRender: state.open || keepMounted || context.keepMounted,
   })
 }
 

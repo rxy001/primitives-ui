@@ -12,7 +12,7 @@ export const useCollapsibleTrigger = createHook<
   'button',
   CollapsibleTriggerOwnProps,
   CollapsibleTriggerState
->(function useCollapsibleTrigger(props: UseCollapsibleTriggerProps) {
+>((props: UseCollapsibleTriggerProps) => {
   const rootContext = useCollapsibleRootContext()
 
   const { onClick, disabled } = props

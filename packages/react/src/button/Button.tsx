@@ -8,7 +8,7 @@ import { useCommand } from '../command'
 import { createHook, createPrimitive, useTagName } from '../utils'
 
 export const useButton = createHook<'button', ButtonOwnProps, ButtonState>(
-  function useButton({ nativeButton = true, ...props }) {
+  ({ nativeButton = true, ...props }: UseButtonProps) => {
     const ref = useRef<HTMLButtonElement>(null)
     const tagName = useTagName(ref)
     const mergedRefs = useMergeRefs(props.ref, ref)

@@ -16,6 +16,8 @@ export type CreatePrimitiveParams<
     | ((props: HTMLProps<T>, state: State) => React.ReactNode)
     | React.JSX.Element
   stateAttributesMapping?: StateAttributesMapping<State>
+
+  shouldRender?: boolean
 }
 
 export function createPrimitive<
@@ -26,7 +28,12 @@ export function createPrimitive<
   props: Props,
   params: CreatePrimitiveParams<Element, InferMetadataStateFromProps<Props>>,
 ) {
-  const { render, stateAttributesMapping } = params
+  const { render, stateAttributesMapping, shouldRender = true } = params
+
+  if (!shouldRender) {
+    return null
+  }
+
   const state = getMetadataState(props)
   const provider = getMetadataProvider(props)
   const elementProps = getMetadataProps(props)

@@ -13,12 +13,12 @@ import {
 } from '../utils'
 
 export const useCommand = createHook<'div', CommandOwnProps, CommandState>(
-  function useCommand({
+  ({
     clickOnEnter = true,
     clickOnSpace = true,
     focusableWhenDisabled = false,
     ...props
-  }: UseCommandProps) {
+  }: UseCommandProps) => {
     const activeRef = useRef(false)
     const { disabled = false } = props
 
