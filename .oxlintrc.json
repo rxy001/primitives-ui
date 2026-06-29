@@ -37,6 +37,7 @@
     "prefer-const": "error",
     "no-useless-rename": "error",
     "arrow-body-style": ["error", "as-needed"],
+    "no-console": "warn",
 
     "react/react-in-jsx-scope": "off",
 
