@@ -1,6 +1,6 @@
 'use client'
 
-import { useControlledState, useEvent } from '@primitives-ui/utils'
+import { useControlledState, useEvent } from '@primitives-ui/hooks'
 import { useMemo } from 'react'
 import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
 import type {

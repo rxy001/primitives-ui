@@ -1,8 +1,8 @@
 'use client'
 
+import { __DEV__ } from '@primitives-ui/utils'
+import { isFunction } from '@primitives-ui/utils'
 import { useState, useEffect, useRef } from 'react'
-import { __DEV__ } from './env'
-import { isFunction } from './is'
 import { useEvent } from './useEvent'
 
 export function useControlledState<T>(
@@ -46,6 +46,7 @@ export function useControlledState<T>(
 
   const setValue = useEvent((newValue: T) => {
     if (isFunction(newValue)) {
+      // oxlint-disable-next-line no-console
       console.error(
         "Warning: useControlledState doesn't support function updates, which can cause unexpected behavior. https://github.com/facebook/react/issues/18178#issuecomment-595846312",
       )

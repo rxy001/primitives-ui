@@ -1,6 +1,6 @@
 'use client'
 
-import { useMergeRefs } from '@primitives-ui/utils'
+import { useMergeRefs } from '@primitives-ui/hooks'
 import { useRef } from 'react'
 import type { CommandState } from '../command'
 import type { HookProps, HTMLElements, RenderProp } from '../utils/types'

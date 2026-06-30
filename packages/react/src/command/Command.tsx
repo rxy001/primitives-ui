@@ -1,6 +1,6 @@
 'use client'
 
-import { useEvent } from '@primitives-ui/utils'
+import { useEvent } from '@primitives-ui/hooks'
 import { useRef } from 'react'
 import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
 import {

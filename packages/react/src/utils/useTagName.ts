@@ -1,7 +1,5 @@
-'use client'
-
+import { useIsoLayoutEffect } from '@primitives-ui/hooks'
 import { useState } from 'react'
-import { useIsoLayoutEffect } from './useIsoLayoutEffect'
 
 export function useTagName(
   ref: React.RefObject<HTMLElement | null>,

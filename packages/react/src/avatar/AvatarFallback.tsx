@@ -1,5 +1,6 @@
 'use client'
 
+import { useTimeout } from '@primitives-ui/hooks'
 import { useEffect, useState } from 'react'
 import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
 import type { AvatarRootState } from './AvatarRoot'
@@ -7,7 +8,6 @@ import {
   createHook,
   createPrimitive,
   getMetadataState,
-  useTimeout,
   withMetadata,
 } from '../utils'
 import { useAvatarRootContext } from './AvatarContext'

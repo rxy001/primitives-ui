@@ -1,5 +1,6 @@
 'use client'
 
+import { useIsoLayoutEffect } from '@primitives-ui/hooks'
 import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
 import type { CollapsibleRootState } from './CollapsibleRoot'
 import {
@@ -8,7 +9,6 @@ import {
   createPrimitive,
   getMetadataState,
 } from '../utils'
-import { useIsoLayoutEffect } from '../utils'
 import { useCollapsibleRootContext } from './CollapsibleContext'
 import { stateAttributesMapping } from './stateAttributesMapping'
 
@@ -28,7 +28,7 @@ export const useCollapsiblePanel = createHook<
 
   props = {
     ...props,
-    id: props.id ?? rootContext.panelId,
+    id: rootContext.panelId,
   }
 
   return withMetadata(props, {

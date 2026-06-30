@@ -1,6 +1,6 @@
 'use client'
 
-import { useEvent } from '@primitives-ui/utils'
+import { useEvent } from '@primitives-ui/hooks'
 import { useMemo, useRef } from 'react'
 import type { Directory } from '../utils/types'
 

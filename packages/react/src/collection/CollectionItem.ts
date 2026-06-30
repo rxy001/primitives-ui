@@ -1,10 +1,10 @@
 'use client'
 
-import { useMergeRefs } from '@primitives-ui/utils'
+import { useMergeRefs, useIsoLayoutEffect } from '@primitives-ui/hooks'
 import { useId, useRef } from 'react'
 import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
 import type { CollectionStore } from './useCollectionStore'
-import { createHook, createPrimitive, useIsoLayoutEffect } from '../utils'
+import { createHook, createPrimitive } from '../utils'
 import { useCollectionContext } from './CollectionContext'
 
 export const useCollectionItem = createHook<'div', UseCollectionItemOwnProps>(

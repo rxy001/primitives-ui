@@ -17,7 +17,15 @@
   "type": "module",
   "sideEffects": false,
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./addEventListener": "./src/addEventListener.ts",
+    "./createContext": "./src/createContext.ts",
+    "./env": "./src/env.ts",
+    "./is": "./src/is.ts",
+    "./mergeProps": "./src/mergeProps.ts",
+    "./mergeRefs": "./src/mergeRefs.ts",
+    "./ownerDocument": "./src/ownerDocument.ts",
+    "./ownerWindow": "./src/ownerWindow.ts"
   },
   "publishConfig": {
     "main": "./build/index.js",
@@ -26,6 +34,38 @@
       ".": {
         "types": "./build/index.d.ts",
         "import": "./build/index.js"
+      },
+      "./addEventListener": {
+        "types": "./build/addEventListener.d.ts",
+        "import": "./build/addEventListener.js"
+      },
+      "./createContext": {
+        "types": "./build/createContext.d.ts",
+        "import": "./build/createContext.js"
+      },
+      "./env": {
+        "types": "./build/env.d.ts",
+        "import": "./build/env.js"
+      },
+      "./is": {
+        "types": "./build/is.d.ts",
+        "import": "./build/is.js"
+      },
+      "./mergeProps": {
+        "types": "./build/mergeProps.d.ts",
+        "import": "./build/mergeProps.js"
+      },
+      "./mergeRefs": {
+        "types": "./build/mergeRefs.d.ts",
+        "import": "./build/mergeRefs.js"
+      },
+      "./ownerDocument": {
+        "types": "./build/ownerDocument.d.ts",
+        "import": "./build/ownerDocument.js"
+      },
+      "./ownerWindow": {
+        "types": "./build/ownerWindow.d.ts",
+        "import": "./build/ownerWindow.js"
       }
     }
   },
@@ -34,13 +74,13 @@
     "build": "node ../../scripts/build.ts"
   },
   "devDependencies": {
-    "@types/react": "19.2.14",
-    "@types/react-dom": "19.2.3",
-    "react": "catalog:",
-    "react-dom": "catalog:"
+    "@types/react": "catalog:dev",
+    "@types/react-dom": "catalog:dev",
+    "react": "catalog:dev",
+    "react-dom": "catalog:dev"
   },
   "peerDependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react": "catalog:peer",
+    "react-dom": "catalog:peer"
   }
 }

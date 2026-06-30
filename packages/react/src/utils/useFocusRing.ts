@@ -1,13 +1,10 @@
-'use client'
-
 import {
   useEvent,
   useMergeRefs,
-  addEventListener,
-  ownerDocument,
-} from '@primitives-ui/utils'
+  useIsoLayoutEffect,
+} from '@primitives-ui/hooks'
+import { addEventListener, ownerDocument } from '@primitives-ui/utils'
 import { useEffect, useRef, useState } from 'react'
-import { useIsoLayoutEffect } from '../utils'
 import { hasFocus } from './hasFocus'
 import { isFocusable } from './isFocusable'
 import { withMetadata } from './metadata'

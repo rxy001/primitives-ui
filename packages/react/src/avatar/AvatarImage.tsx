@@ -1,6 +1,7 @@
 'use client'
 
-import { useEvent } from '@primitives-ui/utils'
+import { useEvent } from '@primitives-ui/hooks'
+import { useIsoLayoutEffect } from '@primitives-ui/hooks'
 import { useState } from 'react'
 import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
 import type { ImageLoadingStatus } from './AvatarContext'
@@ -9,7 +10,6 @@ import {
   createHook,
   createPrimitive,
   getMetadataState,
-  useIsoLayoutEffect,
   withMetadata,
 } from '../utils'
 import { useAvatarRootContext } from './AvatarContext'

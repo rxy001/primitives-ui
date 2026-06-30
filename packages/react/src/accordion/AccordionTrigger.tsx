@@ -1,15 +1,11 @@
 'use client'
 
+import { useIsoLayoutEffect } from '@primitives-ui/hooks'
 import type { CollapsibleTriggerState } from '../collapsible'
 import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
 import type { AccordionItemState } from './AccordionItem'
 import { useCollapsibleTrigger } from '../collapsible'
-import {
-  createHook,
-  createPrimitive,
-  useIsoLayoutEffect,
-  withMetadata,
-} from '../utils'
+import { createHook, createPrimitive, withMetadata } from '../utils'
 import { useAccordionItemContext } from './AccordionContext'
 import { stateAttributesMapping } from './stateAttributesMapping'
 
@@ -28,7 +24,7 @@ export const useAccordionTrigger = createHook<
 
   props = {
     ...props,
-    id: props.id ?? itemContext.triggerId,
+    id: itemContext.triggerId,
   }
 
   const collapsibleTriggerProps = useCollapsibleTrigger(props)

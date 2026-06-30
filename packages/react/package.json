@@ -63,20 +63,21 @@
     "build": "node ../../scripts/build.ts"
   },
   "dependencies": {
+    "@primitives-ui/hooks": "workspace:*",
     "@primitives-ui/utils": "workspace:*",
     "clsx": "2.1.1"
   },
   "devDependencies": {
     "@testing-library/react": "16.3.2",
-    "@types/react": "19.2.14",
-    "@types/react-dom": "19.2.3",
+    "@types/react": "catalog:dev",
+    "@types/react-dom": "catalog:dev",
     "@vitejs/plugin-react": "6.0.1",
-    "react": "catalog:",
-    "react-dom": "catalog:",
+    "react": "catalog:dev",
+    "react-dom": "catalog:dev",
     "vitest-browser-react": "2.2.0"
   },
   "peerDependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react": "catalog:peer",
+    "react-dom": "catalog:peer"
   }
 }

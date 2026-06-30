@@ -18,8 +18,8 @@
   "dependencies": {
     "@primitives-ui/react": "workspace:*",
     "@primitives-ui/utils": "workspace:*",
-    "react": "catalog:",
-    "react-dom": "catalog:"
+    "react": "catalog:dev",
+    "react-dom": "catalog:dev"
   },
   "devDependencies": {
     "@storybook/addon-a11y": "10.3.6",

@@ -1,0 +1,79 @@
+{
+  "name": "@primitives-ui/hooks",
+  "version": "0.0.0",
+  "private": false,
+  "keywords": [],
+  "license": "MIT",
+  "author": "X1ng Yu",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rxy001/primitives-ui.git",
+    "directory": "packages/hooks"
+  },
+  "files": [
+    "build",
+    "README.md"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts",
+    "./useControlledState": "./src/useControlledState.ts",
+    "./useEvent": "./src/useEvent.ts",
+    "./useIsoLayoutEffect": "./src/useIsoLayoutEffect.ts",
+    "./useLatest": "./src/useLatest.ts",
+    "./useMergeRefs": "./src/useMergeRefs.ts",
+    "./useTimeout": "./src/useTimeout.ts"
+  },
+  "publishConfig": {
+    "main": "./build/index.js",
+    "types": "./build/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./build/index.d.ts",
+        "import": "./build/index.js"
+      },
+      "./useControlledState": {
+        "types": "./build/useControlledState.d.ts",
+        "import": "./build/useControlledState.js"
+      },
+      "./useEvent": {
+        "types": "./build/useEvent.d.ts",
+        "import": "./build/useEvent.js"
+      },
+      "./useIsoLayoutEffect": {
+        "types": "./build/useIsoLayoutEffect.d.ts",
+        "import": "./build/useIsoLayoutEffect.js"
+      },
+      "./useLatest": {
+        "types": "./build/useLatest.d.ts",
+        "import": "./build/useLatest.js"
+      },
+      "./useMergeRefs": {
+        "types": "./build/useMergeRefs.d.ts",
+        "import": "./build/useMergeRefs.js"
+      },
+      "./useTimeout": {
+        "types": "./build/useTimeout.d.ts",
+        "import": "./build/useTimeout.js"
+      }
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc -noEmit",
+    "build": "node ../../scripts/build.ts"
+  },
+  "dependencies": {
+    "@primitives-ui/utils": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "catalog:dev",
+    "@types/react-dom": "catalog:dev",
+    "react": "catalog:dev",
+    "react-dom": "catalog:dev"
+  },
+  "peerDependencies": {
+    "react": "catalog:peer",
+    "react-dom": "catalog:peer"
+  }
+}

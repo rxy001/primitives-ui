@@ -1,6 +1,4 @@
-'use client'
-
-import { useMergeRefs } from '@primitives-ui/utils'
+import { useMergeRefs } from '@primitives-ui/hooks'
 import { useMemo, useRef } from 'react'
 import { useTagName } from '../utils'
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { useControlledState } from '@primitives-ui/utils'
+import { useControlledState } from '@primitives-ui/hooks'
 import { useId, useMemo, useState } from 'react'
 import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
 import { withMetadata, createHook, createPrimitive } from '../utils'

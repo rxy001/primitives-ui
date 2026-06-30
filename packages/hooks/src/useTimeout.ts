@@ -1,5 +1,5 @@
-import { useEvent } from '@primitives-ui/utils'
 import { useEffect, useMemo, useRef } from 'react'
+import { useEvent } from './useEvent'
 
 export function useTimeout() {
   const timerRef = useRef<NodeJS.Timeout>(null)
