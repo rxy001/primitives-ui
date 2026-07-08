@@ -5,6 +5,5 @@ export const [CollectionProvider, useCollectionContext] =
   createContext<CollectionStore>({
     contextName: 'CollectionContext',
     hookName: 'useCollectionContext',
-    providerName: 'CollectionProvider',
     strict: false,
   })

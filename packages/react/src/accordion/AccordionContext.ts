@@ -13,7 +13,6 @@ export const [AccordionRootProvider, useAccordionRootContext] =
   createContext<AccordionRootContextValue>({
     contextName: 'AccordionRootContext',
     hookName: 'useAccordionRootContext',
-    providerName: 'AccordionRootProvider',
     strict: true,
   })
 
@@ -27,7 +26,6 @@ export const [AccordionItemProvider, useAccordionItemContext] =
   createContext<AccordionItemContextValue>({
     contextName: 'AccordionItemContext',
     hookName: 'useAccordionItemContext',
-    providerName: 'AccordionItemProvider',
     strict: true,
   })
 
@@ -41,6 +39,5 @@ export const [
 ] = createContext<AccordionPanelDefaultsContextValue>({
   contextName: 'AccordionPanelDefaultsContext',
   hookName: 'useAccordionPanelDefaultsContext',
-  providerName: 'AccordionPanelDefaultsProvider',
   strict: true,
 })

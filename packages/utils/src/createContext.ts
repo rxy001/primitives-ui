@@ -8,7 +8,6 @@ import {
 interface CreateContextOptions<T> {
   contextName?: string
   hookName?: string
-  providerName?: string
   defaultValue?: T
   strict?: boolean
 }
@@ -36,7 +35,6 @@ export function createContext<T>(options: CreateContextOptions<T>) {
     defaultValue,
     contextName,
     hookName = 'useContext',
-    providerName = 'Provider',
     strict = true,
   } = options
   const Context = createReactContext<T | undefined>(defaultValue)
@@ -47,17 +45,14 @@ export function createContext<T>(options: CreateContextOptions<T>) {
     const context = useReactContext(Context)
 
     if (context === undefined && strict) {
-      const error = new Error(getErrorMessage(hookName, providerName))
+      const error = new Error(
+        `${hookName} returned \`undefined\`. Seems you forgot to wrap component within ${contextName}.Provider`,
+      )
       error.name = 'ContextError'
       throw error
     }
 
     return context
   }
-
   return [Context.Provider, useContext, Context]
-}
-
-function getErrorMessage(hook: string, provider: string) {
-  return `${hook} returned \`undefined\`. Seems you forgot to wrap component within ${provider}`
 }

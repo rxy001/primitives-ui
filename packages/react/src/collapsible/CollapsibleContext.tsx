@@ -14,6 +14,5 @@ export const [CollapsibleRootProvider, useCollapsibleRootContext] =
   createContext<CollapsibleRootContextValue>({
     contextName: 'CollapsibleRootContext',
     hookName: 'useCollapsibleRootContext',
-    providerName: 'CollapsibleRootProvider',
     strict: true,
   })

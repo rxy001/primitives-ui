@@ -16,6 +16,5 @@ export const [AvatarRootProvider, useAvatarRootContext] =
   createContext<AvatarRootContextValue>({
     contextName: 'AvatarRootContext',
     hookName: 'useAvatarRootContext',
-    providerName: 'AvatarRootProvider',
     strict: true,
   })
