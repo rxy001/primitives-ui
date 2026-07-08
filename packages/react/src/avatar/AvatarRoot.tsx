@@ -45,6 +45,8 @@ export function AvatarRoot({ render, ...other }: AvatarRootProps) {
   })
 }
 
+AvatarRoot.displayName = 'AvatarRoot'
+
 interface AvatarRootOwnProps {}
 
 export interface AvatarRootState {

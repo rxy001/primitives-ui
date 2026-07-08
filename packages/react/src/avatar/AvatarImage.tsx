@@ -127,6 +127,8 @@ export function AvatarImage({ render, ...other }: AvatarImageProps) {
   })
 }
 
+AvatarImage.displayName = 'AvatarImage'
+
 interface AvatarImageOwnProps {
   onLoadingStatusChange?: (status: ImageLoadingStatus) => void
 }

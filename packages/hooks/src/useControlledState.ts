@@ -29,20 +29,21 @@ export function useControlledState<T>(
   const controlled = value !== undefined
   const prevControlledRef = useRef(value !== undefined)
 
-  useEffect(() => {
-    const prevControlled = prevControlledRef.current
+  if (__DEV__) {
+    useEffect(() => {
+      const prevControlled = prevControlledRef.current
 
-    if (__DEV__) {
       if (prevControlled !== controlled) {
+        // oxlint-disable-next-line no-console
         console.error(
           `Warning: A component changed from ${
             prevControlled ? 'controlled' : 'uncontrolled'
           } to ${controlled ? 'controlled' : 'uncontrolled'}.`,
         )
       }
-    }
-    prevControlledRef.current = controlled
-  }, [controlled])
+      prevControlledRef.current = controlled
+    }, [controlled])
+  }
 
   const setValue = useEvent((newValue: T) => {
     if (isFunction(newValue)) {

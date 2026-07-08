@@ -54,6 +54,8 @@ export function AvatarFallback({ render, ...other }: AvatarFallbackProps) {
   })
 }
 
+AvatarFallback.displayName = 'AvatarFallback'
+
 interface AvatarFallbackOwnProps {
   delay?: number
 }
