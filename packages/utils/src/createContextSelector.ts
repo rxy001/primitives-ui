@@ -1,6 +1,5 @@
 'use client'
 
-import type { RefObject } from 'react'
 import {
   createElement,
   useRef,
@@ -22,7 +21,7 @@ interface ContextOptions<Value> {
 }
 
 interface ContextValue<Value> {
-  value: RefObject<Value>
+  value: React.RefObject<Value>
   listeners: Set<Function>
 }
 

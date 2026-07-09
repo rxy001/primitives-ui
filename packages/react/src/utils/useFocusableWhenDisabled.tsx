@@ -1,4 +1,4 @@
-import { useMergeRefs } from '@primitives-ui/hooks'
+import { useEvent, useMergeRefs } from '@primitives-ui/hooks'
 import { useMemo, useRef } from 'react'
 import { useTagName } from '../utils'
 
@@ -42,6 +42,18 @@ export function useFocusableWhenDisabled<
 
   const trulyDisabled = props.disabled && !focusableWhenDisabled
 
+  const handleKeyDown = useEvent((event: React.KeyboardEvent) => {
+    if (props.disabled && focusableWhenDisabled && event.key !== 'Tab') {
+      event.preventDefault()
+    }
+
+    if (props.disabled) {
+      event.stopPropagation()
+      return
+    }
+    onKeyDown?.(event)
+  })
+
   return {
     'aria-disabled':
       !trulyDisabled || !supportsDisabled ? props.disabled : undefined,
@@ -49,17 +61,7 @@ export function useFocusableWhenDisabled<
     tabIndex,
     ref: mergedRefs,
     disabled: trulyDisabled && supportsDisabled ? props.disabled : undefined,
-    onKeyDown(event: React.KeyboardEvent) {
-      if (props.disabled && focusableWhenDisabled && event.key !== 'Tab') {
-        event.preventDefault()
-      }
-
-      if (props.disabled) {
-        event.stopPropagation()
-        return
-      }
-      onKeyDown?.(event)
-    },
+    onKeyDown: handleKeyDown,
   }
 }
 

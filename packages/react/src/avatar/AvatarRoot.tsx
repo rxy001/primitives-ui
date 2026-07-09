@@ -10,7 +10,8 @@ import { stateAttributesMapping } from './stateAttributesMapping'
 export const useAvatarRoot = createHook<
   'div',
   AvatarRootOwnProps,
-  AvatarRootState
+  AvatarRootState,
+  true
 >((props: UseAvatarRootProps) => {
   const [imageLoadingStatus, setImageLoadingStatus] =
     useState<ImageLoadingStatus>('idle')
@@ -30,9 +31,7 @@ export const useAvatarRoot = createHook<
     provider: (element: React.ReactNode) => (
       <AvatarRootProvider value={context}>{element}</AvatarRootProvider>
     ),
-    state: {
-      imageLoadingStatus,
-    },
+    state,
   })
 })
 

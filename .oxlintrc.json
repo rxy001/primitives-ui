@@ -37,9 +37,18 @@
     "prefer-const": "error",
     "no-useless-rename": "error",
     "arrow-body-style": ["error", "as-needed"],
-    "no-console": "warn",
+    "no-console": "error",
 
     "react/react-in-jsx-scope": "off",
+    "react/display-name": "off",
+    "react/jsx-pascal-case": "error",
+    "react/jsx-filename-extension": [
+      "error",
+      {
+        "extensions": [".tsx", ".jsx"]
+      }
+    ],
+    "react/jsx-boolean-value": ["error", "never"],
 
     "typescript/dot-notation": "error",
     "typescript/no-unsafe-type-assertion": "off",

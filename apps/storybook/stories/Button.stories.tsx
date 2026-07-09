@@ -51,6 +51,7 @@ export const NonInteractive: Story = {
   args: {
     children: 'Non-Interactive',
     render: <div />,
+    // oxlint-disable-next-line no-console
     onClick: () => console.log('Button clicked!'),
   },
 }

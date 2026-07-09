@@ -13,6 +13,7 @@ export function Default() {
   const collection = useCollectionStore()
 
   useEffect(() => {
+    // oxlint-disable-next-line no-console
     console.log(collection.getItems())
   }, [collection])
 
@@ -34,6 +35,7 @@ export function Controlled() {
   })
 
   useEffect(() => {
+    // oxlint-disable-next-line no-console
     console.log(items)
   }, [items])
 

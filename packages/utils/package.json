@@ -70,7 +70,7 @@
     }
   },
   "scripts": {
-    "typecheck": "tsc -noEmit",
+    "typecheck": "tsc -p tsconfig.build.json --noEmit",
     "build": "node ../../scripts/build.ts"
   },
   "devDependencies": {

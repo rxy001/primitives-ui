@@ -20,9 +20,12 @@ type MetadataProviderProps<Provider extends MetadataProvider | undefined> = [
   ? {}
   : { [METADATA_PROVIDER]: Provider }
 
-export type MetadataData = {
-  state?: MetadataState
-  provider?: MetadataProvider
+export type MetadataData<
+  State extends MetadataState = MetadataState,
+  Provider extends MetadataProvider = MetadataProvider,
+> = {
+  state?: State
+  provider?: Provider
 }
 
 export type InferMetadataStateFromProps<Props extends MetadataProps> =
@@ -47,6 +50,15 @@ type MergeMetadataState<
   : [Current] extends [undefined]
     ? Previous
     : Previous & Current
+
+type MergeMetadataProvider<
+  Previous extends MetadataProvider | undefined,
+  Current extends MetadataProvider | undefined,
+> = [Previous] extends [undefined]
+  ? Current
+  : [Current] extends [undefined]
+    ? Previous
+    : MetadataProvider
 
 type InferMetadataProviderFromData<Data extends MetadataData> = Data extends {
   provider: infer Provider
@@ -86,7 +98,10 @@ export type WithMetadataResult<
     >
   > &
   MetadataProviderProps<
-    InferMetadataProviderFromProps<Props> | InferMetadataProviderFromData<Data>
+    MergeMetadataProvider<
+      InferMetadataProviderFromProps<Props>,
+      InferMetadataProviderFromData<Data>
+    >
   >
 
 export function withMetadata<
@@ -142,8 +157,8 @@ export function getMetadataProps<Props extends MetadataProps>(
 }
 
 function mergeState(previous?: MetadataState, current?: MetadataState) {
-  if (previous == null) return current
-  if (current == null) return previous
+  if (!previous) return current
+  if (!current) return previous
 
   return {
     ...previous,
@@ -154,7 +169,7 @@ function mergeState(previous?: MetadataState, current?: MetadataState) {
 function mergeProvider(
   previous?: MetadataProvider,
   current?: MetadataProvider,
-) {
+): MetadataProvider | undefined {
   if (!previous) return current
   if (!current) return previous
 

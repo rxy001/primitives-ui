@@ -7,21 +7,22 @@ import type {
 import type { HookProps, HTMLElements, Directory, HTMLProps } from './types'
 
 type HookMetadataData<
-  State extends MetadataState | undefined,
+  State extends MetadataState,
   HasProvider extends boolean,
-> = ([NonNullable<State>] extends [never] ? {} : { state: State }) &
-  (HasProvider extends true ? { provider: MetadataProvider } : {})
+> = { state: State } & (HasProvider extends true
+  ? { provider: MetadataProvider }
+  : {})
 
 type HookResult<
   Props extends MetadataProps,
-  State extends MetadataState | undefined,
+  State extends MetadataState,
   HasProvider extends boolean,
 > = WithMetadataResult<Props, HookMetadataData<State, HasProvider>>
 
 type HookImpl<
   Element extends HTMLElements,
   OwnProps extends Directory,
-  State extends MetadataState | undefined = undefined,
+  State extends MetadataState,
   HasProvider extends boolean = false,
 > = (
   props: HookProps<Element, OwnProps>,
@@ -30,7 +31,7 @@ type HookImpl<
 export type PolymorphicHook<
   Element extends HTMLElements,
   OwnProps extends Directory,
-  State extends MetadataState | undefined = undefined,
+  State extends MetadataState,
   HasProvider extends boolean = false,
 > = <T extends HTMLElements = Element>(
   props: HookProps<T, OwnProps>,
@@ -39,33 +40,7 @@ export type PolymorphicHook<
 export function createHook<
   Element extends HTMLElements,
   OwnProps extends Directory,
->(hook: HookImpl<Element, OwnProps>): PolymorphicHook<Element, OwnProps>
-export function createHook<
-  Element extends HTMLElements,
-  OwnProps extends Directory,
-  HasProvider extends boolean = false,
->(
-  hook: HookImpl<Element, OwnProps, undefined, HasProvider>,
-): PolymorphicHook<Element, OwnProps, undefined, HasProvider>
-export function createHook<
-  Element extends HTMLElements,
-  OwnProps extends Directory,
   State extends MetadataState,
->(
-  hook: HookImpl<Element, OwnProps, State>,
-): PolymorphicHook<Element, OwnProps, State>
-export function createHook<
-  Element extends HTMLElements,
-  OwnProps extends Directory,
-  State extends MetadataState,
-  HasProvider extends boolean,
->(
-  hook: HookImpl<Element, OwnProps, State, HasProvider>,
-): PolymorphicHook<Element, OwnProps, State, HasProvider>
-export function createHook<
-  Element extends HTMLElements,
-  OwnProps extends Directory,
-  State extends MetadataState | undefined = undefined,
   HasProvider extends boolean = false,
 >(
   hook: HookImpl<Element, OwnProps, State, HasProvider>,

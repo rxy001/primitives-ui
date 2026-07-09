@@ -4,39 +4,43 @@ import { useMergeRefs, useIsoLayoutEffect } from '@primitives-ui/hooks'
 import { useId, useRef } from 'react'
 import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
 import type { CollectionStore } from './useCollectionStore'
-import { createHook, createPrimitive } from '../utils'
+import { createHook, createPrimitive, withMetadata } from '../utils'
 import { useCollectionContext } from './CollectionContext'
 
-export const useCollectionItem = createHook<'div', UseCollectionItemOwnProps>(
-  ({ getItem, store, ...props }: UseCollectionItemProps) => {
-    const context = useCollectionContext()
-    const { register, unregister } = store ?? context ?? {}
+export const useCollectionItem = createHook<
+  'div',
+  UseCollectionItemOwnProps,
+  CollectionItemState
+>(({ getItem, store, ...props }: UseCollectionItemProps) => {
+  const context = useCollectionContext()
+  const { register, unregister } = store ?? context ?? {}
 
-    const ref = useRef(null)
-    const defaultId = useId()
-    const id = props.id || defaultId
-    const mergedRefs = useMergeRefs(ref, props.ref)
+  const ref = useRef(null)
+  const defaultId = useId()
+  const id = props.id || defaultId
+  const mergedRefs = useMergeRefs(ref, props.ref)
 
-    useIsoLayoutEffect(() => {
-      register?.({
-        ...getItem?.(),
-        id,
-        elementRef: ref,
-      })
+  useIsoLayoutEffect(() => {
+    register?.({
+      ...getItem?.(),
+      id,
+      elementRef: ref,
+    })
 
-      return () => {
-        unregister?.(id)
-      }
-    }, [getItem, id, register, unregister])
-
-    props = {
-      ...props,
-      ref: mergedRefs,
+    return () => {
+      unregister?.(id)
     }
+  }, [getItem, id, register, unregister])
 
-    return props
-  },
-)
+  props = {
+    ...props,
+    ref: mergedRefs,
+  }
+
+  return withMetadata(props, {
+    state: {},
+  })
+})
 
 export function CollectionItem({ render, ...other }: CollectionItemProps) {
   const props = useCollectionItem(other)
@@ -52,9 +56,11 @@ interface UseCollectionItemOwnProps {
   store?: CollectionStore
 }
 
+export interface CollectionItemState {}
+
 export type UseCollectionItemProps<Element extends HTMLElements = 'div'> =
   HookProps<Element, UseCollectionItemOwnProps>
 
 export interface CollectionItemProps extends UseCollectionItemProps {
-  render?: RenderProp
+  render?: RenderProp<CollectionItemState>
 }

@@ -21,7 +21,8 @@ import { stateAttributesMapping } from './stateAttributesMapping'
 export const useAccordionItem = createHook<
   'div',
   AccordionItemOwnProps,
-  AccordionItemState
+  AccordionItemState,
+  true
 >(
   ({
     onOpenChange,

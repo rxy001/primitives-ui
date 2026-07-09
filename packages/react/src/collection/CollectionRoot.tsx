@@ -8,6 +8,7 @@ import { CollectionProvider, useCollectionContext } from './CollectionContext'
 export const useCollectionRoot = createHook<
   'div',
   UseCollectionRootOwnProps,
+  CollectionRootState,
   true
 >(({ store, ...props }: UseCollectionRootProps) => {
   const context = useCollectionContext()
@@ -18,6 +19,7 @@ export const useCollectionRoot = createHook<
         {element}
       </CollectionProvider>
     ),
+    state: {},
   })
 })
 
@@ -35,9 +37,11 @@ interface UseCollectionRootOwnProps {
   store?: CollectionStore
 }
 
+export interface CollectionRootState {}
+
 export type UseCollectionRootProps<Element extends HTMLElements = 'div'> =
   HookProps<Element, UseCollectionRootOwnProps>
 
 export interface CollectionRootProps extends UseCollectionRootProps {
-  render?: RenderProp
+  render?: RenderProp<CollectionRootState>
 }
