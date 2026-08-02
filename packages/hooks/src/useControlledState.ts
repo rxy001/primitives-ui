@@ -34,7 +34,6 @@ export function useControlledState<T>(
       const prevControlled = prevControlledRef.current
 
       if (prevControlled !== controlled) {
-        // oxlint-disable-next-line no-console
         console.error(
           `Warning: A component changed from ${
             prevControlled ? 'controlled' : 'uncontrolled'
@@ -47,7 +46,6 @@ export function useControlledState<T>(
 
   const setValue = useEvent((newValue: T) => {
     if (isFunction(newValue)) {
-      // oxlint-disable-next-line no-console
       console.error(
         "Warning: useControlledState doesn't support function updates, which can cause unexpected behavior. https://github.com/facebook/react/issues/18178#issuecomment-595846312",
       )

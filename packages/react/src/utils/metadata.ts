@@ -1,8 +1,8 @@
 import type { Directory } from './types'
 
-const METADATA_STATE = '__metadata-state__'
+const METADATA_STATE: unique symbol = Symbol('METADATA_STATE')
 
-const METADATA_PROVIDER = '__metadata-provider__'
+const METADATA_PROVIDER: unique symbol = Symbol('METADATA_PROVIDER')
 
 export type MetadataProvider = (element: React.ReactNode) => React.ReactNode
 

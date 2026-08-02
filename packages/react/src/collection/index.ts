@@ -21,11 +21,13 @@ export { useCollectionStore } from './useCollectionStore'
 export type {
   UseCollectionRootProps,
   CollectionRootProps,
+  CollectionRootState,
 } from './CollectionRoot'
 
 export type {
   UseCollectionItemProps,
   CollectionItemProps,
+  CollectionItemState,
 } from './CollectionItem'
 
 export type { CollectionStoreItem } from './useCollectionStore'

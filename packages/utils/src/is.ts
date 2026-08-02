@@ -9,7 +9,7 @@ export function isFunction(value?: any): value is (...args: any[]) => any {
   )
 }
 
-export function isPlainObject(value: any): boolean {
+export function isPlainObject(value: any): value is object {
   return (
     typeof value === 'object' &&
     Object.prototype.toString.call(value) === '[object Object]'
@@ -22,4 +22,14 @@ export function isString(value?: any): value is string {
 
 export function isUndefined(value?: any): value is undefined {
   return typeof value === 'undefined'
+}
+
+export function isHTMLElement(
+  element: Element | Window,
+): element is HTMLElement {
+  if (typeof window === 'undefined') {
+    return false
+  }
+
+  return element instanceof HTMLElement
 }

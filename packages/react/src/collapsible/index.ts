@@ -19,6 +19,9 @@ const Collapsible = {
 
 export {
   Collapsible,
+  CollapsibleRoot,
+  CollapsiblePanel,
+  CollapsibleTrigger,
   useCollapsibleRoot,
   useCollapsibleTrigger,
   useCollapsiblePanel,

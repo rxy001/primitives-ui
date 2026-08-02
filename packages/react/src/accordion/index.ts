@@ -14,6 +14,11 @@ const Accordion = {
 
 export {
   Accordion,
+  AccordionHeader,
+  AccordionRoot,
+  AccordionItem,
+  AccordionPanel,
+  AccordionTrigger,
   useAccordionHeader,
   useAccordionItem,
   useAccordionPanel,

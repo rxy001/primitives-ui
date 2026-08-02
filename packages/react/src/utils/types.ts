@@ -1,4 +1,4 @@
-export type HTMLElements = keyof React.JSX.IntrinsicElements
+export type HTMLElements = React.HTMLElementType
 
 export type Overwrite<T, U> = Omit<T, keyof U> & U
 
@@ -22,3 +22,5 @@ export type HookProps<
   Element extends HTMLElements,
   OwnProps extends Directory = Directory,
 > = Overwrite<HTMLProps<Element>, OwnProps>
+
+export type Noop = (...args: any[]) => any

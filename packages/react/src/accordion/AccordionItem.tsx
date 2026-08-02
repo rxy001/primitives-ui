@@ -51,10 +51,10 @@ export const useAccordionItem = createHook<
     }
 
     const collapsibleRootProps = useCollapsibleRoot({
+      ...props,
       open,
       disabled,
       onOpenChange: handleOpenChange,
-      ...props,
     })
 
     const collapsibleRootState = getMetadataState(collapsibleRootProps)

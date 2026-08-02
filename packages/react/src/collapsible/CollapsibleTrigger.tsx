@@ -22,9 +22,9 @@ export const useCollapsibleTrigger = createHook<
   }
 
   props = {
-    ...props,
     'aria-controls': rootContext.open ? rootContext.panelId : undefined,
     'aria-expanded': rootContext.open,
+    ...props,
     disabled: disabled || rootContext.disabled,
     onClick: handleClick,
   }

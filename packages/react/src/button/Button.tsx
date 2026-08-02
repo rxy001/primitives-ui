@@ -21,8 +21,8 @@ export const useButton = createHook<'button', ButtonOwnProps, ButtonState>(
     })
 
     return {
-      ...commandProps,
       role: !nativeButton && tagName !== 'a' ? 'button' : undefined,
+      ...commandProps,
       type: nativeButton ? commandProps.type || 'button' : undefined,
     }
   },

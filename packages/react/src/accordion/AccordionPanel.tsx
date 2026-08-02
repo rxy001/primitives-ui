@@ -24,9 +24,9 @@ export const useAccordionPanel = createHook<
   const itemContext = useAccordionItemContext()
 
   props = {
-    ...props,
     'aria-labelledby': itemContext.triggerId,
     role: 'region',
+    ...props,
   }
 
   const collapsiblePanelProps = useCollapsiblePanel(props)

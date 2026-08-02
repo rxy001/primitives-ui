@@ -27,8 +27,9 @@ export const useCollapsiblePanel = createHook<
   }, [props.id])
 
   props = {
-    ...props,
+    hidden: !rootContext.open,
     id: rootContext.panelId,
+    ...props,
   }
 
   return withMetadata(props, {

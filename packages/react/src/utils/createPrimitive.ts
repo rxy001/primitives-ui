@@ -26,9 +26,9 @@ export function createPrimitive<
 >(
   tag: Element,
   props: Props,
-  params: CreatePrimitiveParams<Element, InferMetadataStateFromProps<Props>>,
+  params?: CreatePrimitiveParams<Element, InferMetadataStateFromProps<Props>>,
 ) {
-  const { render, stateAttributesMapping, shouldRender = true } = params
+  const { render, stateAttributesMapping, shouldRender = true } = params ?? {}
 
   if (!shouldRender) {
     return null
