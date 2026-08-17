@@ -25,7 +25,7 @@
     "./collapsible": "./src/collapsible/index.ts",
     "./accordion": "./src/accordion/index.ts",
     "./avatar": "./src/avatar/index.ts",
-    "./modal": "./src/modal/index.ts"
+    "./dialog": "./src/dialog/index.ts"
   },
   "publishConfig": {
     "main": "./build/index.js",
@@ -51,9 +51,9 @@
         "types": "./build/avatar/index.d.ts",
         "import": "./build/avatar/index.js"
       },
-      "./modal": {
-        "types": "./build/modal/index.d.ts",
-        "import": "./build/modal/index.js"
+      "./dialog": {
+        "types": "./build/dialog/index.d.ts",
+        "import": "./build/dialog/index.js"
       }
     }
   },
