@@ -42,4 +42,3 @@ export type {
   CollapsiblePanelState,
   UseCollapsiblePanelProps,
 } from './CollapsiblePanel'
-export type { CollapsibleRootContextValue } from './CollapsibleContext'

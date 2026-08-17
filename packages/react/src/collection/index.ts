@@ -14,8 +14,6 @@ export {
   useCollectionItem,
 }
 
-export { CollectionProvider, useCollectionContext } from './CollectionContext'
-
 export { useCollectionStore } from './useCollectionStore'
 
 export type {

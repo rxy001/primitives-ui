@@ -5,8 +5,8 @@ import {
 } from '@primitives-ui/hooks'
 import { addEventListener, ownerDocument } from '@primitives-ui/utils'
 import { useEffect, useRef, useState } from 'react'
+import { isFocusable } from 'tabbable'
 import { hasFocus } from './hasFocus'
-import { isFocusable } from './isFocusable'
 import { withMetadata } from './metadata'
 
 let hasInstalledGlobalEventListeners = false
