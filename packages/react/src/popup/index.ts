@@ -1,7 +1,6 @@
-export { usePopup, Popup } from './Popup'
+export { usePopup } from './usePopup'
 
 export type {
-  PopupProps,
   PopupState,
   DismissReason,
   DismissSource,
@@ -9,4 +8,4 @@ export type {
   PointerDownOutsideEvent,
   EscapeKeyDownEvent,
   FocusOutsideEvent,
-} from './Popup'
+} from './usePopup'

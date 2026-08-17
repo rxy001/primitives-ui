@@ -17,7 +17,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { isFocusable, tabbable } from 'tabbable'
 import type { PreventableEvent } from '../utils'
-import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
+import type { HookProps, HTMLElements } from '../utils/types'
 import type {
   ESCAPE_KEY,
   FOCUS_OUTSIDE,
@@ -33,7 +33,6 @@ import {
   resolveRef,
   markOutsideElementsAsHidden,
   createPreventableEvent,
-  createPrimitive,
 } from '../utils'
 import { FocusGuard } from './FocusGuard'
 import { PopupProvider, usePopupContext } from './PopupContext'
@@ -698,16 +697,6 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState, true>(
   },
 )
 
-export function Popup({ render, ...other }: PopupProps) {
-  const props = usePopup(other)
-
-  return createPrimitive('div', props, {
-    render,
-  })
-}
-
-Popup.displayName = 'Popup'
-
 type FocusTarget =
   | null
   | boolean
@@ -822,10 +811,6 @@ export type UsePopupProps<Element extends HTMLElements = 'div'> = HookProps<
   Element,
   PopupOwnProps
 >
-
-export interface PopupProps extends UsePopupProps {
-  render?: RenderProp<PopupState>
-}
 
 function isVisible(element: HTMLElement): boolean {
   if (!element.isConnected) return false

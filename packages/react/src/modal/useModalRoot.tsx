@@ -7,8 +7,8 @@ import type { PopupDismissSource } from '../popup/PopupManager'
 import type { ChangeDetails, CHANGE_REASONS } from '../utils'
 import type { ModalRootContextValue } from './ModalContext'
 import type { ModalStore } from './store'
-import { resolveTrigger } from '../popup/Popup'
-import { getMetadataProvider, withMetadata } from '../utils'
+import { resolveTrigger } from '../popup/usePopup'
+import { withMetadata } from '../utils'
 import { ModalRootProvider } from './ModalContext'
 import { modalSelectors, useModalStore } from './store'
 
@@ -71,15 +71,6 @@ export const useModalRoot = ({
   })
 }
 
-export function ModalRoot({ children, ...other }: ModalRootProps) {
-  const props = useModalRoot(other)
-  const provider = getMetadataProvider(props)
-
-  return provider(children)
-}
-
-ModalRoot.displayName = 'ModalRoot'
-
 export interface ModalRootState {}
 
 export type ModalOpenChangeReason =
@@ -132,9 +123,4 @@ export interface UseModalRootProps {
   trigger?: UsePopupProps['trigger']
 
   modal?: boolean
-}
-
-export interface ModalRootProps extends UseModalRootProps {
-  /** The modal components controlled by this root. */
-  children?: React.ReactNode
 }

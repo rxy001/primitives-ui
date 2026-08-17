@@ -2,13 +2,8 @@
 
 import { __DEV__ } from '@primitives-ui/utils'
 import { useEffect } from 'react'
-import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
-import {
-  createHook,
-  createPrimitive,
-  useResolvedId,
-  withMetadata,
-} from '../utils'
+import type { HookProps, HTMLElements } from '../utils/types'
+import { createHook, useResolvedId, withMetadata } from '../utils'
 import { useModalRootContext } from './ModalContext'
 import { modalSelectors } from './store'
 
@@ -48,16 +43,6 @@ export const useModalTitle = createHook<
   })
 })
 
-export function ModalTitle({ render, ...other }: ModalTitleProps) {
-  const props = useModalTitle(other)
-
-  return createPrimitive('h2', props, {
-    render,
-  })
-}
-
-ModalTitle.displayName = 'ModalTitle'
-
 interface ModalTitleOwnProps {}
 
 export interface ModalTitleState {}
@@ -66,10 +51,3 @@ export type UseModalTitleProps<Element extends HTMLElements = 'h2'> = HookProps<
   Element,
   ModalTitleOwnProps
 >
-
-export interface ModalTitleProps extends UseModalTitleProps {
-  /**
-   * A function or JSX element that replaces the component's rendered element.
-   */
-  render?: RenderProp<ModalTitleState>
-}

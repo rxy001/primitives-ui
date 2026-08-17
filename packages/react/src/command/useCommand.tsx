@@ -2,17 +2,16 @@
 
 import { useEvent } from '@primitives-ui/hooks'
 import { useRef } from 'react'
-import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
+import type { HookProps, HTMLElements } from '../utils/types'
 import {
   withMetadata,
   useFocusRing,
-  createPrimitive,
   createHook,
   isTextField,
   useFocusableWhenDisabled,
 } from '../utils'
 
-export const useCommand = createHook<'div', CommandOwnProps, CommandState>(
+export const useCommand = createHook<'button', CommandOwnProps, CommandState>(
   ({
     clickOnEnter = true,
     clickOnSpace = true,
@@ -23,7 +22,7 @@ export const useCommand = createHook<'div', CommandOwnProps, CommandState>(
     const { disabled = false } = props
 
     const { onKeyDown } = props
-    const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
       activeRef.current = false
       onKeyDown?.(event)
 
@@ -62,7 +61,7 @@ export const useCommand = createHook<'div', CommandOwnProps, CommandState>(
 
     const { onKeyUp } = props
     const handleKeyUp = useDisableEvent(
-      (event: React.KeyboardEvent<HTMLDivElement>) => {
+      (event: React.KeyboardEvent<HTMLButtonElement>) => {
         onKeyUp?.(event)
         if (event.defaultPrevented) return
 
@@ -105,20 +104,6 @@ export const useCommand = createHook<'div', CommandOwnProps, CommandState>(
     })
   },
 )
-
-export function Command({ render, ...other }: CommandProps) {
-  const props = useCommand(other)
-
-  return createPrimitive('div', props, {
-    render,
-  })
-}
-
-Command.displayName = 'Command'
-
-export interface CommandProps extends UseCommandProps {
-  render?: RenderProp<CommandState>
-}
 
 function useDisableEvent(
   onEvent?: React.EventHandler<React.SyntheticEvent>,
@@ -172,7 +157,5 @@ export interface CommandState {
   disabled: boolean
 }
 
-export type UseCommandProps<Element extends HTMLElements = 'div'> = HookProps<
-  Element,
-  CommandOwnProps
->
+export type UseCommandProps<Element extends HTMLElements = 'button'> =
+  HookProps<Element, CommandOwnProps>

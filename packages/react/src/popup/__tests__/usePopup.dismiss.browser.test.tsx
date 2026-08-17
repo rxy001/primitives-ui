@@ -7,9 +7,9 @@ import type {
   FocusOutsideEvent,
   PointerDownOutsideEvent,
   UsePopupProps,
-} from '../Popup'
+} from '../usePopup'
 import { createPrimitive } from '../../utils'
-import { usePopup } from '../Popup'
+import { usePopup } from '../usePopup'
 
 interface TestPopupProps extends UsePopupProps {
   children?: ReactNode

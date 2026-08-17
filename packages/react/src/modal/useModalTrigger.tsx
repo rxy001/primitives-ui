@@ -2,19 +2,13 @@
 
 import { useEvent, useMergeRefs } from '@primitives-ui/hooks'
 import { useContext, useRef } from 'react'
-import type { ButtonProps, ButtonState } from '../button'
-import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
+import type { ButtonState } from '../button'
+import type { HookProps, HTMLElements } from '../utils/types'
 import type { ModalBoundStore } from './store'
 import { useButton } from '../button'
-import { resolveTrigger } from '../popup/Popup'
-import {
-  createChangeDetails,
-  createHook,
-  createPrimitive,
-  withMetadata,
-} from '../utils'
+import { resolveTrigger } from '../popup/usePopup'
+import { createChangeDetails, createHook, withMetadata } from '../utils'
 import { ModalRootContext } from './ModalContext'
-import { stateAttributesMapping } from './stateAttributesMapping'
 import { modalSelectors } from './store'
 
 function useRegisterTrigger(store: ModalBoundStore) {
@@ -105,28 +99,15 @@ export const useModalTrigger = createHook<
   })
 })
 
-export function ModalTrigger({ render, ...other }: ModalTriggerProps) {
-  const props = useModalTrigger(other)
-
-  return createPrimitive('button', props, {
-    render,
-    stateAttributesMapping,
-  })
-}
-
-ModalTrigger.displayName = 'ModalTrigger'
-
 export interface ModalTriggerState extends ButtonState {
   open: boolean
 }
 
-interface ModalTriggerOwnProps extends Pick<ButtonProps, 'nativeButton'> {
+interface ModalTriggerOwnProps {
   store?: ModalBoundStore
+
+  nativeButton?: boolean
 }
 
 export type UseModalTriggerProps<Element extends HTMLElements = 'button'> =
   HookProps<Element, ModalTriggerOwnProps>
-
-export interface ModalTriggerProps extends UseModalTriggerProps {
-  render?: RenderProp<ModalTriggerState>
-}

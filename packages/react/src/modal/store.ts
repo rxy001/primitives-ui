@@ -1,6 +1,6 @@
 import type { UsePopupProps } from '../popup'
 import type { BoundStore, Store, StoreScope } from '../utils'
-import type { ModalOpenChangeDetails } from './ModalRoot'
+import type { ModalOpenChangeDetails } from './useModalRoot'
 import { createStoreHook } from '../utils'
 
 export interface ModalStoreState {

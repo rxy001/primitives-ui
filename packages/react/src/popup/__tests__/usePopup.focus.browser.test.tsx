@@ -5,9 +5,9 @@ import { createPortal } from 'react-dom'
 import { render } from 'vitest-browser-react'
 import { server } from 'vitest/browser'
 import { userEvent } from 'vitest/browser'
-import type { UsePopupProps } from '../Popup'
+import type { UsePopupProps } from '../usePopup'
 import { createPrimitive } from '../../utils'
-import { usePopup } from '../Popup'
+import { usePopup } from '../usePopup'
 
 interface TestPopupProps extends UsePopupProps {
   children?: ReactNode

@@ -1,6 +1,5 @@
 export * from './button'
 export * from './collapsible'
-export * from './collection'
 export * from './accordion'
 export * from './avatar'
 export * from './modal'

@@ -1,25 +1,13 @@
-import { ModalBackdrop, useModalBackdrop } from './ModalBackdrop'
-import { ModalClose, useModalClose } from './ModalClose'
-import { ModalDescription, useModalDescription } from './ModalDescription'
-import { ModalPopup, useModalPopup } from './ModalPopup'
-import { ModalPortal, useModalPortal } from './ModalPortal'
-import { ModalRoot, useModalRoot } from './ModalRoot'
-import { ModalTitle, useModalTitle } from './ModalTitle'
-import { ModalTrigger, useModalTrigger } from './ModalTrigger'
-
-const Modal = {
-  Root: ModalRoot,
-  Backdrop: ModalBackdrop,
-  Popup: ModalPopup,
-  Title: ModalTitle,
-  Description: ModalDescription,
-  Trigger: ModalTrigger,
-  Close: ModalClose,
-  Portal: ModalPortal,
-}
+import { useModalBackdrop } from './useModalBackdrop'
+import { useModalClose } from './useModalClose'
+import { useModalDescription } from './useModalDescription'
+import { useModalPopup } from './useModalPopup'
+import { useModalPortal } from './useModalPortal'
+import { useModalRoot } from './useModalRoot'
+import { useModalTitle } from './useModalTitle'
+import { useModalTrigger } from './useModalTrigger'
 
 export {
-  Modal,
   useModalRoot,
   useModalBackdrop,
   useModalClose,
@@ -30,54 +18,34 @@ export {
   useModalPortal,
 }
 
+export { useModalRootContext } from './ModalContext'
+
 export { useModalStore } from './store'
+export type { ModalBoundStore, ModalStore } from './store'
 
 export type {
-  ModalRootProps,
   ModalRootState,
   UseModalRootProps,
   ModalOpenChangeDetails,
   ModalOpenChangeReason,
-} from './ModalRoot'
+} from './useModalRoot'
 
-export type {
-  UseModalTriggerProps,
-  ModalTriggerProps,
-  ModalTriggerState,
-} from './ModalTrigger'
+export type { UseModalTriggerProps, ModalTriggerState } from './useModalTrigger'
 
 export type {
   UseModalBackdropProps,
-  ModalBackdropProps,
   ModalBackdropState,
-} from './ModalBackdrop'
+} from './useModalBackdrop'
 
-export type {
-  UseModalCloseProps,
-  ModalCloseProps,
-  ModalCloseState,
-} from './ModalClose'
+export type { UseModalCloseProps, ModalCloseState } from './useModalClose'
 
 export type {
   UseModalDescriptionProps,
-  ModalDescriptionProps,
   ModalDescriptionState,
-} from './ModalDescription'
+} from './useModalDescription'
 
-export type {
-  UseModalPopupProps,
-  ModalPopupProps,
-  ModalPopupState,
-} from './ModalPopup'
+export type { UseModalPopupProps, ModalPopupState } from './useModalPopup'
 
-export type {
-  UseModalPortalProps,
-  ModalPortalProps,
-  ModalPortalState,
-} from './ModalPortal'
+export type { UseModalPortalProps, ModalPortalState } from './useModalPortal'
 
-export type {
-  UseModalTitleProps,
-  ModalTitleProps,
-  ModalTitleState,
-} from './ModalTitle'
+export type { UseModalTitleProps, ModalTitleState } from './useModalTitle'

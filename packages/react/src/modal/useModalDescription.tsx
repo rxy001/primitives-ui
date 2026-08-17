@@ -2,13 +2,8 @@
 
 import { __DEV__ } from '@primitives-ui/utils'
 import { useEffect } from 'react'
-import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
-import {
-  createHook,
-  createPrimitive,
-  useResolvedId,
-  withMetadata,
-} from '../utils'
+import type { HookProps, HTMLElements } from '../utils/types'
+import { createHook, useResolvedId, withMetadata } from '../utils'
 import { useModalRootContext } from './ModalContext'
 import { modalSelectors } from './store'
 
@@ -50,26 +45,9 @@ export const useModalDescription = createHook<
   })
 })
 
-export function ModalDescription({ render, ...other }: ModalDescriptionProps) {
-  const props = useModalDescription(other)
-
-  return createPrimitive('p', props, {
-    render,
-  })
-}
-
-ModalDescription.displayName = 'ModalDescription'
-
 interface ModalDescriptionOwnProps {}
 
 export interface ModalDescriptionState {}
 
 export type UseModalDescriptionProps<Element extends HTMLElements = 'p'> =
   HookProps<Element, ModalDescriptionOwnProps>
-
-export interface ModalDescriptionProps extends UseModalDescriptionProps {
-  /**
-   * A function or JSX element that replaces the component's rendered element.
-   */
-  render?: RenderProp<ModalDescriptionState>
-}

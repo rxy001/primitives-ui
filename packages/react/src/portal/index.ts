@@ -1,3 +1,3 @@
-export { Portal, usePortal } from './Potal'
+export { usePortal } from './Potal'
 
-export type { UsePortalProps, PortalProps, PortalState } from './Potal'
+export type { UsePortalProps, PortalState } from './Potal'

@@ -2,9 +2,9 @@ import type { ReactNode } from 'react'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { StrictMode, useRef } from 'react'
 import { createPortal } from 'react-dom'
-import type { UsePopupProps } from '../Popup'
+import type { UsePopupProps } from '../usePopup'
 import { createPrimitive } from '../../utils'
-import { usePopup } from '../Popup'
+import { usePopup } from '../usePopup'
 
 interface TestPopupProps extends UsePopupProps {
   children?: ReactNode

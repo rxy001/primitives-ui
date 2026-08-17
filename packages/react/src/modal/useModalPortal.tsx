@@ -1,10 +1,10 @@
 'use client'
 
 import { useEvent } from '@primitives-ui/hooks'
-import type { PortalProps, PortalState } from '../portal'
-import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
+import type { UsePortalProps, PortalState } from '../portal'
+import type { HookProps, HTMLElements } from '../utils/types'
 import { usePortal } from '../portal'
-import { createHook, createPrimitive } from '../utils'
+import { createHook } from '../utils'
 import { useModalRootContext } from './ModalContext'
 import { modalSelectors } from './store'
 
@@ -49,46 +49,16 @@ export const useModalPortal = createHook<
   return portalProps
 })
 
-export function ModalPortal({
-  render,
-  keepMounted = false,
-  ...other
-}: ModalPortalProps) {
-  const { store } = useModalRootContext()
-  const props = useModalPortal(other)
-  const open = store.useSelector(modalSelectors.open)
-
-  return createPrimitive('div', props, {
-    render,
-    shouldRender: open || keepMounted,
-  })
-}
-
-ModalPortal.displayName = 'ModalPortal'
-
 interface ModalPortalOwnProps {
   /**
    * The element that receives the portal. By default, nested portals use their
    * parent portal and top-level portals use `document.body`. Pass `null` to
    * prevent the portal from rendering.
    */
-  container?: PortalProps['container']
+  container?: UsePortalProps['container']
 }
 
 export interface ModalPortalState extends PortalState {}
 
 export type UseModalPortalProps<Element extends HTMLElements = 'div'> =
   HookProps<Element, ModalPortalOwnProps>
-
-export interface ModalPortalProps extends UseModalPortalProps {
-  /**
-   * Whether to keep the portal mounted in the DOM while the modal is closed.
-   * @defaultValue `false`
-   */
-  keepMounted?: boolean
-
-  /**
-   * A function or JSX element that replaces the component's rendered element.
-   */
-  render?: RenderProp<ModalPortalState>
-}

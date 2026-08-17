@@ -4,8 +4,8 @@ import { useIsoLayoutEffect, useMergeRefs } from '@primitives-ui/hooks'
 import { isFunction } from '@primitives-ui/utils'
 import { useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
-import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
-import { createHook, withMetadata, createPrimitive, resolveRef } from '../utils'
+import type { HookProps, HTMLElements } from '../utils/types'
+import { createHook, withMetadata, resolveRef } from '../utils'
 import { PortalProvider, usePortalContext } from './PortalContext'
 
 export const usePortal = createHook<'div', PortalOwnProps, PortalState, true>(
@@ -61,14 +61,6 @@ export const usePortal = createHook<'div', PortalOwnProps, PortalState, true>(
   },
 )
 
-export function Portal({ render, ...other }: PortalProps) {
-  const props = usePortal(other)
-
-  return createPrimitive('div', props, {
-    render,
-  })
-}
-
 interface PortalOwnProps {
   container?:
     | React.RefObject<HTMLElement>
@@ -83,7 +75,3 @@ export type UsePortalProps<Element extends HTMLElements = 'div'> = HookProps<
   Element,
   PortalOwnProps
 >
-
-export interface PortalProps extends UsePortalProps {
-  render?: RenderProp<PortalState>
-}

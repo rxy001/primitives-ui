@@ -3,18 +3,16 @@
 import { useMergeRefs } from '@primitives-ui/hooks'
 import { useRef } from 'react'
 import type { UsePopupProps } from '../popup'
-import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
+import type { HookProps, HTMLElements } from '../utils/types'
 import { usePopup } from '../popup'
 import {
   createChangeDetails,
   createHook,
-  createPrimitive,
   useResolvedId,
   withMetadata,
 } from '../utils'
 import { useScrollLock } from '../utils'
 import { useModalRootContext } from './ModalContext'
-import { stateAttributesMapping } from './stateAttributesMapping'
 import { modalSelectors } from './store'
 
 export const useModalPopup = createHook<
@@ -94,17 +92,6 @@ export const useModalPopup = createHook<
   },
 )
 
-export function ModalPopup({ render, ...other }: ModalPopupProps) {
-  const props = useModalPopup(other)
-
-  return createPrimitive('div', props, {
-    render,
-    stateAttributesMapping,
-  })
-}
-
-ModalPopup.displayName = 'ModalPopup'
-
 interface ModalPopupOwnProps {
   /**
    * Whether pressing Escape closes the modal.
@@ -162,10 +149,3 @@ export interface ModalPopupState {
 
 export type UseModalPopupProps<Element extends HTMLElements = 'div'> =
   HookProps<Element, ModalPopupOwnProps>
-
-export interface ModalPopupProps extends UseModalPopupProps {
-  /**
-   * A function or JSX element that replaces the component's rendered element.
-   */
-  render?: RenderProp<ModalPopupState>
-}

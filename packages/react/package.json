@@ -23,7 +23,6 @@
     ".": "./src/index.ts",
     "./button": "./src/button/index.ts",
     "./collapsible": "./src/collapsible/index.ts",
-    "./collection": "./src/collection/index.ts",
     "./accordion": "./src/accordion/index.ts",
     "./avatar": "./src/avatar/index.ts",
     "./modal": "./src/modal/index.ts"
@@ -43,10 +42,6 @@
       "./collapsible": {
         "types": "./build/collapsible/index.d.ts",
         "import": "./build/collapsible/index.js"
-      },
-      "./collection": {
-        "types": "./build/collection/index.d.ts",
-        "import": "./build/collection/index.js"
       },
       "./accordion": {
         "types": "./build/accordion/index.d.ts",

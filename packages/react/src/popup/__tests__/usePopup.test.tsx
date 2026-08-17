@@ -4,7 +4,7 @@ import { StrictMode } from 'react'
 import { hydrateRoot } from 'react-dom/client'
 import { renderToString } from 'react-dom/server'
 import { createPrimitive } from '../../utils'
-import { usePopup } from '../Popup'
+import { usePopup } from '../usePopup'
 
 interface TestPopupProps {
   children?: ReactNode
