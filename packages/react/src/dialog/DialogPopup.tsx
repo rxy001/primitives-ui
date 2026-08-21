@@ -10,7 +10,7 @@ export const useDialogPopup = createHook<
   'div',
   DialogPopupOwnProps,
   DialogPopupState
->((props) => useModalPopup(props))
+>((props) => useModalPopup(props, 'Dialog'))
 
 export function DialogPopup({ render, ...other }: DialogPopupProps) {
   const props = useDialogPopup(other)

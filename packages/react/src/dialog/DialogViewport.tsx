@@ -1,22 +1,20 @@
 'use client'
 
+import type { ModalViewportState } from '../modal'
 import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
-import { createHook, createPrimitive, withMetadata } from '../utils'
+import { useModalViewport } from '../modal'
+import { createHook, createPrimitive } from '../utils'
 
 export const useDialogViewport = createHook<
-  'h2',
+  'div',
   DialogViewportOwnProps,
   DialogViewportState
->((props) =>
-  withMetadata(props, {
-    state: {},
-  }),
-)
+>((props) => useModalViewport(props, 'Dialog'))
 
 export function DialogViewport({ render, ...other }: DialogViewportProps) {
   const props = useDialogViewport(other)
 
-  return createPrimitive('h2', props, {
+  return createPrimitive('div', props, {
     render,
   })
 }
@@ -25,9 +23,9 @@ DialogViewport.displayName = 'DialogViewport'
 
 interface DialogViewportOwnProps {}
 
-export interface DialogViewportState {}
+export interface DialogViewportState extends ModalViewportState {}
 
-export type UseDialogViewportProps<Element extends HTMLElements = 'h2'> =
+export type UseDialogViewportProps<Element extends HTMLElements = 'div'> =
   HookProps<Element, DialogViewportOwnProps>
 
 export interface DialogViewportProps extends UseDialogViewportProps {

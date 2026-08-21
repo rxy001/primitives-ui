@@ -10,7 +10,7 @@ export const useAlertDialogBackdrop = createHook<
   'div',
   AlertDialogBackdropOwnProps,
   AlertDialogBackdropState
->((props) => useModalBackdrop(props))
+>((props) => useModalBackdrop(props, 'AlertDialog'))
 
 export function AlertDialogBackdrop({
   render,

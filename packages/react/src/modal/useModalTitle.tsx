@@ -3,6 +3,7 @@
 import { __DEV__ } from '@primitives-ui/utils'
 import { useEffect } from 'react'
 import type { HookProps, HTMLElements } from '../utils/types'
+import type { ModalRootContextValue } from './ModalContext'
 import { createHook, useResolvedId, withMetadata } from '../utils'
 import { useModalRootContext } from './ModalContext'
 import { modalSelectors } from './store'
@@ -10,9 +11,11 @@ import { modalSelectors } from './store'
 export const useModalTitle = createHook<
   'h2',
   ModalTitleOwnProps,
-  ModalTitleState
->((props) => {
-  const { store } = useModalRootContext()
+  ModalTitleState,
+  false,
+  ModalRootContextValue['component']
+>((props, componentName) => {
+  const { store, component } = useModalRootContext()
 
   const id = useResolvedId(props.id)
 
@@ -21,16 +24,27 @@ export const useModalTitle = createHook<
   if (__DEV__) {
     const registeredTitleId = store.useSelector(modalSelectors.modalTitleId)
 
+    if (component !== componentName) {
+      console.error(
+        'Warning: %s.Portal cannot be used with %s.Root.',
+        componentName,
+        component,
+      )
+    }
+
     useEffect(() => {
       const currentTitleId = store.getState().modalTitleId
 
       if (currentTitleId && currentTitleId !== id) {
         console.error(
-          'Warning: Multiple Modal.Title components were detected. ' +
-            'Modal should contain only one Modal.Title.',
+          'Warning: Multiple %s.Title components were detected. ' +
+            '%s should contain only one %s.Title.',
+          componentName,
+          componentName,
+          componentName,
         )
       }
-    }, [id, registeredTitleId, store])
+    }, [id, registeredTitleId, componentName, store])
   }
 
   props = {

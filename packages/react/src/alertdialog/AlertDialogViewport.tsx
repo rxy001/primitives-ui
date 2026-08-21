@@ -1,17 +1,15 @@
 'use client'
 
+import type { ModalViewportState } from '../modal'
 import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
-import { createHook, createPrimitive, withMetadata } from '../utils'
+import { useModalViewport } from '../modal'
+import { createHook, createPrimitive } from '../utils'
 
 export const useAlertDialogViewport = createHook<
-  'h2',
+  'div',
   AlertDialogViewportOwnProps,
   AlertDialogViewportState
->((props) =>
-  withMetadata(props, {
-    state: {},
-  }),
-)
+>((props) => useModalViewport(props, 'AlertDialog'))
 
 export function AlertDialogViewport({
   render,
@@ -19,7 +17,7 @@ export function AlertDialogViewport({
 }: AlertDialogViewportProps) {
   const props = useAlertDialogViewport(other)
 
-  return createPrimitive('h2', props, {
+  return createPrimitive('div', props, {
     render,
   })
 }
@@ -28,9 +26,9 @@ AlertDialogViewport.displayName = 'AlertDialogViewport'
 
 interface AlertDialogViewportOwnProps {}
 
-export interface AlertDialogViewportState {}
+export interface AlertDialogViewportState extends ModalViewportState {}
 
-export type UseAlertDialogViewportProps<Element extends HTMLElements = 'h2'> =
+export type UseAlertDialogViewportProps<Element extends HTMLElements = 'div'> =
   HookProps<Element, AlertDialogViewportOwnProps>
 
 export interface AlertDialogViewportProps extends UseAlertDialogViewportProps {

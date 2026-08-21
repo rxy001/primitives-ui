@@ -1,27 +1,16 @@
-import { useModalBackdrop } from './useModalBackdrop'
-import { useModalClose } from './useModalClose'
-import { useModalDescription } from './useModalDescription'
-import { useModalPopup } from './useModalPopup'
-import { useModalPortal } from './useModalPortal'
-import { useModalRoot } from './useModalRoot'
-import { useModalTitle } from './useModalTitle'
-import { useModalTrigger } from './useModalTrigger'
-
-export {
-  useModalRoot,
-  useModalBackdrop,
-  useModalClose,
-  useModalDescription,
-  useModalTitle,
-  useModalTrigger,
-  useModalPopup,
-  useModalPortal,
-}
-
+export { useModalBackdrop } from './useModalBackdrop'
+export { useModalClose } from './useModalClose'
+export { useModalDescription } from './useModalDescription'
+export { useModalPopup } from './useModalPopup'
+export { useModalPortal } from './useModalPortal'
+export { useModalRoot } from './useModalRoot'
+export { useModalTitle } from './useModalTitle'
+export { useModalTrigger } from './useModalTrigger'
+export { useModalViewport } from './useModalViewport'
 export { useModalRootContext } from './ModalContext'
 
-export { useModalStore } from './store'
-export type { ModalBoundStore, ModalStore } from './store'
+export { useModalStore, createModalStore } from './store'
+export type { ModalStore } from './store'
 
 export type {
   ModalRootState,
@@ -49,3 +38,8 @@ export type { UseModalPopupProps, ModalPopupState } from './useModalPopup'
 export type { UseModalPortalProps, ModalPortalState } from './useModalPortal'
 
 export type { UseModalTitleProps, ModalTitleState } from './useModalTitle'
+
+export type {
+  UseModalViewportProps,
+  ModalViewportState,
+} from './useModalViewport'

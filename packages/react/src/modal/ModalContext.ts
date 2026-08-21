@@ -3,6 +3,7 @@ import type { ModalBoundStore } from './store'
 
 export interface ModalRootContextValue {
   store: ModalBoundStore
+  component: 'Drawer' | 'Dialog' | 'AlertDialog'
 }
 
 export const [ModalRootProvider, useModalRootContext, ModalRootContext] =
@@ -10,4 +11,11 @@ export const [ModalRootProvider, useModalRootContext, ModalRootContext] =
     contextName: 'ModalRootContext',
     hookName: 'useModalRootContext',
     strict: true,
+  })
+
+export const [ModalPortalProvider, useModalPortalContext] =
+  createContext<number>({
+    contextName: 'ModalPortalContext',
+    hookName: 'useModalPortalContext',
+    strict: false,
   })

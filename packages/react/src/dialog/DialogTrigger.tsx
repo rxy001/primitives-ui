@@ -2,7 +2,7 @@
 
 import type { ModalTriggerState } from '../modal'
 import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
-import type { DialogBoundStore } from './store'
+import type { DialogStore } from './store'
 import { useModalTrigger } from '../modal'
 import { createHook, createPrimitive } from '../utils'
 import { stateAttributesMapping } from './stateAttributesMapping'
@@ -11,7 +11,7 @@ export const useDialogTrigger = createHook<
   'button',
   DialogTriggerOwnProps,
   DialogTriggerState
->((props) => useModalTrigger(props))
+>((props) => useModalTrigger(props, 'Dialog'))
 
 export function DialogTrigger({ render, ...other }: DialogTriggerProps) {
   const props = useDialogTrigger(other)
@@ -27,7 +27,7 @@ DialogTrigger.displayName = 'DialogTrigger'
 export interface DialogTriggerState extends ModalTriggerState {}
 
 interface DialogTriggerOwnProps {
-  store?: DialogBoundStore
+  store?: DialogStore
 
   nativeButton?: boolean
 }

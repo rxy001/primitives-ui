@@ -9,7 +9,7 @@ export const useDialogDescription = createHook<
   'p',
   DialogDescriptionOwnProps,
   DialogDescriptionState
->((props) => useModalDescription(props))
+>((props) => useModalDescription(props, 'Dialog'))
 
 export function DialogDescription({
   render,

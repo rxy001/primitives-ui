@@ -2,7 +2,7 @@
 
 import type { ModalTriggerState } from '../modal'
 import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
-import type { AlertDialogBoundStore } from './store'
+import type { AlertDialogStore } from './store'
 import { useModalTrigger } from '../modal'
 import { createHook, createPrimitive } from '../utils'
 import { stateAttributesMapping } from './stateAttributesMapping'
@@ -11,7 +11,7 @@ export const useAlertDialogTrigger = createHook<
   'button',
   AlertDialogTriggerOwnProps,
   AlertDialogTriggerState
->((props) => useModalTrigger(props))
+>((props) => useModalTrigger(props, 'AlertDialog'))
 
 export function AlertDialogTrigger({
   render,
@@ -30,7 +30,7 @@ AlertDialogTrigger.displayName = 'AlertDialogTrigger'
 export interface AlertDialogTriggerState extends ModalTriggerState {}
 
 interface AlertDialogTriggerOwnProps {
-  store?: AlertDialogBoundStore
+  store?: AlertDialogStore
 
   nativeButton?: boolean
 }

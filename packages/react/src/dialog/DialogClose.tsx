@@ -9,7 +9,7 @@ export const useDialogClose = createHook<
   'button',
   DialogCloseOwnProps,
   DialogCloseState
->((props) => useModalClose(props))
+>((props) => useModalClose(props, 'Dialog'))
 
 export function DialogClose({ render, ...other }: DialogCloseProps) {
   const props = useDialogClose(other)

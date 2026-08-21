@@ -11,7 +11,7 @@ import { useModalRoot } from '../modal'
 import { getMetadataProvider } from '../utils'
 
 export const useAlertDialogRoot = (props: UseAlertDialogRootProps) =>
-  useModalRoot(props)
+  useModalRoot(props, 'AlertDialog')
 
 export function AlertDialogRoot({ children, ...other }: AlertDialogRootProps) {
   const props = useAlertDialogRoot(other)

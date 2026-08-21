@@ -9,7 +9,7 @@ export const useAlertDialogClose = createHook<
   'button',
   AlertDialogCloseOwnProps,
   AlertDialogCloseState
->((props) => useModalClose(props))
+>((props) => useModalClose(props, 'AlertDialog'))
 
 export function AlertDialogClose({ render, ...other }: AlertDialogCloseProps) {
   const props = useAlertDialogClose(other)

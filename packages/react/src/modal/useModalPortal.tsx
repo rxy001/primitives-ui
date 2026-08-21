@@ -1,11 +1,13 @@
 'use client'
 
 import { useEvent } from '@primitives-ui/hooks'
+import { __DEV__ } from '@primitives-ui/utils'
 import type { UsePortalProps, PortalState } from '../portal'
 import type { HookProps, HTMLElements } from '../utils/types'
+import type { ModalRootContextValue } from './ModalContext'
 import { usePortal } from '../portal'
-import { createHook } from '../utils'
-import { useModalRootContext } from './ModalContext'
+import { createHook, withMetadata } from '../utils'
+import { ModalPortalProvider, useModalRootContext } from './ModalContext'
 import { modalSelectors } from './store'
 
 const pointerEventBlockerStyle: React.CSSProperties = {
@@ -18,11 +20,22 @@ export const useModalPortal = createHook<
   'div',
   ModalPortalOwnProps,
   ModalPortalState,
-  true
->(({ children, ...props }) => {
-  const { store } = useModalRootContext()
+  true,
+  ModalRootContextValue['component']
+>(({ children, ...props }, componentName) => {
+  const { store, component } = useModalRootContext()
   const modal = store.useSelector(modalSelectors.modal)
   const open = store.useSelector(modalSelectors.open)
+
+  if (__DEV__) {
+    if (component !== componentName) {
+      console.error(
+        'Warning: %s.Portal cannot be used with %s.Root.',
+        componentName,
+        component,
+      )
+    }
+  }
 
   const handlePointerDown = useEvent((event: React.PointerEvent) =>
     event.stopPropagation(),
@@ -46,7 +59,11 @@ export const useModalPortal = createHook<
     ),
   })
 
-  return portalProps
+  return withMetadata(portalProps, {
+    provider: (element: React.ReactNode) => (
+      <ModalPortalProvider value={1}>{element}</ModalPortalProvider>
+    ),
+  })
 })
 
 interface ModalPortalOwnProps {

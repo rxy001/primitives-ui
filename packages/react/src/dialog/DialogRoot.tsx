@@ -10,7 +10,8 @@ import type { DialogStore } from './store'
 import { useModalRoot } from '../modal'
 import { getMetadataProvider } from '../utils'
 
-export const useDialogRoot = (props: UseDialogRootProps) => useModalRoot(props)
+export const useDialogRoot = (props: UseDialogRootProps) =>
+  useModalRoot(props, 'Dialog')
 
 export function DialogRoot({ children, ...other }: DialogRootProps) {
   const props = useDialogRoot(other)

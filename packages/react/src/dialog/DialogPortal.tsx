@@ -11,7 +11,7 @@ export const useDialogPortal = createHook<
   DialogPortalOwnProps,
   DialogPortalState,
   true
->((props) => useModalPortal(props))
+>((props) => useModalPortal(props, 'Dialog'))
 
 export function DialogPortal({
   render,

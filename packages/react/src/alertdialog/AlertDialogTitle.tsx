@@ -10,7 +10,7 @@ export const useAlertDialogTitle = createHook<
   'h2',
   AlertDialogTitleOwnProps,
   AlertDialogTitleState
->((props) => useModalTitle(props))
+>((props) => useModalTitle(props, 'AlertDialog'))
 
 export function AlertDialogTitle({ render, ...other }: AlertDialogTitleProps) {
   const props = useAlertDialogTitle(other)

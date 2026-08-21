@@ -1,31 +1,37 @@
 'use client'
 
 import { useIsoLayoutEffect } from '@primitives-ui/hooks'
-import { useEffect, useMemo } from 'react'
+import { useContext, useEffect, useMemo } from 'react'
 import type { UsePopupProps } from '../popup'
 import type { PopupDismissSource } from '../popup/PopupManager'
 import type { ChangeDetails, CHANGE_REASONS } from '../utils'
 import type { ModalRootContextValue } from './ModalContext'
 import type { ModalStore } from './store'
-import { resolveTrigger } from '../popup/usePopup'
-import { withMetadata } from '../utils'
-import { ModalRootProvider } from './ModalContext'
+import { withMetadata, resolveTrigger, createChangeDetails } from '../utils'
+import { ModalRootContext, ModalRootProvider } from './ModalContext'
 import { modalSelectors, useModalStore } from './store'
 
-export const useModalRoot = ({
-  trigger,
-  defaultTrigger,
-  modal = true,
-  defaultOpen = false,
-  store: externalStore,
-  open: openProp,
-  onOpenChange: onOpenChangeProp,
-  ...props
-}: UseModalRootProps) => {
+export const useModalRoot = (
+  {
+    trigger,
+    defaultTrigger,
+    modal = true,
+    defaultOpen = false,
+    store: externalStore,
+    open: openProp,
+    onOpenChange: onOpenChangeProp,
+    ...props
+  }: UseModalRootProps,
+  component: ModalRootContextValue['component'],
+) => {
+  const parentContext = useContext(ModalRootContext)
+  const nested = !!parentContext
+
   const store = useModalStore({
     externalStore,
     initialState: {
       modal,
+      nested,
       triggerProp: trigger ?? defaultTrigger,
       open: openProp ?? defaultOpen,
     },
@@ -38,7 +44,19 @@ export const useModalRoot = ({
   store.useSyncValue('modal', modal)
   store.useControlledValue('open', openProp, onOpenChange)
   store.useSyncValue('triggerProp', trigger)
+
   const open = store.useSelector(modalSelectors.open)
+
+  useIsoLayoutEffect(() => {
+    if (parentContext?.store && open) {
+      return parentContext.store.subscribe((parentState) => {
+        const state = store.getState()
+        if (!parentState.open && state.open) {
+          store.close(createChangeDetails('ancestor-close', null))
+        }
+      })
+    }
+  }, [open])
 
   useIsoLayoutEffect(() => {
     const context = store.getContext()
@@ -54,7 +72,7 @@ export const useModalRoot = ({
         activeTrigger: context.triggerElements[0],
       })
     }
-  }, [store])
+  }, [])
 
   useEffect(() => {
     if (!open) {
@@ -62,7 +80,10 @@ export const useModalRoot = ({
     }
   }, [open, store])
 
-  const context = useMemo<ModalRootContextValue>(() => ({ store }), [store])
+  const context = useMemo<ModalRootContextValue>(
+    () => ({ store, component }),
+    [store, component],
+  )
 
   return withMetadata(props, {
     provider: (element) => (
@@ -79,6 +100,7 @@ export type ModalOpenChangeReason =
   | CHANGE_REASONS['focusOutside']
   | CHANGE_REASONS['pointerDownOutside']
   | CHANGE_REASONS['triggerPress']
+  | CHANGE_REASONS['ancestorClose']
 
 export type ModalOpenChangeDetails = ChangeDetails<
   ModalOpenChangeReason,

@@ -11,11 +11,14 @@ export const useAlertDialogPopup = createHook<
   AlertDialogPopupOwnProps,
   AlertDialogPopupState
 >((props) =>
-  useModalPopup({
-    role: 'alertdialog',
-    dismissOnPointerDownOutside: false,
-    ...props,
-  }),
+  useModalPopup(
+    {
+      role: 'alertdialog',
+      dismissOnPointerDownOutside: false,
+      ...props,
+    },
+    'AlertDialog',
+  ),
 )
 
 export function AlertDialogPopup({ render, ...other }: AlertDialogPopupProps) {

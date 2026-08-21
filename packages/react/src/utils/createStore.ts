@@ -56,7 +56,6 @@ type UseControlledValue<State> = <
   onChange?: onChange,
 ) => void
 
-const STORE_HANDLE_KEY: unique symbol = Symbol('STORE_HANDLE_KEY')
 const STORE_INTERNAL_KEY: unique symbol = Symbol('STORE_INTERNAL_KEY')
 
 const controlledPropsByStore = new WeakMap<
@@ -70,9 +69,9 @@ type StoreInternals<State, Context> = {
 }
 
 export type Store<State extends Directory, Context extends Directory = {}> = {
-  readonly [STORE_HANDLE_KEY]: true
   getState: () => Readonly<State>
   getContext: () => Readonly<Context>
+  getInitialState: () => Readonly<State>
   subscribe: (listener: Listener<State>) => () => void
 }
 
@@ -106,7 +105,7 @@ export type StoreScope<State extends Directory, Context extends Directory> = {
 
 type StoreOptions<State extends Directory, Context extends Directory> = {
   state: State
-  context?: Context
+  context: Context
 }
 
 type StoreHookOptions<
@@ -148,12 +147,13 @@ export function createStore<
   State extends Directory,
   Context extends Directory = {},
 >(options: StoreOptions<State, Context>): Store<State, Context> {
-  let state = options.state
-  let context = (options.context ?? {}) as Context
+  let { state, context } = options
+  const initialState = state
   const listeners = new Set<Listener<State>>()
 
   const getState = () => state as Readonly<State>
   const getContext = () => context as Readonly<Context>
+  const getInitialState = () => initialState as Readonly<State>
 
   const subscribe = (listener: Listener<State>) => {
     listeners.add(listener)
@@ -213,7 +213,7 @@ export function createStore<
     getState,
     getContext,
     subscribe,
-    [STORE_HANDLE_KEY]: true,
+    getInitialState,
     [STORE_INTERNAL_KEY]: internals,
   }
 
@@ -318,16 +318,17 @@ function useStoreSelector<
   Context extends Directory,
   Value,
 >(store: Store<State, Context>, selector: StoreSelector<State, Value>): Value {
-  const getSelectedSnapshot = useCallback(
+  const getServerSnapshot = useCallback(
+    () => selector(store.getInitialState()),
+    [selector, store],
+  )
+
+  const getSnapshot = useCallback(
     () => selector(store.getState()),
     [selector, store],
   )
 
-  return useSyncExternalStore(
-    store.subscribe,
-    getSelectedSnapshot,
-    getSelectedSnapshot,
-  )
+  return useSyncExternalStore(store.subscribe, getSnapshot, getServerSnapshot)
 }
 
 function useStoreSyncValue<

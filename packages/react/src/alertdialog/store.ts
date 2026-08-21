@@ -1,8 +1,15 @@
-import type { ModalBoundStore, ModalStore } from '../modal'
-import { useModalStore } from '../modal'
+import { useRef } from 'react'
+import type { ModalStore } from '../modal'
+import { createModalStore } from '../modal'
 
 export type AlertDialogStore = ModalStore
 
-export type AlertDialogBoundStore = ModalBoundStore
+export const useAlertDialogStore = () => {
+  const ref = useRef<AlertDialogStore>(null as unknown as AlertDialogStore)
 
-export const useAlertDialogStore = useModalStore
+  if (!ref.current) {
+    ref.current = createModalStore()
+  }
+
+  return ref.current
+}

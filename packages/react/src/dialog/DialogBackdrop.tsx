@@ -10,7 +10,7 @@ export const useDialogBackdrop = createHook<
   'div',
   DialogBackdropOwnProps,
   DialogBackdropState
->((props) => useModalBackdrop(props))
+>((props) => useModalBackdrop(props, 'Dialog'))
 
 export function DialogBackdrop({ render, ...other }: DialogBackdropProps) {
   const props = useDialogBackdrop(other)

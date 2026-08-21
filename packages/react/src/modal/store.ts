@@ -1,7 +1,7 @@
 import type { UsePopupProps } from '../popup'
 import type { BoundStore, Store, StoreScope } from '../utils'
 import type { ModalOpenChangeDetails } from './useModalRoot'
-import { createStoreHook } from '../utils'
+import { createStore, createStoreHook } from '../utils'
 
 export interface ModalStoreState {
   open: boolean
@@ -11,6 +11,7 @@ export interface ModalStoreState {
   modalDescriptionId: string | undefined
   activeTrigger: HTMLElement | undefined
   triggerProp: UsePopupProps['trigger']
+  nested: boolean
 }
 
 export function createModalStoreState(): ModalStoreState {
@@ -22,6 +23,7 @@ export function createModalStoreState(): ModalStoreState {
     modalDescriptionId: undefined,
     activeTrigger: undefined,
     triggerProp: undefined,
+    nested: false,
   }
 }
 
@@ -38,14 +40,14 @@ export function createModalStoreContext(): ModalStoreContext {
 }
 
 export const modalSelectors = {
-  open: (state: Readonly<ModalStoreState>) => state.open,
-  modal: (state: Readonly<ModalStoreState>) => state.modal,
-  modalTitleId: (state: Readonly<ModalStoreState>) => state.modalTitleId,
-  modalPopupId: (state: Readonly<ModalStoreState>) => state.modalPopupId,
-  triggerProp: (state: Readonly<ModalStoreState>) => state.triggerProp,
-  activeTrigger: (state: Readonly<ModalStoreState>) => state.activeTrigger,
-  modalDescriptionId: (state: Readonly<ModalStoreState>) =>
-    state.modalDescriptionId,
+  open: (state: ModalStoreState) => state.open,
+  modal: (state: ModalStoreState) => state.modal,
+  modalTitleId: (state: ModalStoreState) => state.modalTitleId,
+  modalPopupId: (state: ModalStoreState) => state.modalPopupId,
+  triggerProp: (state: ModalStoreState) => state.triggerProp,
+  activeTrigger: (state: ModalStoreState) => state.activeTrigger,
+  modalDescriptionId: (state: ModalStoreState) => state.modalDescriptionId,
+  nested: (state: ModalStoreState) => state.nested,
 }
 
 export function createModalStoreActions() {
@@ -88,12 +90,14 @@ export type ModalBoundStore = BoundStore<
   ModalStoreActions
 >
 
-export const useModalStore = createStoreHook<
-  ModalStoreState,
-  ModalStoreContext,
-  ModalStoreActions
->(() => ({
+export const useModalStore = createStoreHook(() => ({
   state: createModalStoreState(),
   context: createModalStoreContext(),
   actions: createModalStoreActions(),
 }))
+
+export const createModalStore = () =>
+  createStore({
+    state: createModalStoreState(),
+    context: createModalStoreContext(),
+  })

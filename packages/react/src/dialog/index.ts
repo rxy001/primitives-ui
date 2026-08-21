@@ -34,7 +34,7 @@ export {
 }
 
 export { useDialogStore } from './store'
-export type { DialogBoundStore, DialogStore } from './store'
+export type { DialogStore } from './store'
 
 export type {
   DialogRootProps,

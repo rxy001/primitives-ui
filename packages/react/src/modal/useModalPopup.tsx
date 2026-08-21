@@ -1,9 +1,11 @@
 'use client'
 
 import { useMergeRefs } from '@primitives-ui/hooks'
+import { __DEV__ } from '@primitives-ui/utils'
 import { useRef } from 'react'
 import type { UsePopupProps } from '../popup'
 import type { HookProps, HTMLElements } from '../utils/types'
+import type { ModalRootContextValue } from './ModalContext'
 import { usePopup } from '../popup'
 import {
   createChangeDetails,
@@ -12,34 +14,56 @@ import {
   withMetadata,
 } from '../utils'
 import { useScrollLock } from '../utils'
-import { useModalRootContext } from './ModalContext'
+import { useModalPortalContext, useModalRootContext } from './ModalContext'
 import { modalSelectors } from './store'
 
 export const useModalPopup = createHook<
   'div',
   ModalPopupOwnProps,
-  ModalPopupState
+  ModalPopupState,
+  false,
+  ModalRootContextValue['component']
 >(
-  ({
-    initialFocus,
-    returnFocus,
-    onPointerDownOutside,
-    onEscapeKeyDown,
-    onFocusOutside,
-    onDismiss,
-    dismissOnEscapeKeyDown,
-    dismissOnPointerDownOutside,
-    dismissOnFocusOutside,
-    preventScroll,
-    ...props
-  }) => {
-    const { store } = useModalRootContext()
+  (
+    {
+      initialFocus,
+      returnFocus,
+      onPointerDownOutside,
+      onEscapeKeyDown,
+      onFocusOutside,
+      onDismiss,
+      dismissOnEscapeKeyDown,
+      dismissOnPointerDownOutside,
+      dismissOnFocusOutside,
+      preventScroll,
+      ...props
+    },
+    componentName,
+  ) => {
+    const { store, component } = useModalRootContext()
+
+    if (__DEV__) {
+      if (component !== componentName) {
+        console.error(
+          'Warning: %s.Popup cannot be used with %s.Root.',
+          componentName,
+          component,
+        )
+      }
+
+      const isInPortal = !!useModalPortalContext()
+
+      if (!isInPortal) {
+        throw new Error(`Primitives UI: ${componentName}.Portal is missing.`)
+      }
+    }
 
     const open = store.useSelector(modalSelectors.open)
     const modal = store.useSelector(modalSelectors.modal)
     const triggerProp = store.useSelector(modalSelectors.triggerProp)
     const activeTrigger = store.useSelector(modalSelectors.activeTrigger)
     const modalTitleId = store.useSelector(modalSelectors.modalTitleId)
+    const nested = store.useSelector(modalSelectors.nested)
     const modalDescriptionId = store.useSelector(
       modalSelectors.modalDescriptionId,
     )
@@ -87,6 +111,7 @@ export const useModalPopup = createHook<
     return withMetadata(popupProps, {
       state: {
         open,
+        nested,
       },
     })
   },
@@ -145,6 +170,8 @@ interface ModalPopupOwnProps {
 
 export interface ModalPopupState {
   open: boolean
+
+  nested: boolean
 }
 
 export type UseModalPopupProps<Element extends HTMLElements = 'div'> =

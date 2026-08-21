@@ -43,7 +43,7 @@ export {
 }
 
 export { useAlertDialogStore } from './store'
-export type { AlertDialogBoundStore, AlertDialogStore } from './store'
+export type { AlertDialogStore } from './store'
 
 export type {
   AlertDialogRootProps,

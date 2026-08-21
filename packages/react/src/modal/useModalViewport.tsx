@@ -7,10 +7,10 @@ import { createHook, withMetadata } from '../utils'
 import { useModalRootContext } from './ModalContext'
 import { modalSelectors } from './store'
 
-export const useModalBackdrop = createHook<
+export const useModalViewport = createHook<
   'div',
-  ModalBackdropOwnProps,
-  ModalBackdropState,
+  ModalViewportOwnProps,
+  ModalViewportState,
   false,
   ModalRootContextValue['component']
 >((props, componentName) => {
@@ -19,7 +19,7 @@ export const useModalBackdrop = createHook<
   if (__DEV__) {
     if (component !== componentName) {
       console.error(
-        'Warning: %s.Backdrop cannot be used with %s.Root.',
+        'Warning: %s.Portal cannot be used with %s.Root.',
         componentName,
         component,
       )
@@ -28,22 +28,16 @@ export const useModalBackdrop = createHook<
 
   const open = store.useSelector(modalSelectors.open)
 
-  props = {
-    ...props,
-    'aria-hidden': true,
-    role: 'presentation',
-  }
-
   return withMetadata(props, {
     state: { open },
   })
 })
 
-interface ModalBackdropOwnProps {}
+interface ModalViewportOwnProps {}
 
-export interface ModalBackdropState {
+export interface ModalViewportState {
   open: boolean
 }
 
-export type UseModalBackdropProps<Element extends HTMLElements = 'div'> =
-  HookProps<Element, ModalBackdropOwnProps>
+export type UseModalViewportProps<Element extends HTMLElements = 'div'> =
+  HookProps<Element, ModalViewportOwnProps>
