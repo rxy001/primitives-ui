@@ -16,7 +16,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { isFocusable, tabbable } from 'tabbable'
-import type { PreventableEvent } from '../utils'
+import type { PreventableEvent, Trigger } from '../utils'
 import type { HookProps, HTMLElements } from '../utils/types'
 import type {
   ESCAPE_KEY,
@@ -33,6 +33,7 @@ import {
   resolveRef,
   markOutsideElementsAsHidden,
   createPreventableEvent,
+  resolveTrigger,
 } from '../utils'
 import { FocusGuard } from './FocusGuard'
 import { PopupProvider, usePopupContext } from './PopupContext'
@@ -697,19 +698,6 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState, true>(
   },
 )
 
-type FocusTarget =
-  | null
-  | boolean
-  | HTMLElement
-  | React.RefObject<HTMLElement | null>
-  | (() => boolean | HTMLElement | null | void)
-
-type FocusTrigger =
-  | null
-  | HTMLElement
-  | (() => HTMLElement | null | void)
-  | React.RefObject<HTMLElement | null>
-
 interface FocusSession {
   returnTarget: FocusableElement | null
   preventReturnFocus: boolean
@@ -753,21 +741,31 @@ interface PopupOwnProps {
    * when focus is restored and as an anchor when focus is not looped.
    * @defaultValue `null`
    */
-  trigger?: FocusTrigger
+  trigger?: Trigger
 
   /**
    * The element to focus when the popup becomes active. Pass `false` to keep
    * the current focus. By default, the first tabbable element is focused, with
    * the popup itself as a fallback.
    */
-  initialFocus?: FocusTarget
+  initialFocus?:
+    | null
+    | boolean
+    | HTMLElement
+    | React.RefObject<HTMLElement | null>
+    | (() => boolean | HTMLElement | null | void)
 
   /**
    * The element to focus when the popup becomes inactive. Pass `false` to
    * disable focus restoration. By default, focus returns to the trigger or the
    * element that was focused before the popup became active.
    */
-  returnFocus?: FocusTarget
+  returnFocus?:
+    | null
+    | boolean
+    | HTMLElement
+    | React.RefObject<HTMLElement | null>
+    | (() => boolean | HTMLElement | null | void)
 
   dismissOnFocusOutside?: boolean
 
@@ -830,24 +828,6 @@ function isVisible(element: HTMLElement): boolean {
   }
 
   return styles.display !== 'none' && styles.display !== 'contents'
-}
-
-export function resolveTrigger(
-  value: FocusTrigger | undefined,
-): HTMLElement | null {
-  let trigger = isFunction(value) ? value() : value
-
-  if (trigger == null) return null
-
-  if ('current' in trigger) {
-    trigger = trigger.current
-  }
-
-  if (!trigger?.isConnected) {
-    return null
-  }
-
-  return trigger
 }
 
 function getFocusableElement(element: Element | null): FocusableElement | null {

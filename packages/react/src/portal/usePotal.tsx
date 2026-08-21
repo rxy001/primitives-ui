@@ -38,6 +38,7 @@ export const usePortal = createHook<'div', PortalOwnProps, PortalState, true>(
       ...props,
       ref: mergedRefs,
       'data-primitives-ui-portal': '',
+      role: 'presentation',
     }
 
     const context = useMemo(

@@ -33,3 +33,15 @@ export function isHTMLElement(
 
   return element instanceof HTMLElement
 }
+
+export function isSVGElement(element: Element): element is SVGElement {
+  if (typeof window === 'undefined') {
+    return false
+  }
+
+  return element instanceof SVGElement
+}
+
+export function isElement(node: unknown): node is Element {
+  return node instanceof Element
+}
