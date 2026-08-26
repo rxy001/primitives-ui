@@ -27,9 +27,9 @@ DialogTrigger.displayName = 'DialogTrigger'
 export interface DialogTriggerState extends ModalTriggerState {}
 
 interface DialogTriggerOwnProps {
-  store?: DialogStore
-
   nativeButton?: boolean
+
+  store?: DialogStore
 }
 
 export type UseDialogTriggerProps<Element extends HTMLElements = 'button'> =

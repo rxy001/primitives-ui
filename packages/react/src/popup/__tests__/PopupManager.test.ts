@@ -18,12 +18,12 @@ function createEntry(
     modalRef: { current: false },
     pause: vi.fn(),
     resume: vi.fn(),
-    getTrigger: () => null,
+    triggerRef: { current: null },
     isFocusInside: (target) =>
       !!target &&
       typeof (target as Node).nodeType === 'number' &&
       elementRef.current?.contains(target as Node) === true,
-    requestDismiss: vi.fn(() => null),
+    requestDismiss: vi.fn(() => undefined),
     forceDismiss: vi.fn(() => vi.fn()),
     ...overrides,
   }

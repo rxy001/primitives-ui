@@ -30,14 +30,6 @@ interface DialogPopupOwnProps {
 
   dismissOnPointerDownOutside?: UseModalPopupProps['dismissOnPointerDownOutside']
 
-  onEscapeKeyDown?: UseModalPopupProps['onEscapeKeyDown']
-
-  onPointerDownOutside?: UseModalPopupProps['onPointerDownOutside']
-
-  onFocusOutside?: UseModalPopupProps['onFocusOutside']
-
-  onDismiss?: UseModalPopupProps['onDismiss']
-
   initialFocus?: UseModalPopupProps['initialFocus']
 
   returnFocus?: UseModalPopupProps['returnFocus']

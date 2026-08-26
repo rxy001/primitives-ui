@@ -4,7 +4,6 @@ import type {
   ModalOpenChangeDetails,
   ModalOpenChangeReason,
   ModalRootState,
-  UseModalRootProps,
 } from '../modal'
 import type { AlertDialogStore } from './store'
 import { useModalRoot } from '../modal'
@@ -35,13 +34,13 @@ export interface UseAlertDialogRootProps {
 
   onOpenChange?: (open: boolean, details: AlertDialogOpenChangeDetails) => void
 
-  store?: AlertDialogStore
+  triggerId?: string
 
-  defaultTrigger?: UseModalRootProps['trigger']
-
-  trigger?: UseModalRootProps['trigger']
+  defaultTriggerId?: string
 
   modal?: boolean
+
+  store?: AlertDialogStore
 }
 
 export interface AlertDialogRootProps extends UseAlertDialogRootProps {

@@ -2,7 +2,7 @@
 
 import { useMergeRefs } from '@primitives-ui/hooks'
 import { __DEV__ } from '@primitives-ui/utils'
-import { useRef } from 'react'
+import { useMemo, useRef } from 'react'
 import type { UsePopupProps } from '../popup'
 import type { HookProps, HTMLElements } from '../utils/types'
 import type { ModalRootContextValue } from './ModalContext'
@@ -28,10 +28,6 @@ export const useModalPopup = createHook<
     {
       initialFocus,
       returnFocus,
-      onPointerDownOutside,
-      onEscapeKeyDown,
-      onFocusOutside,
-      onDismiss,
       dismissOnEscapeKeyDown,
       dismissOnPointerDownOutside,
       dismissOnFocusOutside,
@@ -40,7 +36,7 @@ export const useModalPopup = createHook<
     },
     componentName,
   ) => {
-    const { store, component } = useModalRootContext()
+    const { store, component, nested } = useModalRootContext()
 
     if (__DEV__) {
       if (component !== componentName) {
@@ -60,10 +56,8 @@ export const useModalPopup = createHook<
 
     const open = store.useSelector(modalSelectors.open)
     const modal = store.useSelector(modalSelectors.modal)
-    const triggerProp = store.useSelector(modalSelectors.triggerProp)
-    const activeTrigger = store.useSelector(modalSelectors.activeTrigger)
+    const activeTriggerId = store.useSelector(modalSelectors.activeTriggerId)
     const modalTitleId = store.useSelector(modalSelectors.modalTitleId)
-    const nested = store.useSelector(modalSelectors.nested)
     const modalDescriptionId = store.useSelector(
       modalSelectors.modalDescriptionId,
     )
@@ -71,7 +65,15 @@ export const useModalPopup = createHook<
     const mergedRefs = useMergeRefs(popupRef, props.ref)
     const id = useResolvedId(props.id)
 
-    store.useSyncValueWithCleanup('modalPopupId', id)
+    const activeTrigger = useMemo(() => {
+      const context = store.getContext()
+
+      return context.triggerElements.find(
+        (element) => element.id === activeTriggerId,
+      )
+    }, [activeTriggerId, store])
+
+    store.useSyncStateWithCleanup('modalPopupId', id)
 
     props = {
       role: 'dialog',
@@ -91,19 +93,14 @@ export const useModalPopup = createHook<
       dismissOnEscapeKeyDown,
       dismissOnFocusOutside,
       dismissOnPointerDownOutside,
-      onFocusOutside,
-      onEscapeKeyDown,
-      onPointerDownOutside,
       onDismiss: (event) => {
-        onDismiss?.(event)
-
         store.close(
           createChangeDetails(event.reason, event.originalEvent, {
             dismissSource: event.source,
           }),
         )
       },
-      trigger: triggerProp ?? activeTrigger,
+      trigger: activeTrigger,
     })
 
     useScrollLock(popupRef, open && (preventScroll ?? modal))
@@ -130,22 +127,6 @@ interface ModalPopupOwnProps {
    * @defaultValue `true`
    */
   dismissOnPointerDownOutside?: UsePopupProps['dismissOnPointerDownOutside']
-
-  /**
-   * Called when Escape is pressed while this is the topmost popup. Call
-   * `event.preventDefault()` to prevent the modal from closing.
-   */
-  onEscapeKeyDown?: UsePopupProps['onEscapeKeyDown']
-
-  /**
-   * Called when the primary pointer button is pressed outside the popup. Call
-   * `event.preventDefault()` to prevent the modal from closing.
-   */
-  onPointerDownOutside?: UsePopupProps['onPointerDownOutside']
-
-  onFocusOutside?: UsePopupProps['onFocusOutside']
-
-  onDismiss?: UsePopupProps['onDismiss']
 
   /**
    * The element to focus when the modal opens. Pass `false` to keep the current

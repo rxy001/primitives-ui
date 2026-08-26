@@ -7,6 +7,7 @@ import { DialogRoot, useDialogRoot } from './DialogRoot'
 import { DialogTitle, useDialogTitle } from './DialogTitle'
 import { DialogTrigger, useDialogTrigger } from './DialogTrigger'
 import { DialogViewport, useDialogViewport } from './DialogViewport'
+import { createDialogStore } from './store'
 
 const Dialog = {
   Root: DialogRoot,
@@ -18,6 +19,7 @@ const Dialog = {
   Close: DialogClose,
   Portal: DialogPortal,
   Viewport: DialogViewport,
+  createStore: createDialogStore,
 }
 
 export {
@@ -31,9 +33,9 @@ export {
   useDialogPopup,
   useDialogPortal,
   useDialogViewport,
+  createDialogStore,
 }
 
-export { useDialogStore } from './store'
 export type { DialogStore } from './store'
 
 export type {

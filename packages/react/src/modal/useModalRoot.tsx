@@ -1,23 +1,21 @@
 'use client'
 
 import { useIsoLayoutEffect } from '@primitives-ui/hooks'
-import { useContext, useEffect, useMemo } from 'react'
-import type { UsePopupProps } from '../popup'
-import type { PopupDismissSource } from '../popup/PopupManager'
-import type { ChangeDetails, CHANGE_REASONS } from '../utils'
+import { __DEV__ } from '@primitives-ui/utils'
+import { useContext, useMemo } from 'react'
 import type { ModalRootContextValue } from './ModalContext'
-import type { ModalStore } from './store'
-import { withMetadata, resolveTrigger, createChangeDetails } from '../utils'
+import type { ModalOpenChangeDetails, ModalStore } from './store'
+import { withMetadata, createChangeDetails } from '../utils'
 import { ModalRootContext, ModalRootProvider } from './ModalContext'
 import { modalSelectors, useModalStore } from './store'
 
 export const useModalRoot = (
   {
-    trigger,
-    defaultTrigger,
+    defaultTriggerId,
     modal = true,
     defaultOpen = false,
-    store: externalStore,
+    store: storeProp,
+    triggerId: triggerIdProp,
     open: openProp,
     onOpenChange: onOpenChangeProp,
     ...props
@@ -28,30 +26,34 @@ export const useModalRoot = (
   const nested = !!parentContext
 
   const store = useModalStore({
-    externalStore,
+    externalStore: storeProp,
     initialState: {
       modal,
-      nested,
-      triggerProp: trigger ?? defaultTrigger,
-      open: openProp ?? defaultOpen,
+      openProp,
+      triggerIdProp,
+      open: defaultOpen,
+      triggerId: defaultTriggerId,
     },
   })
 
-  const onOpenChange = (nextOpen: boolean) => {
-    onOpenChangeProp?.(nextOpen, store.getContext().openChangeDetails!)
-  }
-
-  store.useSyncValue('modal', modal)
-  store.useControlledValue('open', openProp, onOpenChange)
-  store.useSyncValue('triggerProp', trigger)
+  store.useSyncState('modal', modal)
+  store.useControlledState('openProp', openProp)
+  store.useSyncState('triggerIdProp', triggerIdProp)
+  store.useSyncContext('onOpenChangeProp', onOpenChangeProp)
 
   const open = store.useSelector(modalSelectors.open)
 
   useIsoLayoutEffect(() => {
     if (parentContext?.store && open) {
-      return parentContext.store.subscribe((parentState) => {
+      return parentContext.store.observe((currentState, previousState) => {
         const state = store.getState()
-        if (!parentState.open && state.open) {
+        if (!modalSelectors.open(state)) {
+          return
+        }
+        if (
+          modalSelectors.open(currentState) !==
+          modalSelectors.open(previousState)
+        ) {
           store.close(createChangeDetails('ancestor-close', null))
         }
       })
@@ -63,26 +65,16 @@ export const useModalRoot = (
     const state = store.getState()
 
     // Handle default opening: treat the first registered Trigger as the active trigger.
-    if (
-      state.open &&
-      !state.activeTrigger &&
-      !resolveTrigger(state.triggerProp)
-    ) {
+    if (modalSelectors.open(state) && !modalSelectors.activeTriggerId(state)) {
       store.setState({
-        activeTrigger: context.triggerElements[0],
+        triggerId: context.triggerElements[0]?.id,
       })
     }
   }, [])
 
-  useEffect(() => {
-    if (!open) {
-      store.clearActiveTrigger()
-    }
-  }, [open, store])
-
   const context = useMemo<ModalRootContextValue>(
-    () => ({ store, component }),
-    [store, component],
+    () => ({ store, component, nested }),
+    [store, component, nested],
   )
 
   return withMetadata(props, {
@@ -93,22 +85,6 @@ export const useModalRoot = (
 }
 
 export interface ModalRootState {}
-
-export type ModalOpenChangeReason =
-  | CHANGE_REASONS['closePress']
-  | CHANGE_REASONS['escapeKey']
-  | CHANGE_REASONS['focusOutside']
-  | CHANGE_REASONS['pointerDownOutside']
-  | CHANGE_REASONS['triggerPress']
-  | CHANGE_REASONS['ancestorClose']
-
-export type ModalOpenChangeDetails = ChangeDetails<
-  ModalOpenChangeReason,
-  {
-    trigger?: HTMLElement | undefined
-    dismissSource?: PopupDismissSource
-  }
->
 
 export interface UseModalRootProps {
   /**
@@ -123,26 +99,15 @@ export interface UseModalRootProps {
   defaultOpen?: boolean
 
   /**
-   * Called when the modal is opened or closed.
+   * Called when the modal is opened or closed. When `open` is controlled, you must keep the `open` state in sync.
    */
   onOpenChange?: (open: boolean, details: ModalOpenChangeDetails) => void
 
-  /**
-   * An external store used to control the modal and connect components that
-   * are rendered outside this root.
-   */
-  store?: ModalStore
+  triggerId?: string
 
-  /**
-   * The initial trigger element used when `trigger` is uncontrolled.
-   */
-  defaultTrigger?: UsePopupProps['trigger']
-
-  /**
-   * The trigger element to associate with the modal. Focus returns to this
-   * element when the modal closes.
-   */
-  trigger?: UsePopupProps['trigger']
+  defaultTriggerId?: string
 
   modal?: boolean
+
+  store?: ModalStore
 }

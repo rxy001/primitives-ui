@@ -30,9 +30,9 @@ AlertDialogTrigger.displayName = 'AlertDialogTrigger'
 export interface AlertDialogTriggerState extends ModalTriggerState {}
 
 interface AlertDialogTriggerOwnProps {
-  store?: AlertDialogStore
-
   nativeButton?: boolean
+
+  store?: AlertDialogStore
 }
 
 export type UseAlertDialogTriggerProps<

@@ -10,14 +10,13 @@ export { useModalViewport } from './useModalViewport'
 export { useModalRootContext } from './ModalContext'
 
 export { useModalStore, createModalStore } from './store'
-export type { ModalStore } from './store'
-
 export type {
-  ModalRootState,
-  UseModalRootProps,
+  ModalStore,
   ModalOpenChangeDetails,
   ModalOpenChangeReason,
-} from './useModalRoot'
+} from './store'
+
+export type { ModalRootState, UseModalRootProps } from './useModalRoot'
 
 export type { UseModalTriggerProps, ModalTriggerState } from './useModalTrigger'
 

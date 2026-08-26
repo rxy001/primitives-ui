@@ -4,6 +4,7 @@ import type { ModalBoundStore } from './store'
 export interface ModalRootContextValue {
   store: ModalBoundStore
   component: 'Drawer' | 'Dialog' | 'AlertDialog'
+  nested: boolean
 }
 
 export const [ModalRootProvider, useModalRootContext, ModalRootContext] =

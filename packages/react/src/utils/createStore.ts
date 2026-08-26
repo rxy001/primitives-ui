@@ -1,4 +1,4 @@
-import { useIsoLayoutEffect, useLatest } from '@primitives-ui/hooks'
+import { useIsoLayoutEffect } from '@primitives-ui/hooks'
 import { __DEV__, isFunction } from '@primitives-ui/utils'
 import {
   useCallback,
@@ -9,7 +9,12 @@ import {
 } from 'react'
 import type { Directory, Noop } from './types'
 
-type Listener<T> = (state: T) => void
+type Observer<State> = (
+  state: Readonly<State>,
+  previousState: Readonly<State>,
+) => void
+
+type Subscriber = () => void
 
 export type StoreSelector<State, Value> = (state: Readonly<State>) => Value
 
@@ -20,41 +25,45 @@ type KeysAllowingUndefined<State> = {
 type ControlledProp = {
   owner: object
   controlled: boolean
-  onChange?: (value: any) => void
 }
 
-type SetState<State> = (
-  update: Partial<State> | ((state: Readonly<State>) => Partial<State>),
-) => void
+type StateUpdate<State> =
+  | Partial<State>
+  | ((state: Readonly<State>) => Partial<State>)
+
+type SetState<State> = (update: StateUpdate<State>) => void
 
 type SetContext<Context> = (context: Partial<Context>) => void
 
 type StoreActions = Directory<Noop>
 
-type SyncValue<State> = <Key extends keyof State>(
+type UseSyncState<State> = <Key extends keyof State>(
   key: Key,
   value: State[Key],
+) => void
+
+type UseSyncContext<Context> = <Key extends keyof Context>(
+  key: Key,
+  value: Context[Key],
 ) => void
 
 type UseSelector<State> = <Value>(
   selector: StoreSelector<State, Value>,
 ) => Value
 
-type UseSyncValueWithCleanup<State> = <
+type UseSyncStateWithCleanup<State> = <
   Key extends KeysAllowingUndefined<State>,
 >(
   key: Key,
   value: State[Key],
 ) => void
 
-type UseControlledValue<State> = <
-  Key extends keyof State,
-  onChange extends (value: State[Key], ...rest: any[]) => void,
->(
+type UseControlledState<State> = <Key extends keyof State>(
   key: Key,
   value?: State[Key],
-  onChange?: onChange,
 ) => void
+
+type IsValueControlled<State> = (key: keyof State) => boolean
 
 const STORE_INTERNAL_KEY: unique symbol = Symbol('STORE_INTERNAL_KEY')
 
@@ -66,13 +75,14 @@ const controlledPropsByStore = new WeakMap<
 type StoreInternals<State, Context> = {
   commitState: SetState<State>
   commitContext: SetContext<Context>
+  subscribe: (subscriber: Subscriber) => () => void
 }
 
 export type Store<State extends Directory, Context extends Directory = {}> = {
   getState: () => Readonly<State>
   getContext: () => Readonly<Context>
   getInitialState: () => Readonly<State>
-  subscribe: (listener: Listener<State>) => () => void
+  observe: (observer: Observer<State>) => () => void
 }
 
 export type BoundStore<
@@ -84,9 +94,11 @@ export type BoundStore<
     setState: SetState<State>
     setContext: SetContext<Context>
     useSelector: UseSelector<State>
-    useSyncValue: SyncValue<State>
-    useSyncValueWithCleanup: UseSyncValueWithCleanup<State>
-    useControlledValue: UseControlledValue<State>
+    useSyncState: UseSyncState<State>
+    useSyncStateWithCleanup: UseSyncStateWithCleanup<State>
+    useControlledState: UseControlledState<State>
+    useSyncContext: UseSyncContext<Context>
+    isValueControlled: IsValueControlled<State>
   }
 
 type StoreInstance<State extends Directory, Context extends Directory> = Store<
@@ -96,11 +108,13 @@ type StoreInstance<State extends Directory, Context extends Directory> = Store<
   readonly [STORE_INTERNAL_KEY]: StoreInternals<State, Context>
 }
 
-export type StoreScope<State extends Directory, Context extends Directory> = {
-  getState: () => Readonly<State>
-  getContext: () => Readonly<Context>
+export type StoreScope<
+  State extends Directory,
+  Context extends Directory,
+> = Store<State, Context> & {
   setState: SetState<State>
   setContext: SetContext<Context>
+  isValueControlled: IsValueControlled<State>
 }
 
 type StoreOptions<State extends Directory, Context extends Directory> = {
@@ -108,7 +122,7 @@ type StoreOptions<State extends Directory, Context extends Directory> = {
   context: Context
 }
 
-type StoreHookOptions<
+type UseStoreOptions<
   State extends Directory,
   Context extends Directory,
   Actions extends StoreActions,
@@ -149,39 +163,104 @@ export function createStore<
 >(options: StoreOptions<State, Context>): Store<State, Context> {
   let { state, context } = options
   const initialState = state
-  const listeners = new Set<Listener<State>>()
+  const subscribers = new Set<Subscriber>()
+  const observers = new Set<Observer<State>>()
+  const pendingUpdates: StateUpdate<State>[] = []
 
   const getState = () => state as Readonly<State>
   const getContext = () => context as Readonly<Context>
   const getInitialState = () => initialState as Readonly<State>
 
-  const subscribe = (listener: Listener<State>) => {
-    listeners.add(listener)
-
+  const subscribe = (subscriber: Subscriber) => {
+    subscribers.add(subscriber)
     return () => {
-      listeners.delete(listener)
+      subscribers.delete(subscriber)
     }
   }
 
+  const observe = (observer: Observer<State>) => {
+    observers.add(observer)
+    return () => {
+      observers.delete(observer)
+    }
+  }
+
+  let isFlushing = false
+
   const commitState: SetState<State> = (update) => {
-    const partial = isFunction(update) ? update(state) : update
-    const patch: Partial<State> = {}
+    pendingUpdates.push(update)
 
-    Object.keys(partial).forEach((key: keyof State) => {
-      const value = partial[key]
+    if (isFlushing) {
+      return
+    }
 
-      if (!Object.is(state[key], value)) {
-        patch[key] = value
+    isFlushing = true
+
+    try {
+      while (pendingUpdates.length > 0) {
+        let updateIndex = 0
+        let hasStateChanged = false
+
+        while (updateIndex < pendingUpdates.length) {
+          const queuedUpdate = pendingUpdates[updateIndex]
+          updateIndex += 1
+
+          const previousState = state
+
+          const partial = isFunction(queuedUpdate)
+            ? queuedUpdate(previousState)
+            : queuedUpdate
+
+          const patch: Partial<State> = {}
+
+          Object.keys(partial).forEach((key: keyof State) => {
+            const value = partial[key]
+
+            if (!Object.is(previousState[key], value)) {
+              patch[key] = value
+            }
+          })
+
+          if (Object.keys(patch).length === 0) {
+            continue
+          }
+
+          const nextState: State = {
+            ...previousState,
+            ...patch,
+          }
+
+          state = nextState
+          hasStateChanged = true
+
+          const observerSnapshot = Array.from(observers)
+
+          observerSnapshot.forEach((observer) => {
+            if (!observers.has(observer)) {
+              return
+            }
+            observer(nextState, previousState)
+          })
+        }
+
+        pendingUpdates.splice(0, updateIndex)
+
+        if (!hasStateChanged) {
+          continue
+        }
+
+        const subscriberSnapshot = Array.from(subscribers)
+
+        subscriberSnapshot.forEach((subscriber) => {
+          if (!subscribers.has(subscriber)) {
+            return
+          }
+          subscriber()
+        })
       }
-    })
-
-    if (Object.keys(patch).length > 0) {
-      state = {
-        ...state,
-        ...patch,
-      }
-      const lastState = { ...state }
-      listeners.forEach((listener) => listener(lastState))
+    } finally {
+      pendingUpdates.length = 0
+      isFlushing = false
     }
   }
 
@@ -207,12 +286,13 @@ export function createStore<
   const internals: StoreInternals<State, Context> = {
     commitState,
     commitContext,
+    subscribe,
   }
 
   const store: StoreInstance<State, Context> = {
+    observe,
     getState,
     getContext,
-    subscribe,
     getInitialState,
     [STORE_INTERNAL_KEY]: internals,
   }
@@ -220,7 +300,7 @@ export function createStore<
   return store
 }
 
-export function useStore<
+function useStore<
   State extends Directory,
   Context extends Directory,
   Actions extends StoreActions = {},
@@ -228,50 +308,51 @@ export function useStore<
   store: Store<State, Context>,
   createActions?: (scope: StoreScope<State, Context>) => Actions,
 ): BoundStore<State, Context, Actions> {
-  const { commitState, commitContext } = getStoreInternals(store)
+  const { commitState, commitContext: setContext } = getStoreInternals(store)
   const controlledProps = getControlledProps(store)
+
   const setState = useCallback<SetState<State>>(
     (update) => {
-      const state = store.getState()
-      const partial = isFunction(update) ? update(state) : update
-      const patch: Partial<State> = {}
-      const callbacks: Array<() => void> = []
+      commitState((currentState) => {
+        const partial = isFunction(update) ? update(currentState) : update
 
-      Object.keys(partial).forEach((key: keyof State) => {
-        const value = partial[key]
+        const patch: Partial<State> = {}
 
-        if (!Object.is(state[key], value)) {
-          const controlledProp = controlledProps.get(key)
+        Object.keys(partial).forEach((key: keyof State) => {
+          const value = partial[key]
 
-          if (!controlledProp?.controlled) {
-            patch[key] = value
+          if (Object.is(currentState[key], value)) {
+            return
           }
 
-          if (controlledProp?.onChange) {
-            callbacks.push(() => {
-              controlledProp.onChange?.(value)
-            })
+          const controlledRegistration = controlledProps.get(key)
+
+          if (controlledRegistration?.controlled) {
+            return
           }
-        }
+
+          patch[key] = value
+        })
+
+        return patch
       })
-
-      commitState(patch)
-
-      // Avoid calling setState repeatedly inside onChange to prevent data
-      // inconsistency.
-      callbacks.forEach((callback) => callback())
     },
-    [commitState, controlledProps, store],
+    [commitState, controlledProps],
+  )
+
+  const isValueControlled = useCallback(
+    (key: keyof State) => !!controlledProps.get(key)?.controlled,
+    [controlledProps],
   )
 
   const scope = useMemo<StoreScope<State, Context>>(
     () => ({
-      getState: store.getState,
-      getContext: store.getContext,
       setState,
-      setContext: commitContext,
+      setContext,
+      isValueControlled,
+      ...store,
     }),
-    [commitContext, setState, store],
+    [setState, setContext, isValueControlled, store],
   )
   const actions = useMemo(
     () => createActions?.(scope) ?? ({} as Actions),
@@ -281,36 +362,30 @@ export function useStore<
   return useMemo(() => {
     const useSelector: UseSelector<State> = (selector) =>
       useStoreSelector(store, selector)
-    const useSyncValue: SyncValue<State> = (key, value) =>
-      useStoreSyncValue(store, commitState, key, value)
-    const useSyncValueWithCleanup: UseSyncValueWithCleanup<State> = (
+    const useSyncState: UseSyncState<State> = (key, value) =>
+      useStoreSyncState(store, key, value)
+    const useSyncStateWithCleanup: UseSyncStateWithCleanup<State> = (
       key,
       value,
-    ) => useStoreSyncValueWithCleanup(store, commitState, key, value)
-    const useControlledValue: UseControlledValue<State> = (
-      key,
-      value,
-      onChange,
-    ) =>
-      useStoreControlledValue(
-        commitState,
-        controlledProps,
-        key,
-        value,
-        onChange,
-      )
+    ) => useStoreSyncStateWithCleanup(store, key, value)
+    const useControlledState: UseControlledState<State> = (key, value) =>
+      useStoreControlledState(store, key, value)
+    const useSyncContext: UseSyncContext<Context> = (key, value) =>
+      useStoreSyncContext(store, key, value)
 
     return {
       ...store,
       ...actions,
+      isValueControlled,
       setState,
-      setContext: commitContext,
+      setContext,
       useSelector,
-      useSyncValue,
-      useSyncValueWithCleanup,
-      useControlledValue,
+      useSyncState,
+      useSyncStateWithCleanup,
+      useControlledState,
+      useSyncContext,
     }
-  }, [actions, commitContext, commitState, controlledProps, setState, store])
+  }, [actions, setContext, setState, isValueControlled, store])
 }
 
 function useStoreSelector<
@@ -318,6 +393,8 @@ function useStoreSelector<
   Context extends Directory,
   Value,
 >(store: Store<State, Context>, selector: StoreSelector<State, Value>): Value {
+  const { subscribe } = getStoreInternals(store)
+
   const getServerSnapshot = useCallback(
     () => selector(store.getInitialState()),
     [selector, store],
@@ -328,114 +405,55 @@ function useStoreSelector<
     [selector, store],
   )
 
-  return useSyncExternalStore(store.subscribe, getSnapshot, getServerSnapshot)
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
 }
 
-function useStoreSyncValue<
+function useStoreSyncState<
   State extends Directory,
   Context extends Directory,
   Key extends keyof State,
->(
-  store: Store<State, Context>,
-  commitState: SetState<State>,
-  key: Key,
-  value: State[Key],
-) {
+>(store: Store<State, Context>, key: Key, value: State[Key]) {
   useIsoLayoutEffect(() => {
     if (!Object.is(store.getState()[key], value)) {
+      const { commitState } = getStoreInternals(store)
       const patch: Partial<State> = {}
       patch[key] = value
       commitState(patch)
     }
-  }, [commitState, key, store, value])
+  }, [key, store, value])
 }
 
-function useStoreSyncValueWithCleanup<
+function useStoreSyncStateWithCleanup<
   State extends Directory,
   Context extends Directory,
   Key extends KeysAllowingUndefined<State>,
->(
-  store: Store<State, Context>,
-  commitState: SetState<State>,
-  key: Key,
-  value: State[Key],
-) {
-  useStoreSyncValue(store, commitState, key, value)
+>(store: Store<State, Context>, key: Key, value: State[Key]) {
+  useStoreSyncState(store, key, value)
 
   useIsoLayoutEffect(
     () => () => {
+      const { commitState } = getStoreInternals(store)
       const patch: Partial<State> = {}
       patch[key] = undefined as State[Key]
       commitState(patch)
     },
-    [commitState, key],
+    [store, key],
   )
 }
 
-function useStoreControlledValue<
+function useStoreControlledState<
   State extends Directory,
+  Context extends Directory,
   Key extends keyof State,
->(
-  commitState: SetState<State>,
-  controlledProps: Map<keyof State, ControlledProp>,
-  key: Key,
-  value?: State[Key],
-  onChange?: (value: State[Key]) => void,
-) {
-  const onChangeRef = useLatest(onChange)
-  const ownerRef = useRef<object>(null)
+>(store: Store<State, Context>, key: Key, value?: State[Key]) {
+  const ownerRef = useRef<object>({})
+  const controlledProps = getControlledProps(store)
 
-  if (!ownerRef.current) {
-    ownerRef.current = {}
-  }
-
-  const owner = ownerRef.current
-  const callback = useCallback(
-    (nextValue: State[Key]) => onChangeRef.current?.(nextValue),
-    [onChangeRef],
-  )
   const controlled = value !== undefined
-  const previousControlledRef = useRef(controlled)
-
-  useIsoLayoutEffect(() => {
-    const existing = controlledProps.get(key)
-
-    if (existing && existing.owner !== owner) {
-      if (__DEV__) {
-        console.error(
-          `Warning: Multiple components are controlling the "${String(
-            key,
-          )}" state of the same store. A store state key can only have one controlled owner. Create a separate store for each component root.`,
-        )
-      }
-
-      return
-    }
-
-    const registration: ControlledProp = {
-      owner,
-      controlled,
-      onChange: callback,
-    }
-
-    controlledProps.set(key, registration)
-
-    return () => {
-      if (controlledProps.get(key) === registration) {
-        controlledProps.delete(key)
-      }
-    }
-  }, [callback, controlled, controlledProps, key, owner])
-
-  useIsoLayoutEffect(() => {
-    if (controlled && controlledProps.get(key)?.owner === owner) {
-      const patch: Partial<State> = {}
-      patch[key] = value
-      commitState(patch)
-    }
-  }, [commitState, controlled, controlledProps, key, owner, value])
 
   if (__DEV__) {
+    const previousControlledRef = useRef(controlled)
+
     useEffect(() => {
       const previousControlled = previousControlledRef.current
 
@@ -450,6 +468,59 @@ function useStoreControlledValue<
       previousControlledRef.current = controlled
     }, [controlled])
   }
+
+  useIsoLayoutEffect(() => {
+    const existing = controlledProps.get(key)
+
+    if (existing && existing.owner !== ownerRef.current) {
+      if (__DEV__) {
+        console.error(
+          `Warning: Multiple components are controlling the "${String(
+            key,
+          )}" state of the same store. A store state key can only have one controlled owner. Create a separate store for each component root.`,
+        )
+      }
+
+      return
+    }
+
+    const registration: ControlledProp = {
+      owner: ownerRef.current,
+      controlled,
+    }
+
+    controlledProps.set(key, registration)
+
+    return () => {
+      if (controlledProps.get(key) === registration) {
+        controlledProps.delete(key)
+      }
+    }
+  }, [controlled, controlledProps, key])
+
+  useIsoLayoutEffect(() => {
+    if (controlled && controlledProps.get(key)?.owner === ownerRef.current) {
+      const { commitState } = getStoreInternals(store)
+      const patch: Partial<State> = {}
+      patch[key] = value
+      commitState(patch)
+    }
+  }, [controlled, controlledProps, key, value])
+}
+
+function useStoreSyncContext<
+  State extends Directory,
+  Context extends Directory,
+  Key extends keyof Context,
+>(store: Store<State, Context>, key: Key, value: Context[Key]) {
+  useIsoLayoutEffect(() => {
+    if (!Object.is(store.getContext()[key], value)) {
+      const { commitContext } = getStoreInternals(store)
+      const patch: Partial<Context> = {}
+      patch[key] = value
+      commitContext(patch)
+    }
+  }, [key, store, value])
 }
 
 type UseStoreProps<State extends Directory, Context extends Directory> = {
@@ -457,38 +528,39 @@ type UseStoreProps<State extends Directory, Context extends Directory> = {
   initialState?: Partial<State>
 }
 
-export function createStoreHook<
+export function createUseStore<
   State extends Directory,
   Context extends Directory = {},
   Actions extends StoreActions = {},
->(createOptions: () => StoreHookOptions<State, Context, Actions>) {
-  return function useCreatedStore(
-    props?: UseStoreProps<State, Context>,
-  ): BoundStore<State, Context, Actions> {
-    const optionsRef = useRef<StoreHookOptions<State, Context, Actions>>(null)
+>(createOptions: () => UseStoreOptions<State, Context, Actions>) {
+  return (
+    props: UseStoreProps<State, Context>,
+  ): BoundStore<State, Context, Actions> => {
+    const optionsRef = useRef<UseStoreOptions<State, Context, Actions>>(null)
 
     if (!optionsRef.current) {
       optionsRef.current = createOptions()
     }
 
     const options = optionsRef.current
-    const externalStore = props?.externalStore
+    const { initialState, externalStore } = props
+
     const internalStoreRef = useRef<Store<State, Context>>(null)
 
     if (!externalStore && !internalStoreRef.current) {
       internalStoreRef.current = createStore({
         state: {
           ...options.state,
-          ...props?.initialState,
+          ...initialState,
         },
         context: options.context,
       })
     }
 
     const store = externalStore ?? internalStoreRef.current!
-    const previousStoreRef = useRef(store)
 
     if (__DEV__) {
+      const previousStoreRef = useRef(store)
       useEffect(() => {
         if (!Object.is(previousStoreRef.current, store)) {
           console.error(

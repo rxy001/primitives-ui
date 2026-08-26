@@ -19,14 +19,14 @@ export const useModalTitle = createHook<
 
   const id = useResolvedId(props.id)
 
-  store.useSyncValueWithCleanup('modalTitleId', id)
+  store.useSyncStateWithCleanup('modalTitleId', id)
 
   if (__DEV__) {
     const registeredTitleId = store.useSelector(modalSelectors.modalTitleId)
 
     if (component !== componentName) {
       console.error(
-        'Warning: %s.Portal cannot be used with %s.Root.',
+        'Warning: %s.Title cannot be used with %s.Root.',
         componentName,
         component,
       )

@@ -19,7 +19,7 @@ export const useModalDescription = createHook<
 
   const id = useResolvedId(props.id)
 
-  store.useSyncValueWithCleanup('modalDescriptionId', id)
+  store.useSyncStateWithCleanup('modalDescriptionId', id)
 
   if (__DEV__) {
     if (component !== componentName) {

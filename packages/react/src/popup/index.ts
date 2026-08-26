@@ -9,3 +9,4 @@ export type {
   EscapeKeyDownEvent,
   FocusOutsideEvent,
 } from './usePopup'
+export type { PopupDismissSource } from './PopupManager'

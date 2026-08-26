@@ -19,7 +19,7 @@ export const useModalViewport = createHook<
   if (__DEV__) {
     if (component !== componentName) {
       console.error(
-        'Warning: %s.Portal cannot be used with %s.Root.',
+        'Warning: %s.Viewport cannot be used with %s.Root.',
         componentName,
         component,
       )

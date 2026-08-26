@@ -41,15 +41,13 @@ type PopupDismissAction = () => void
 
 export interface PopupEntry extends OrderedRegistryEntry<PopupEntry> {
   modalRef: React.RefObject<boolean>
+  triggerRef: React.RefObject<HTMLElement | null>
   pause: () => void
   resume: () => void
-  getTrigger: () => HTMLElement | null
-
   isFocusInside(target: EventTarget | null): boolean
-
   requestDismiss(
     request: PopupDismissRequest<'self'>,
-  ): PopupDismissAction | null
+  ): PopupDismissAction | void
 
   forceDismiss(request: PopupDismissRequest<'ancestor'>): PopupDismissAction
 }
@@ -494,7 +492,7 @@ function resolveEscapeTargetGroups(
 
   const target = event.target as HTMLElement
   const triggerEntry = activeEntries.find((entry) => {
-    const trigger = entry.getTrigger()
+    const trigger = entry.triggerRef.current
 
     return trigger?.contains(target) ?? false
   })
@@ -548,7 +546,7 @@ function resolvePointerDownTargetGroups(
   const activeEntries = getActiveEntries(entries)
 
   const rootEntries = getRootEntries(activeEntries).filter(
-    (entry) => !entry.getTrigger()?.contains(event.target as HTMLElement),
+    (entry) => !entry.triggerRef.current?.contains(event.target as HTMLElement),
   )
 
   return rootEntries.map((targetEntry) => ({

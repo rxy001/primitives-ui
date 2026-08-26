@@ -6,6 +6,8 @@ export const CHANGE_REASONS = {
   escapeKey: 'escape-key',
   pointerDownOutside: 'pointer-down-outside',
   focusOutside: 'focus-outside',
+  triggerDetached: 'trigger-detached',
+  ancestorClose: 'ancestor-close',
 } as const
 
 export type CHANGE_REASONS = typeof CHANGE_REASONS
@@ -16,6 +18,8 @@ interface ChangeReasonEventMap {
   [CHANGE_REASONS.escapeKey]: KeyboardEvent
   [CHANGE_REASONS.pointerDownOutside]: PointerEvent
   [CHANGE_REASONS.focusOutside]: FocusEvent
+  [CHANGE_REASONS.triggerDetached]: null
+  [CHANGE_REASONS.ancestorClose]: null
 }
 
 export type ChangeReason = keyof ChangeReasonEventMap
@@ -29,6 +33,8 @@ export type ChangeDetails<
   ? {
       readonly reason: Reason
       readonly event: ReasonToEvent<Reason>
+      cancel: () => void
+      readonly isCanceled: boolean
     } & CustomProperties
   : CustomProperties
 
@@ -40,9 +46,17 @@ export function createChangeDetails<
   event: ReasonToEvent<Reason>,
   custom?: CustomProperties,
 ): ChangeDetails<Reason, CustomProperties> {
+  let canceled = false
+
   return {
     ...custom,
     reason,
     event,
+    cancel() {
+      canceled = true
+    },
+    get isCanceled() {
+      return canceled
+    },
   } as ChangeDetails<Reason, CustomProperties>
 }

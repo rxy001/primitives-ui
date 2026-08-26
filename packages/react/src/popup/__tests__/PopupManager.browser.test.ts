@@ -22,12 +22,12 @@ function createEntry(
     modalRef: { current: false },
     pause: vi.fn(),
     resume: vi.fn(),
-    getTrigger: () => null,
+    triggerRef: { current: null },
     isFocusInside: (target) =>
       !!target &&
       typeof (target as Node).nodeType === 'number' &&
       elementRef.current?.contains(target as Node) === true,
-    requestDismiss: vi.fn(() => null),
+    requestDismiss: vi.fn(() => undefined),
     forceDismiss: vi.fn(() => vi.fn()),
     ...overrides,
   }
@@ -119,7 +119,7 @@ describe('PopupManager registration', () => {
   it('ignores duplicate registration and makes cleanup idempotent', async () => {
     const doc = createTestDocument()
     const manager = new PopupManager(doc)
-    const requestDismiss = vi.fn(() => null)
+    const requestDismiss = vi.fn(() => undefined)
     const entry = createEntry(doc, undefined, { requestDismiss })
     const firstCleanup = manager.register(entry)
     const duplicateCleanup = manager.register(entry)
@@ -191,7 +191,7 @@ describe('PopupManager Escape handling', () => {
     const requestTargetDismiss = vi.fn(() => vi.fn())
     const requestOtherDismiss = vi.fn(() => vi.fn())
     const target = createEntry(doc, undefined, {
-      getTrigger: () => trigger,
+      triggerRef: { current: trigger },
       requestDismiss: requestTargetDismiss,
     })
     const other = createEntry(doc, undefined, {
@@ -322,7 +322,7 @@ describe('PopupManager Escape handling', () => {
     const doc = createTestDocument()
     const manager = new PopupManager(doc)
     const dismissChild = vi.fn()
-    const requestParentDismiss = vi.fn(() => null)
+    const requestParentDismiss = vi.fn()
     const requestChildDismiss = vi.fn(() => dismissChild)
     const parent = createEntry(doc, undefined, {
       requestDismiss: requestParentDismiss,
@@ -346,7 +346,7 @@ describe('PopupManager Escape handling', () => {
   it('does not target an entry registered after keydown', async () => {
     const doc = createTestDocument()
     const manager = new PopupManager(doc)
-    const requestFirstDismiss = vi.fn(() => null)
+    const requestFirstDismiss = vi.fn()
     const requestNewDismiss = vi.fn(() => vi.fn())
     const unregisterFirst = manager.register(
       createEntry(doc, undefined, { requestDismiss: requestFirstDismiss }),
@@ -466,7 +466,7 @@ describe('PopupManager pointer-down edge cases', () => {
     const manager = new PopupManager(doc)
     const outside = doc.createElement('button')
     doc.body.append(outside)
-    const requestFirstDismiss = vi.fn(() => null)
+    const requestFirstDismiss = vi.fn()
     const requestNewDismiss = vi.fn(() => vi.fn())
     const unregisterFirst = manager.register(
       createEntry(doc, undefined, { requestDismiss: requestFirstDismiss }),
@@ -491,7 +491,7 @@ describe('PopupManager pointer-down edge cases', () => {
     const inside = doc.createElement('button')
     const outside = doc.createElement('button')
     doc.body.append(inside, outside)
-    const requestDismiss = vi.fn(() => null)
+    const requestDismiss = vi.fn(() => undefined)
     const unregister = manager.register(
       createEntry(doc, undefined, {
         elementRef: { current: inside },
@@ -605,7 +605,7 @@ describe('PopupManager deep focus transitions', () => {
       if (interaction.reason === 'focus-outside') {
         originalEvents.push(interaction.originalEvent)
       }
-      return null
+      return
     })
     const unregister = manager.register(
       createEntry(doc, undefined, {
@@ -678,9 +678,9 @@ function createLiveEntry(
     modalRef: { current: false },
     pause: vi.fn(),
     resume: vi.fn(),
-    getTrigger: () => null,
+    triggerRef: { current: null },
     isFocusInside,
-    requestDismiss: vi.fn(() => null),
+    requestDismiss: vi.fn(),
     forceDismiss: vi.fn(() => vi.fn()),
     ...overrides,
   }
@@ -771,8 +771,8 @@ describe('PopupManager pointer-down handling', () => {
 
   it('treats a descendant as inside its ancestor Popup branch', async () => {
     const manager = new PopupManager(document)
-    const requestParentDismiss = vi.fn(() => null)
-    const requestChildDismiss = vi.fn(() => null)
+    const requestParentDismiss = vi.fn()
+    const requestChildDismiss = vi.fn()
     const dismissSibling = vi.fn()
     const requestSiblingDismiss = vi.fn(() => dismissSibling)
     const parent = createLiveEntry(undefined, {
@@ -844,7 +844,7 @@ describe('PopupManager focus-outside handling', () => {
           calls.push('decide parent')
           return () => calls.push('commit parent')
         }
-        return null
+        return
       },
     })
     const child = createLiveEntry(parent, {
@@ -872,7 +872,7 @@ describe('PopupManager focus-outside handling', () => {
 
   it('dismisses only the child when focus moves from child to parent', async () => {
     const manager = new PopupManager(document)
-    const requestParentDismiss = vi.fn(() => null)
+    const requestParentDismiss = vi.fn()
     const dismissChild = vi.fn()
     const requestChildDismiss = vi.fn(() => dismissChild)
     const parent = createLiveEntry(undefined, {
@@ -902,7 +902,7 @@ describe('PopupManager focus-outside handling', () => {
 
   it('dismisses only the sibling branch that focus leaves', async () => {
     const manager = new PopupManager(document)
-    const requestParentDismiss = vi.fn(() => null)
+    const requestParentDismiss = vi.fn()
     const parent = createLiveEntry(undefined, {
       requestDismiss: requestParentDismiss,
     })
@@ -1100,7 +1100,7 @@ describe('PopupManager focus-outside handling', () => {
       if (interaction.reason === 'focus-outside') {
         originalEvents.push(interaction.originalEvent)
       }
-      return null
+      return
     })
     const popupNode = document.createElement('button')
     const entry = createLiveEntry(undefined, {
@@ -1130,7 +1130,7 @@ describe('PopupManager focus-outside handling', () => {
   it('continues to an exited child when its parent rejects dismissal', async () => {
     const manager = new PopupManager(document)
     const outside = document.createElement('button')
-    const requestParentDismiss = vi.fn(() => null)
+    const requestParentDismiss = vi.fn()
     const dismissChild = vi.fn()
     const requestChildDismiss = vi.fn(() => dismissChild)
     const parent = createLiveEntry(undefined, {
@@ -1254,7 +1254,7 @@ describe('PopupManager focus-outside handling', () => {
   it('does not target a Popup registered after focusout', async () => {
     const manager = new PopupManager(document)
     const outside = document.createElement('button')
-    const requestFirstDismiss = vi.fn(() => null)
+    const requestFirstDismiss = vi.fn()
     const requestNewDismiss = vi.fn(() => vi.fn())
     const first = createLiveEntry(undefined, {
       requestDismiss: requestFirstDismiss,

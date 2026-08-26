@@ -86,24 +86,6 @@ describe('usePopup dismissal API', () => {
     })
   })
 
-  it('allows Escape dismissal to be disabled without suppressing its callback', async () => {
-    const onEscapeKeyDown = vi.fn()
-    const onDismiss = vi.fn()
-    render(
-      <TestPopup
-        dismissOnEscapeKeyDown={false}
-        modal={false}
-        onDismiss={onDismiss}
-        onEscapeKeyDown={onEscapeKeyDown}
-      />,
-    )
-
-    await pressEscape(screen.getByTestId('popup'))
-
-    expect(onEscapeKeyDown).toHaveBeenCalledOnce()
-    expect(onDismiss).not.toHaveBeenCalled()
-  })
-
   it('allows the Escape callback to prevent dismissal', async () => {
     const onDismiss = vi.fn()
     render(
@@ -186,40 +168,6 @@ describe('usePopup dismissal API', () => {
     expect(onDismiss).not.toHaveBeenCalled()
   })
 
-  it('allows pointer dismissal to be disabled or prevented', async () => {
-    const disabledCallback = vi.fn()
-    const preventedCallback = vi.fn((event: PointerDownOutsideEvent) =>
-      event.preventDefault(),
-    )
-    const onDisabledDismiss = vi.fn()
-    const onPreventedDismiss = vi.fn()
-    render(
-      <>
-        <TestPopup
-          dismissOnPointerDownOutside={false}
-          modal={false}
-          onDismiss={onDisabledDismiss}
-          onPointerDownOutside={disabledCallback}
-          testId='disabled'
-        />
-        <TestPopup
-          modal={false}
-          onDismiss={onPreventedDismiss}
-          onPointerDownOutside={preventedCallback}
-          testId='prevented'
-        />
-        <button data-testid='outside'>Outside</button>
-      </>,
-    )
-
-    await pointerDown(screen.getByTestId('outside'))
-
-    expect(disabledCallback).toHaveBeenCalledOnce()
-    expect(preventedCallback).toHaveBeenCalledOnce()
-    expect(onDisabledDismiss).not.toHaveBeenCalled()
-    expect(onPreventedDismiss).not.toHaveBeenCalled()
-  })
-
   it('dismisses a non-modal Popup when focus leaves it', async () => {
     const onFocusOutside = vi.fn<(event: FocusOutsideEvent) => void>()
     const onDismiss = vi.fn()
@@ -248,44 +196,6 @@ describe('usePopup dismissal API', () => {
       source: 'self',
       originalEvent: onFocusOutside.mock.calls[0]?.[0].originalEvent,
     })
-  })
-
-  it('allows focus dismissal to be disabled or prevented', async () => {
-    const onDisabledDismiss = vi.fn()
-    const onPreventedDismiss = vi.fn()
-    const disabledCallback = vi.fn()
-    const preventedCallback = vi.fn((event: FocusOutsideEvent) =>
-      event.preventDefault(),
-    )
-    render(
-      <>
-        <TestPopup
-          dismissOnFocusOutside={false}
-          modal={false}
-          onDismiss={onDisabledDismiss}
-          onFocusOutside={disabledCallback}
-          testId='disabled'
-        />
-        <TestPopup
-          modal={false}
-          onDismiss={onPreventedDismiss}
-          onFocusOutside={preventedCallback}
-          testId='prevented'
-        />
-        <button data-testid='outside'>Outside</button>
-      </>,
-    )
-    const outside = screen.getByTestId('outside')
-
-    await moveFocus(screen.getByTestId('disabled-inside'), outside)
-    await moveFocus(screen.getByTestId('prevented-inside'), outside)
-
-    await waitFor(() => {
-      expect(disabledCallback).toHaveBeenCalledOnce()
-      expect(preventedCallback).toHaveBeenCalledOnce()
-    })
-    expect(onDisabledDismiss).not.toHaveBeenCalled()
-    expect(onPreventedDismiss).not.toHaveBeenCalled()
   })
 
   it('does not dispatch focus-outside callbacks to a modal Popup', async () => {

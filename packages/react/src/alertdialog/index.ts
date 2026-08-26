@@ -16,6 +16,7 @@ import {
   AlertDialogViewport,
   useAlertDialogViewport,
 } from './AlertDialogViewport'
+import { createAlertDialogStore } from './store'
 
 const AlertDialog = {
   Root: AlertDialogRoot,
@@ -27,6 +28,7 @@ const AlertDialog = {
   Close: AlertDialogClose,
   Portal: AlertDialogPortal,
   Viewport: AlertDialogViewport,
+  createStore: createAlertDialogStore,
 }
 
 export {
@@ -40,9 +42,9 @@ export {
   useAlertDialogPopup,
   useAlertDialogPortal,
   useAlertDialogViewport,
+  createAlertDialogStore,
 }
 
-export { useAlertDialogStore } from './store'
 export type { AlertDialogStore } from './store'
 
 export type {

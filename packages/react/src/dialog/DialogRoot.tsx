@@ -4,7 +4,6 @@ import type {
   ModalOpenChangeDetails,
   ModalOpenChangeReason,
   ModalRootState,
-  UseModalRootProps,
 } from '../modal'
 import type { DialogStore } from './store'
 import { useModalRoot } from '../modal'
@@ -35,13 +34,13 @@ export interface UseDialogRootProps {
 
   onOpenChange?: (open: boolean, details: DialogOpenChangeDetails) => void
 
-  store?: DialogStore
+  triggerId?: string
 
-  defaultTrigger?: UseModalRootProps['trigger']
-
-  trigger?: UseModalRootProps['trigger']
+  defaultTriggerId?: string
 
   modal?: boolean
+
+  store?: DialogStore
 }
 
 export interface DialogRootProps extends UseDialogRootProps {

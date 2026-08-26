@@ -12,6 +12,7 @@ import {
   withMetadata,
   useRegisterTrigger,
   useTriggerClick,
+  useResolvedId,
 } from '../utils'
 import { ModalRootContext } from './ModalContext'
 import { modalSelectors, useModalStore } from './store'
@@ -22,18 +23,20 @@ export const useModalTrigger = createHook<
   ModalTriggerState,
   false,
   ModalRootContextValue['component']
->(({ nativeButton, store: externalStore, ...props }, componentName) => {
+>(({ nativeButton, store: storeProp, ...props }, componentName) => {
   const context = useContext(ModalRootContext)
 
-  if (!externalStore && !context?.store) {
+  if (!storeProp && !context?.store) {
     throw new Error(
       `${componentName}.Trigger must be used within ${componentName}.Root or provided a store prop.`,
     )
   }
 
   const store = useModalStore({
-    externalStore: externalStore ?? context?.store,
+    externalStore: storeProp ?? context?.store,
   })
+
+  const id = useResolvedId(props.id)
 
   const [isMountedByThisTrigger, registerTrigger] = useRegisterTrigger({
     store,
@@ -51,6 +54,7 @@ export const useModalTrigger = createHook<
     'aria-expanded': isMountedByThisTrigger,
     'aria-controls': (isMountedByThisTrigger && modalPopupId) || undefined,
     ...props,
+    id,
     ref: mergedRefs,
   }
 
@@ -72,9 +76,9 @@ export interface ModalTriggerState extends ButtonState {
 }
 
 interface ModalTriggerOwnProps {
-  store?: ModalStore
-
   nativeButton?: boolean
+
+  store?: ModalStore
 }
 
 export type UseModalTriggerProps<Element extends HTMLElements = 'button'> =
