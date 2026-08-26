@@ -10,6 +10,7 @@
   "scripts": {
     "dev:sb": "pnpm --filter='./apps/storybook' dev",
     "build:packages": "turbo build --filter='./packages/*'",
+    "build:sb": "pnpm --filter='./apps/storybook' build",
     "lint": "oxlint -c ./.oxlintrc.json",
     "lint:fix": "pnpm lint --fix",
     "format": "oxfmt -c ./.oxfmtrc.json",

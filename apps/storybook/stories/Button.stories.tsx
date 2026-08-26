@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Button } from '@primitives-ui/react'
+import { primaryButtonClassName } from './styles'
 
 const meta = {
   title: 'Components/Button',
@@ -13,7 +14,7 @@ const meta = {
     },
   },
   args: {
-    className: 'bg-blue-500 text-white px-4 py-2 rounded inline-flex',
+    className: primaryButtonClassName,
   },
 } satisfies Meta<typeof Button>
 

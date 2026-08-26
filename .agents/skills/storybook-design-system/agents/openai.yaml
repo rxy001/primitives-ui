@@ -1,0 +1,4 @@
+interface:
+  display_name: "Storybook Design System"
+  short_description: "Style requested Storybook primitives with Tailwind"
+  default_prompt: "Use $storybook-design-system to style the requested Storybook primitives consistently with shadcn/ui."

@@ -1,6 +1,7 @@
 import type { AccordionRootProps } from '@primitives-ui/react'
 import type { Meta } from '@storybook/react-vite'
 import { Accordion } from '@primitives-ui/react'
+import { accordionClassNames } from './styles'
 
 const meta = {
   title: 'Components/Accordion',
@@ -10,24 +11,36 @@ export default meta
 
 function AccordionTemplate(props: AccordionRootProps) {
   return (
-    <Accordion.Root {...props}>
-      <Accordion.Item>
-        <Accordion.Header>
-          <Accordion.Trigger>Trigger-1</Accordion.Trigger>
+    <Accordion.Root {...props} className={accordionClassNames.root}>
+      <Accordion.Item className={accordionClassNames.item}>
+        <Accordion.Header className={accordionClassNames.header}>
+          <Accordion.Trigger className={accordionClassNames.trigger}>
+            Trigger-1
+          </Accordion.Trigger>
         </Accordion.Header>
-        <Accordion.Panel>Panel-1</Accordion.Panel>
+        <Accordion.Panel className={accordionClassNames.panel}>
+          Panel-1
+        </Accordion.Panel>
       </Accordion.Item>
-      <Accordion.Item>
-        <Accordion.Header>
-          <Accordion.Trigger>Trigger-2</Accordion.Trigger>
+      <Accordion.Item className={accordionClassNames.item}>
+        <Accordion.Header className={accordionClassNames.header}>
+          <Accordion.Trigger className={accordionClassNames.trigger}>
+            Trigger-2
+          </Accordion.Trigger>
         </Accordion.Header>
-        <Accordion.Panel>Panel-2</Accordion.Panel>
+        <Accordion.Panel className={accordionClassNames.panel}>
+          Panel-2
+        </Accordion.Panel>
       </Accordion.Item>
-      <Accordion.Item>
-        <Accordion.Header>
-          <Accordion.Trigger>Trigger-3</Accordion.Trigger>
+      <Accordion.Item className={accordionClassNames.item}>
+        <Accordion.Header className={accordionClassNames.header}>
+          <Accordion.Trigger className={accordionClassNames.trigger}>
+            Trigger-3
+          </Accordion.Trigger>
         </Accordion.Header>
-        <Accordion.Panel>Panel-3</Accordion.Panel>
+        <Accordion.Panel className={accordionClassNames.panel}>
+          Panel-3
+        </Accordion.Panel>
       </Accordion.Item>
     </Accordion.Root>
   )

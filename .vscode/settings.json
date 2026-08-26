@@ -31,5 +31,13 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.oxc": "always"
   },
-  "files.eol": "\n"
+  "files.eol": "\n",
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
+
+  "tailwindCSS.classFunctions": ["cn", "clsx", "tw", "twMerge"]
 }
