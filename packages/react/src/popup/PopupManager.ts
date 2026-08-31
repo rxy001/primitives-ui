@@ -1,4 +1,4 @@
-import { addEventListener } from '@primitives-ui/utils'
+import { addEventListener, isFunction } from '@primitives-ui/utils'
 import type { OrderedRegistryEntry } from '../utils'
 import {
   createOrderedRegistry,
@@ -352,7 +352,7 @@ export class PopupManager {
 
         const wasSynchronouslyUnregistered = !this.#isRegistered(entry)
         currentWillDismiss =
-          dismissAction !== null || wasSynchronouslyUnregistered
+          isFunction(dismissAction) || wasSynchronouslyUnregistered
 
         if (dismissAction) {
           dismissActionByEntry.set(entry, dismissAction)
@@ -491,11 +491,13 @@ function resolveEscapeTargetGroups(
   const activeEntries = getActiveEntries(entries)
 
   const target = event.target as HTMLElement
+
   const triggerEntry = activeEntries.find((entry) => {
     const trigger = entry.triggerRef.current
 
     return trigger?.contains(target) ?? false
   })
+
   if (triggerEntry) {
     return [
       {

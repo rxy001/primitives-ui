@@ -76,12 +76,12 @@ export function createModalStoreActions() {
   return (scope: StoreScope<ModalStoreState, ModalStoreContext>) => {
     function setOpen(nextOpen: boolean, details: ModalOpenChangeDetails) {
       const context = scope.getContext()
-
       context.onOpenChangeProp?.(nextOpen, details)
 
       if (details.isCanceled) return
 
       if (scope.isValueControlled('openProp')) {
+        // observe may update within the same React render phase
         const unobserve = scope.observe((currentState, previousState) => {
           if (currentState.openProp !== previousState.openProp) {
             scope.setState({
@@ -137,6 +137,7 @@ interface InitialState {
   defaultTriggerId?: string | undefined
 }
 
+// initialState should use synchronously‑passed props to prevent unnecessary renders.
 export const createModalStore = (initialState?: InitialState) =>
   createStore({
     state: createModalStoreState({

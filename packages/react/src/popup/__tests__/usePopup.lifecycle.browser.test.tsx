@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { StrictMode, useRef } from 'react'
+import { StrictMode, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { UsePopupProps } from '../usePopup'
 import { createPrimitive } from '../../utils'
@@ -31,16 +31,16 @@ function TriggerHarness({
   showTrigger = true,
   ...popupProps
 }: TriggerHarnessProps) {
-  const triggerRef = useRef<HTMLButtonElement>(null)
+  const [trigger, setTrigger] = useState<HTMLButtonElement | null>(null)
 
   return (
     <>
       {showTrigger ? (
-        <button data-testid='trigger' ref={triggerRef}>
+        <button data-testid='trigger' ref={setTrigger}>
           Trigger
         </button>
       ) : null}
-      <TestPopup {...popupProps} trigger={triggerRef} />
+      <TestPopup {...popupProps} trigger={trigger} />
     </>
   )
 }

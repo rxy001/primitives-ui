@@ -52,7 +52,7 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState, true>(
     dismissOnFocusOutside = true,
     dismissOnEscapeKeyDown = true,
     dismissOnPointerDownOutside = true,
-    trigger: triggerProp = null,
+    trigger = null,
     ...props
   }) => {
     const [paused, setPaused] = useState(false)
@@ -71,7 +71,7 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState, true>(
     const modalRef = useLatest(modal)
     const popupManagerRef = useRef<PopupManager>(null)
     const previousStateRef = useRef({ enabled, modal })
-    const triggerRef = useRef<HTMLElement>(null)
+    const triggerRef = useLatest(trigger)
 
     if (__DEV__) {
       useEffect(() => {
@@ -350,20 +350,17 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState, true>(
         parentEntry,
         modalRef,
         requestDismiss,
+        triggerRef,
       ],
     )
 
     useIsoLayoutEffect(() => {
       if (enabled) {
-        triggerRef.current = resolveTrigger(triggerProp)
-
         if (focusSessionRef.current) {
-          focusSessionRef.current.returnTarget = resolveTrigger(
-            triggerRef.current,
-          )
+          focusSessionRef.current.returnTarget = trigger
         }
       }
-    }, [enabled, triggerProp])
+    }, [enabled, trigger])
 
     useIsoLayoutEffect(() => {
       if (enabled && popupRef.current) {
@@ -505,8 +502,6 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState, true>(
         return
       }
 
-      const trigger = triggerRef.current
-
       if (!trigger || !trigger.parentElement) return
 
       const doc = ownerDocument(popup)
@@ -549,7 +544,7 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState, true>(
       })
 
       return destroy
-    }, [enabled, modal, triggerProp])
+    }, [enabled, modal, trigger])
 
     // Hide everything outside the floating tree from assistive tech while enabled.
     useIsoLayoutEffect(() => {
@@ -593,7 +588,7 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState, true>(
                 candidates[candidates.length - 1] ||
                 popup
               if (nextTabbable) {
-                nextTabbable.focus()
+                focus(nextTabbable)
               }
             }
           })
@@ -742,7 +737,7 @@ interface PopupOwnProps {
    * when focus is restored and as an anchor when focus is not looped.
    * @defaultValue `null`
    */
-  trigger?: Trigger
+  trigger?: HTMLElement | null
 
   /**
    * The element to focus when the popup becomes active. Pass `false` to keep
@@ -833,26 +828,4 @@ function isVisible(element: HTMLElement): boolean {
 
 function getFocusableElement(element: Element | null): FocusableElement | null {
   return element && isFocusable(element) ? (element as FocusableElement) : null
-}
-
-type Trigger =
-  | null
-  | HTMLElement
-  | (() => HTMLElement | null | void)
-  | React.RefObject<HTMLElement | null>
-
-export function resolveTrigger(value: Trigger | undefined): HTMLElement | null {
-  let trigger = isFunction(value) ? value() : value
-
-  if (trigger == null) return null
-
-  if ('current' in trigger) {
-    trigger = trigger.current
-  }
-
-  if (!trigger?.isConnected) {
-    return null
-  }
-
-  return trigger
 }

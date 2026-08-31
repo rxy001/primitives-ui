@@ -27,7 +27,7 @@ function createEntry(
       !!target &&
       typeof (target as Node).nodeType === 'number' &&
       elementRef.current?.contains(target as Node) === true,
-    requestDismiss: vi.fn(() => undefined),
+    requestDismiss: vi.fn(),
     forceDismiss: vi.fn(() => vi.fn()),
     ...overrides,
   }
@@ -119,7 +119,7 @@ describe('PopupManager registration', () => {
   it('ignores duplicate registration and makes cleanup idempotent', async () => {
     const doc = createTestDocument()
     const manager = new PopupManager(doc)
-    const requestDismiss = vi.fn(() => undefined)
+    const requestDismiss = vi.fn()
     const entry = createEntry(doc, undefined, { requestDismiss })
     const firstCleanup = manager.register(entry)
     const duplicateCleanup = manager.register(entry)

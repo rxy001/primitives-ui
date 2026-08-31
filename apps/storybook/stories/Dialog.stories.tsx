@@ -16,22 +16,12 @@ const meta = {
 export default meta
 
 export function Default() {
-  const [open, setOpen] = useState(false)
-
   return (
-    <Dialog.Root
-      open={open}
-      onOpenChange={(open) => {
-        setOpen(open)
-      }}
-    >
+    <Dialog.Root>
       <Dialog.Trigger className={dialogClassNames.trigger}>Open</Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Backdrop className={dialogClassNames.backdrop} />
-        <Dialog.Popup
-          dismissOnEscapeKeyDown={false}
-          className={dialogClassNames.popup}
-        >
+        <Dialog.Popup className={dialogClassNames.popup}>
           <Dialog.Title className={dialogClassNames.title}>
             Dialog Title
           </Dialog.Title>

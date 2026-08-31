@@ -26,7 +26,8 @@
     "./accordion": "./src/accordion/index.ts",
     "./avatar": "./src/avatar/index.ts",
     "./dialog": "./src/dialog/index.ts",
-    "./alertdialog": "./src/alertdialog/index.ts"
+    "./alertdialog": "./src/alertdialog/index.ts",
+    "./popover": "./src/popover/index.ts"
   },
   "publishConfig": {
     "main": "./build/index.js",
@@ -59,6 +60,10 @@
       "./alertdialog": {
         "types": "./build/alertdialog/index.d.ts",
         "import": "./build/dialertdialogalog/index.js"
+      },
+      "./popover": {
+        "types": "./build/popover/index.d.ts",
+        "import": "./build/popover/index.js"
       }
     }
   },

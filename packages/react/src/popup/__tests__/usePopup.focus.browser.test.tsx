@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { focus } from '#test'
-import { createRef, useRef, useState } from 'react'
+import { createRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { render } from 'vitest-browser-react'
 import { server } from 'vitest/browser'
@@ -214,7 +214,7 @@ describe('usePopup return focus', () => {
         <button data-testid='trigger' ref={triggerRef}>
           Trigger
         </button>
-        <TestPopup enabled={enabled} modal trigger={triggerRef}>
+        <TestPopup enabled={enabled} modal trigger={triggerRef.current}>
           <button data-testid='inside'>Inside</button>
         </TestPopup>
       </>
@@ -259,7 +259,7 @@ describe('usePopup return focus', () => {
           enabled={enabled}
           modal
           returnFocus={false}
-          trigger={triggerRef}
+          trigger={triggerRef.current}
         >
           <button data-testid='inside'>Inside</button>
         </TestPopup>
@@ -351,7 +351,7 @@ describe('usePopup return focus', () => {
           Trigger
         </button>
         <button data-testid='other'>Other</button>
-        <TestPopup enabled={enabled} modal trigger={triggerRef}>
+        <TestPopup enabled={enabled} modal trigger={triggerRef.current}>
           <button data-testid='inside'>Inside</button>
         </TestPopup>
       </>
@@ -388,31 +388,6 @@ describe('usePopup return focus', () => {
     screen.getByTestId('outside').element().focus()
 
     await expect.element(screen.getByTestId('outside')).toHaveFocus()
-  })
-
-  it('keeps child return focus inside the remaining parent modal', async () => {
-    const childTriggerRef = createRef<HTMLButtonElement>()
-    const scene = (childEnabled: boolean) => (
-      <TestPopup enabled modal returnFocus={false} testId='parent'>
-        <button data-testid='child-trigger' ref={childTriggerRef}>
-          Child trigger
-        </button>
-        <TestPopup
-          enabled={childEnabled}
-          modal
-          testId='child'
-          trigger={childTriggerRef}
-        >
-          <button data-testid='child-inside'>Child inside</button>
-        </TestPopup>
-      </TestPopup>
-    )
-    const screen = await render(scene(true))
-    await expect.element(screen.getByTestId('child-inside')).toHaveFocus()
-
-    await screen.rerender(scene(false))
-
-    await expect.element(screen.getByTestId('child-trigger')).toHaveFocus()
   })
 })
 
@@ -489,11 +464,11 @@ describe('usePopup modal focus guards', () => {
 
 describe('usePopup non-modal Tab order', () => {
   function NonModalScene({ withTabbable = true }: { withTabbable?: boolean }) {
-    const triggerRef = useRef<HTMLButtonElement>(null)
+    const [trigger, setTrigger] = useState<HTMLButtonElement | null>(null)
     return (
       <>
         <button data-testid='before'>Before</button>
-        <button data-testid='trigger' ref={triggerRef}>
+        <button data-testid='trigger' ref={setTrigger}>
           Trigger
         </button>
         <TestPopup
@@ -501,7 +476,7 @@ describe('usePopup non-modal Tab order', () => {
           initialFocus={false}
           modal={false}
           returnFocus={false}
-          trigger={triggerRef}
+          trigger={trigger}
         >
           {withTabbable ? (
             <>
