@@ -21,7 +21,7 @@ export function shift(): Middleware {
       const crossAxisLength = getAxisLength(crossAxis)
       const minSide = mainAxis === 'y' ? 'left' : 'top'
       const maxSide = mainAxis === 'y' ? 'right' : 'bottom'
-      const mainAxisCoord = rects.popper[mainAxis]
+      const mainAxisCoord = rects.floating[mainAxis]
 
       let positiveMaxOverflow: number
       let negativeMaxOverflow: number
@@ -29,27 +29,27 @@ export function shift(): Middleware {
       switch (alignment) {
         case 'start':
           positiveMaxOverflow = rects.reference[crossAxisLength]
-          negativeMaxOverflow = rects.popper[crossAxisLength]
+          negativeMaxOverflow = rects.floating[crossAxisLength]
           break
         case 'end':
-          positiveMaxOverflow = rects.popper[crossAxisLength]
+          positiveMaxOverflow = rects.floating[crossAxisLength]
           negativeMaxOverflow = rects.reference[crossAxisLength]
           break
         default:
           positiveMaxOverflow =
             rects.reference[crossAxisLength] +
             rects.reference[crossAxis] -
-            rects.popper[crossAxis]
+            rects.floating[crossAxis]
           negativeMaxOverflow = positiveMaxOverflow
       }
 
       // When moving in the positive cross-axis direction, offset is determined by the minimum boundary
       // When moving in the negative cross-axis direction, offset is determined by the maximum boundary
       const crossAxisCoord = clamp(
-        rects.popper[crossAxis],
-        rects.popper[crossAxis] +
+        rects.floating[crossAxis],
+        rects.floating[crossAxis] +
           Math.min(overflow[minSide], positiveMaxOverflow),
-        rects.popper[crossAxis] -
+        rects.floating[crossAxis] -
           Math.min(overflow[maxSide], negativeMaxOverflow),
       )
 
@@ -57,8 +57,8 @@ export function shift(): Middleware {
         [mainAxis]: mainAxisCoord,
         [crossAxis]: crossAxisCoord,
         data: {
-          [mainAxis]: mainAxisCoord - rects.popper[mainAxis],
-          [crossAxis]: crossAxisCoord - rects.popper[crossAxis],
+          [mainAxis]: mainAxisCoord - rects.floating[mainAxis],
+          [crossAxis]: crossAxisCoord - rects.floating[crossAxis],
         },
       }
     },

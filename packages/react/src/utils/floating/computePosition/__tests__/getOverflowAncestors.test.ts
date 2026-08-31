@@ -1,4 +1,4 @@
-import { getOverflowAncestors } from '../index'
+import { getOverflowAncestors } from '../getOverflowAncestors'
 
 describe('getOverflowAncestors', () => {
   it('should include window regardless of whether there are any overflow ancestors', () => {

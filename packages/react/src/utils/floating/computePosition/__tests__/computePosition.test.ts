@@ -96,7 +96,7 @@ const removeFromBody = (...elements: HTMLElement[]) => {
 
 describe('computePosition', () => {
   let reference: CustomHTMLElement
-  let popper: CustomHTMLElement
+  let floating: CustomHTMLElement
 
   beforeEach(() => {
     defineVisualViewport(790, 858)
@@ -130,12 +130,12 @@ describe('computePosition', () => {
 
   beforeEach(() => {
     reference = createElement({ width: 100, height: 100, x: 0, y: 0 })
-    popper = createElement({ width: 200, height: 50, x: 0, y: 0 })
+    floating = createElement({ width: 200, height: 50, x: 0, y: 0 })
   })
 
   afterEach(() => {
     reference = null!
-    popper = null!
+    floating = null!
   })
 
   afterEach(() => {
@@ -145,7 +145,7 @@ describe('computePosition', () => {
   it('should return the correct coordinates when not using middleware', () => {
     const { x, y, placement, middlewareData } = computePosition(
       reference,
-      popper,
+      floating,
       {
         arrow: false,
         flip: false,
@@ -154,14 +154,14 @@ describe('computePosition', () => {
       },
     )
 
-    appendToBody(reference, popper)
+    appendToBody(reference, floating)
 
     expect(x).toBe(-50)
     expect(y).toBe(100)
     expect(placement).toBe('bottom')
     expect(middlewareData).toEqual({})
 
-    removeFromBody(reference, popper)
+    removeFromBody(reference, floating)
   })
 
   it('should return correct coordinates relative to the offset parent', () => {
@@ -179,13 +179,13 @@ describe('computePosition', () => {
     reference.set('y', 100)
 
     container.appendChild(reference)
-    container.appendChild(popper)
+    container.appendChild(floating)
 
     appendToBody(container)
 
     const { x, y, placement, middlewareData } = computePosition(
       reference,
-      popper,
+      floating,
       {
         placement: 'top',
         arrow: false,
@@ -205,10 +205,10 @@ describe('computePosition', () => {
 
   describe('middleware-flip', () => {
     it('should flip mainAxis when mainAxis is true', () => {
-      appendToBody(reference, popper)
+      appendToBody(reference, floating)
       let { x, y, placement, middlewareData } = computePosition(
         reference,
-        popper,
+        floating,
         {
           placement: 'top-start',
           flip: {
@@ -235,7 +235,7 @@ describe('computePosition', () => {
       })
       ;({ x, y, placement, middlewareData } = computePosition(
         reference,
-        popper,
+        floating,
         {
           placement: 'top',
           flip: {
@@ -261,14 +261,14 @@ describe('computePosition', () => {
         },
       })
 
-      removeFromBody(reference, popper)
+      removeFromBody(reference, floating)
     })
 
     it('should flip crossAxis when crossAxis is true', () => {
-      appendToBody(reference, popper)
+      appendToBody(reference, floating)
       const { x, y, placement, middlewareData } = computePosition(
         reference,
-        popper,
+        floating,
         {
           placement: 'top-end',
           flip: {
@@ -294,14 +294,14 @@ describe('computePosition', () => {
         },
       })
 
-      removeFromBody(reference, popper)
+      removeFromBody(reference, floating)
     })
 
     it('should flip mainAxis and crossAxis when both are true', () => {
-      appendToBody(reference, popper)
+      appendToBody(reference, floating)
       const { x, y, placement, middlewareData } = computePosition(
         reference,
-        popper,
+        floating,
         {
           placement: 'top-end',
           flip: {
@@ -335,10 +335,10 @@ describe('computePosition', () => {
           ],
         },
       })
-      removeFromBody(reference, popper)
+      removeFromBody(reference, floating)
     })
 
-    it('should flip the popper when its parentElement scrolls', () => {
+    it('should flip the floating when its parentElement scrolls', () => {
       const container = createElement({
         width: 500,
         height: 600,
@@ -349,7 +349,7 @@ describe('computePosition', () => {
       container.style.position = 'relative'
       container.style.paddingTop = '100px'
       container.appendChild(reference)
-      container.appendChild(popper)
+      container.appendChild(floating)
 
       const overflowing = createElement({
         height: 200,
@@ -364,7 +364,7 @@ describe('computePosition', () => {
 
       overflowing.scrollTop = 70
 
-      const { x, y, placement } = computePosition(reference, popper, {
+      const { x, y, placement } = computePosition(reference, floating, {
         placement: 'top',
         arrow: false,
         offset: false,
@@ -383,11 +383,11 @@ describe('computePosition', () => {
       div.style.overflow = 'hidden'
 
       div.appendChild(reference)
-      div.appendChild(popper)
+      div.appendChild(floating)
 
       appendToBody(div)
 
-      const { x, y, placement } = computePosition(reference, popper, {
+      const { x, y, placement } = computePosition(reference, floating, {
         placement: 'top',
         arrow: false,
         offset: false,
@@ -411,11 +411,11 @@ describe('computePosition', () => {
       div.style.overflow = 'hidden'
 
       div.appendChild(reference)
-      div.appendChild(popper)
+      div.appendChild(floating)
 
       appendToBody(div)
 
-      const { x, y, placement } = computePosition(reference, popper, {
+      const { x, y, placement } = computePosition(reference, floating, {
         placement: 'top-start',
         arrow: false,
         offset: false,
@@ -430,10 +430,10 @@ describe('computePosition', () => {
     })
 
     it('should handle edge cases', () => {
-      // Case 1: The popper is positioned relative to the HTML element, and the HTML element has an offset.
+      // Case 1: The floating is positioned relative to the HTML element, and the HTML element has an offset.
       document.documentElement.style.position = 'relative'
       reference = createElement({ width: 100, height: 100, x: 200, y: 200 })
-      popper = createElement({ width: 50, height: 50, x: 0, y: 0 })
+      floating = createElement({ width: 50, height: 50, x: 0, y: 0 })
       defineWindowScroll(200, 200)
 
       Object.defineProperty(document.documentElement, 'getBoundingClientRect', {
@@ -451,9 +451,9 @@ describe('computePosition', () => {
         writable: true,
       })
 
-      appendToBody(reference, popper)
+      appendToBody(reference, floating)
 
-      const { x, y, placement } = computePosition(reference, popper, {
+      const { x, y, placement } = computePosition(reference, floating, {
         placement: 'left-start',
         arrow: false,
         offset: false,
@@ -464,7 +464,7 @@ describe('computePosition', () => {
       expect(y).toBe(0)
       expect(placement).toBe('left-start')
 
-      removeFromBody(reference, popper)
+      removeFromBody(reference, floating)
       Object.defineProperty(document.documentElement, 'getBoundingClientRect', {
         value: () => ({
           width: 0,
@@ -482,14 +482,14 @@ describe('computePosition', () => {
   })
 
   describe('middleware-shift', () => {
-    it('should shift to keep the popper in view (horizontal)', () => {
+    it('should shift to keep the floating in view (horizontal)', () => {
       defineWindowScroll(70, 0)
       reference.set('x', -70)
-      appendToBody(reference, popper)
+      appendToBody(reference, floating)
 
       const { x, y, placement, middlewareData } = computePosition(
         reference,
-        popper,
+        floating,
         {
           placement: 'bottom-start',
           shift: true,
@@ -509,17 +509,17 @@ describe('computePosition', () => {
         },
       })
 
-      removeFromBody(reference, popper)
+      removeFromBody(reference, floating)
     })
 
-    it('should shift to keep the popper in view (vertical)', () => {
-      appendToBody(reference, popper)
+    it('should shift to keep the floating in view (vertical)', () => {
+      appendToBody(reference, floating)
       defineWindowScroll(0, 70)
       reference.set('y', -70)
 
       const { x, y, placement, middlewareData } = computePosition(
         reference,
-        popper,
+        floating,
         {
           placement: 'right-start',
           shift: true,
@@ -539,19 +539,19 @@ describe('computePosition', () => {
         },
       })
 
-      removeFromBody(reference, popper)
+      removeFromBody(reference, floating)
     })
 
-    it("should restrict the popper's offset to the edges of the reference element", () => {
+    it("should restrict the floating's offset to the edges of the reference element", () => {
       defineVisualViewport(200, 858)
 
       defineWindowScroll(0, 0)
       reference.set('x', 250)
-      appendToBody(reference, popper)
+      appendToBody(reference, floating)
 
       let { x, y, placement, middlewareData } = computePosition(
         reference,
-        popper,
+        floating,
         {
           placement: 'bottom-start',
           shift: true,
@@ -572,7 +572,7 @@ describe('computePosition', () => {
       })
       ;({ x, y, placement, middlewareData } = computePosition(
         reference,
-        popper,
+        floating,
         {
           placement: 'bottom',
           shift: true,
@@ -592,7 +592,7 @@ describe('computePosition', () => {
       })
       ;({ x, y, placement, middlewareData } = computePosition(
         reference,
-        popper,
+        floating,
         {
           placement: 'bottom-end',
           shift: true,
@@ -615,7 +615,7 @@ describe('computePosition', () => {
       reference.set('x', -250)
       ;({ x, y, placement, middlewareData } = computePosition(
         reference,
-        popper,
+        floating,
         {
           placement: 'bottom-start',
           shift: true,
@@ -636,7 +636,7 @@ describe('computePosition', () => {
       })
       ;({ x, y, placement, middlewareData } = computePosition(
         reference,
-        popper,
+        floating,
         {
           placement: 'bottom',
           shift: true,
@@ -656,7 +656,7 @@ describe('computePosition', () => {
       })
       ;({ x, y, placement, middlewareData } = computePosition(
         reference,
-        popper,
+        floating,
         {
           placement: 'bottom-end',
           shift: true,
@@ -674,16 +674,16 @@ describe('computePosition', () => {
           y: 0,
         },
       })
-      removeFromBody(reference, popper)
+      removeFromBody(reference, floating)
     })
   })
 
   describe('middleware-offset', () => {
     it('should have a default mainAxis offset of 5', () => {
-      appendToBody(reference, popper)
+      appendToBody(reference, floating)
       const { x, y, placement, middlewareData } = computePosition(
         reference,
-        popper,
+        floating,
         {
           placement: 'top',
           arrow: false,
@@ -703,12 +703,12 @@ describe('computePosition', () => {
       })
     })
 
-    it('should offset the popper along the mainAxis', () => {
-      appendToBody(reference, popper)
+    it('should offset the floating along the mainAxis', () => {
+      appendToBody(reference, floating)
 
       let { x, y, placement, middlewareData } = computePosition(
         reference,
-        popper,
+        floating,
         {
           placement: 'top',
           offset: 10,
@@ -729,7 +729,7 @@ describe('computePosition', () => {
       })
       ;({ x, y, placement, middlewareData } = computePosition(
         reference,
-        popper,
+        floating,
         {
           placement: 'bottom',
           offset: {
@@ -752,12 +752,12 @@ describe('computePosition', () => {
       })
     })
 
-    it('should offset the popper along the crossAxis', () => {
-      appendToBody(reference, popper)
+    it('should offset the floating along the crossAxis', () => {
+      appendToBody(reference, floating)
 
       let { x, y, placement, middlewareData } = computePosition(
         reference,
-        popper,
+        floating,
         {
           placement: 'top-start',
           offset: {
@@ -779,7 +779,7 @@ describe('computePosition', () => {
       })
       ;({ x, y, placement, middlewareData } = computePosition(
         reference,
-        popper,
+        floating,
         {
           placement: 'top-end',
           offset: {
@@ -811,12 +811,12 @@ describe('computePosition', () => {
         x: 0,
         y: 0,
       })
-      popper.appendChild(arrow)
+      floating.appendChild(arrow)
     })
 
     it('should return the correct arrow position based on the placement', () => {
-      appendToBody(reference, popper)
-      let { middlewareData } = computePosition(reference, popper, {
+      appendToBody(reference, floating)
+      let { middlewareData } = computePosition(reference, floating, {
         placement: 'bottom-start',
         arrow: {
           element: arrow,
@@ -830,7 +830,7 @@ describe('computePosition', () => {
         y: -5,
         minOffset: 5,
       })
-      ;({ middlewareData } = computePosition(reference, popper, {
+      ;({ middlewareData } = computePosition(reference, floating, {
         placement: 'bottom',
         arrow: {
           element: arrow,
@@ -844,7 +844,7 @@ describe('computePosition', () => {
         y: -5,
         minOffset: 5,
       })
-      ;({ middlewareData } = computePosition(reference, popper, {
+      ;({ middlewareData } = computePosition(reference, floating, {
         placement: 'bottom-end',
         arrow: {
           element: arrow,
@@ -858,7 +858,7 @@ describe('computePosition', () => {
         y: -5,
         minOffset: 5,
       })
-      ;({ middlewareData } = computePosition(reference, popper, {
+      ;({ middlewareData } = computePosition(reference, floating, {
         placement: 'left-start',
         arrow: {
           element: arrow,
@@ -872,7 +872,7 @@ describe('computePosition', () => {
         y: 20,
         minOffset: 5,
       })
-      ;({ middlewareData } = computePosition(reference, popper, {
+      ;({ middlewareData } = computePosition(reference, floating, {
         placement: 'left',
         arrow: {
           element: arrow,
@@ -886,7 +886,7 @@ describe('computePosition', () => {
         y: 20,
         minOffset: 5,
       })
-      ;({ middlewareData } = computePosition(reference, popper, {
+      ;({ middlewareData } = computePosition(reference, floating, {
         placement: 'left-end',
         arrow: {
           element: arrow,
@@ -903,8 +903,8 @@ describe('computePosition', () => {
     })
 
     it('should break if the arrow element is not provided', () => {
-      appendToBody(reference, popper)
-      const { middlewareData } = computePosition(reference, popper, {
+      appendToBody(reference, floating)
+      const { middlewareData } = computePosition(reference, floating, {
         placement: 'bottom-start',
         arrow: {},
         flip: false,

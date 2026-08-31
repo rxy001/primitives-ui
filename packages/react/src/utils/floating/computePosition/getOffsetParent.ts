@@ -19,8 +19,15 @@ import {
  *
  * https://drafts.csswg.org/cssom-view/#dom-htmlelement-offsetparent
  */
-export function getOffsetParent(element: Element) {
+export function getOffsetParent(
+  element: Element,
+  cache?: WeakMap<Element, Element | Window>,
+) {
   const win = ownerWindow(element)
+
+  if (cache?.has(element)) {
+    return cache.get(element)!
+  }
 
   if (isSVGElement(element)) {
     // SVG element hasn't offsetParent, find the nearest Element
@@ -31,6 +38,8 @@ export function getOffsetParent(element: Element) {
       }
       svgOffsetParent = svgOffsetParent.parentElement
     }
+
+    cache?.set(element, win)
     return win
   }
 
@@ -50,9 +59,11 @@ export function getOffsetParent(element: Element) {
     isStaticPositioned(offsetParent) &&
     !isContainingBlock(offsetParent)
   ) {
+    cache?.set(element, win)
     return win
   }
 
+  cache?.set(element, offsetParent || win)
   return offsetParent || win
 }
 

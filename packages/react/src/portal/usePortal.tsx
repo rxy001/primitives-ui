@@ -64,7 +64,7 @@ export const usePortal = createHook<'div', PortalOwnProps, PortalState, true>(
 
 interface PortalOwnProps {
   container?:
-    | React.RefObject<HTMLElement>
+    | React.RefObject<HTMLElement | null>
     | HTMLElement
     | null
     | (() => HTMLElement | null | void)

@@ -1,18 +1,24 @@
 import { isPlainObject } from '@primitives-ui/utils'
-import type { ArrowOptions, OffsetOptions, FlipOptions } from './middleware/'
+import type {
+  ArrowOptions,
+  OffsetOptions,
+  FlipOptions,
+  HideOptions,
+} from './middleware/'
 import type {
   Placement,
   Middleware,
   MiddlewareData,
   MiddlewareState,
+  Strategy,
 } from './types'
 import { computeCoordinatesByPlacement } from './computeCoordinatesByPlacement'
 import { getElementRects } from './getElementRects'
-import { flip, arrow, offset, shift } from './middleware'
+import { flip, arrow, offset, shift, hide } from './middleware'
 
 export function computePosition(
   reference: Element,
-  popper: Element,
+  floating: Element,
   options?: ComputePositionOptions,
 ) {
   const {
@@ -21,29 +27,37 @@ export function computePosition(
     offset: offsetOption,
     flip: flipOption,
     arrow: arrowOption = false,
+    hide: hideOptions = false,
+    strategy = 'absolute',
   } = options ?? {}
 
   const middlewareOptions: [unknown, (...rest: any[]) => Middleware][] = [
+    [offsetOption, offset],
     [flipOption, flip],
     [shiftOption, shift],
     [arrowOption, arrow],
-    [offsetOption, offset],
+    [hideOptions, hide],
   ]
 
   const middlewareList = middlewareOptions
     .filter(([option]) => option !== false)
     .map(([option, fn]) => fn(option))
 
-  const rects = getElementRects(reference, popper)
+  const rects = getElementRects({
+    reference,
+    floating,
+    strategy,
+  })
 
   const coordinates = computeCoordinatesByPlacement(rects, placement)
 
   let middlewareData: MiddlewareData = {}
 
   let state: MiddlewareState = {
+    strategy,
     rects: {
-      popper: {
-        ...rects.popper,
+      floating: {
+        ...rects.floating,
         x: coordinates.x,
         y: coordinates.y,
       },
@@ -51,11 +65,15 @@ export function computePosition(
     },
     elements: {
       reference,
-      popper,
+      floating,
     },
     placement,
     middlewareData,
     initialPlacement: placement,
+    cache: {
+      overflowAncestors: new WeakMap(),
+      offsetParent: new WeakMap(),
+    },
   }
 
   for (let i = 0; i < middlewareList.length; i++) {
@@ -81,24 +99,24 @@ export function computePosition(
     let placementOverride: Placement | undefined
 
     if (isPlainObject(overrides)) {
-      if (overrides?.placement) {
-        placementOverride = overrides?.placement
+      if (overrides?.placement && overrides.placement !== state.placement) {
+        placementOverride = overrides.placement
         ;({ x: nextX, y: nextY } = computeCoordinatesByPlacement(
           rects,
           placementOverride,
         ))
       }
-      i--
+      i = -1
     }
 
     state = {
       ...state,
       rects: {
         ...state.rects,
-        popper: {
-          ...state.rects.popper,
-          x: nextX ?? state.rects.popper.x,
-          y: nextY ?? state.rects.popper.y,
+        floating: {
+          ...state.rects.floating,
+          x: nextX ?? state.rects.floating.x,
+          y: nextY ?? state.rects.floating.y,
         },
       },
       middlewareData,
@@ -107,8 +125,8 @@ export function computePosition(
   }
 
   return {
-    x: state.rects.popper.x,
-    y: state.rects.popper.y,
+    x: state.rects.floating.x,
+    y: state.rects.floating.y,
     placement: state.placement,
     middlewareData: state.middlewareData,
   }
@@ -116,8 +134,10 @@ export function computePosition(
 
 export interface ComputePositionOptions {
   placement?: Placement
+  strategy?: Strategy
   offset?: OffsetOptions | false
   flip?: FlipOptions | false
   arrow?: ArrowOptions | false
   shift?: boolean
+  hide?: HideOptions | false
 }

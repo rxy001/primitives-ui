@@ -3,9 +3,14 @@ import { isOverflowElement, getElementName } from './dom'
 
 export function getOverflowAncestors(
   element: Element,
+  cache?: WeakMap<Element, (HTMLElement | Window)[]>,
 ): (HTMLElement | Window)[] {
-  const scrollableAncestors: (HTMLElement | Window)[] = []
+  const overflowAncestors: (HTMLElement | Window)[] = []
   const win = ownerWindow(element)
+
+  if (cache?.has(element)) {
+    return cache.get(element)!
+  }
 
   let ancestor = getNearestOverflowAncestor(element)
   let body: HTMLElement | null = null
@@ -15,15 +20,16 @@ export function getOverflowAncestors(
     if (elementName === 'body') {
       body = ancestor as HTMLElement
     } else if (elementName === 'html' && body) {
-      scrollableAncestors.push(body)
+      overflowAncestors.push(body)
     } else {
-      scrollableAncestors.push(ancestor)
+      overflowAncestors.push(ancestor)
     }
     if (win === ancestor) break
     ancestor = getNearestOverflowAncestor(ancestor as HTMLElement)
   }
 
-  return scrollableAncestors
+  cache?.set(element, overflowAncestors)
+  return overflowAncestors
 }
 
 function getNearestOverflowAncestor(element: Element): HTMLElement | Window {

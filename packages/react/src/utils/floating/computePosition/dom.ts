@@ -5,7 +5,7 @@ import {
   isElement,
   isHTMLElement,
 } from '@primitives-ui/utils'
-import type { Rect, Coordinates } from './types'
+import type { Rect, Coordinates, Strategy } from './types'
 import { isWebKit } from './utils'
 
 export function getElementName(element: Element | Window): string {
@@ -193,37 +193,46 @@ export function getBoundingClientRect(
 export function getRectRelativeToViewport(
   elementRect: Rect,
   offsetParent: Element | Window,
+  strategy: Strategy,
 ): Rect {
-  let scroll = { scrollLeft: 0, scrollTop: 0 }
   let documentElement: HTMLElement
+  const isFixed = strategy === 'fixed'
 
-  if ((offsetParent as Window).document) {
-    ;({ documentElement } = (offsetParent as Window).document)
+  if (offsetParent instanceof Window) {
+    documentElement = offsetParent.document.documentElement
   } else {
-    ;({ documentElement } = ownerDocument(offsetParent as Element))
+    documentElement = ownerDocument(offsetParent).documentElement
   }
 
+  let scroll = { scrollLeft: 0, scrollTop: 0 }
   const offset = { x: 0, y: 0 }
+  const isOffsetParentElement = isHTMLElement(offsetParent)
 
-  if (
-    getElementName(offsetParent) !== 'body' ||
-    isOverflowElement(documentElement)
-  ) {
-    scroll = getElementScroll(offsetParent)
-  }
+  if (isOffsetParentElement || (!isOffsetParentElement && !isFixed)) {
+    if (
+      getElementName(offsetParent) !== 'body' ||
+      isOverflowElement(documentElement)
+    ) {
+      scroll = getElementScroll(offsetParent)
+    }
 
-  if (isHTMLElement(offsetParent)) {
-    ;({ x: offset.x, y: offset.y } = getBoundingClientRect(
-      offsetParent,
-      offsetParent,
-    ))
-  } else if (!isStaticPositioned(documentElement)) {
-    // Handle element positioned within the html element.
-    ;({ x: offset.x, y: offset.y } = documentElement.getBoundingClientRect())
+    if (isOffsetParentElement) {
+      ;({ x: offset.x, y: offset.y } = getBoundingClientRect(
+        offsetParent,
+        offsetParent,
+      ))
 
-    // The scrollbar should be on the viewport, not on the HTML element.
-    scroll.scrollLeft -= scroll.scrollLeft
-    scroll.scrollTop -= scroll.scrollTop
+      // Convert the border-box origin to the padding edge used by positioned descendants.
+      offset.x += offsetParent.clientLeft
+      offset.y += offsetParent.clientTop
+    } else if (!isStaticPositioned(documentElement)) {
+      // Handle element positioned within the html element.
+      ;({ x: offset.x, y: offset.y } = documentElement.getBoundingClientRect())
+
+      // The scrollbar should be on the viewport, not on the HTML element.
+      scroll.scrollLeft -= scroll.scrollLeft
+      scroll.scrollTop -= scroll.scrollTop
+    }
   }
 
   return {
@@ -237,35 +246,49 @@ export function getRectRelativeToViewport(
 export function getRectRelativeToOffsetParent(
   element: Element,
   offsetParent: Element | Window,
+  strategy: Strategy,
 ): Rect {
-  const { documentElement } = ownerDocument(element)
   const elementRect = getBoundingClientRect(element, offsetParent)
+  const isFixed = strategy === 'fixed'
+
+  let documentElement: HTMLElement
+  if (offsetParent instanceof Window) {
+    documentElement = offsetParent.document.documentElement
+  } else {
+    documentElement = ownerDocument(offsetParent).documentElement
+  }
 
   let scroll = { scrollLeft: 0, scrollTop: 0 }
 
   const offset = { x: 0, y: 0 }
+  const isOffsetParentElement = isHTMLElement(offsetParent)
 
   // https://drafts.csswg.org/css2/#overflow
   // Only when both <body> and <html> have their overflow set to auto will <body> have a scrollbar.
-  if (
-    getElementName(offsetParent) !== 'body' ||
-    isOverflowElement(documentElement)
-  ) {
-    scroll = getElementScroll(offsetParent)
-  }
+  if (isOffsetParentElement || (!isOffsetParentElement && !isFixed)) {
+    if (
+      getElementName(offsetParent) !== 'body' ||
+      isOverflowElement(documentElement)
+    ) {
+      scroll = getElementScroll(offsetParent)
+    }
 
-  if (isHTMLElement(offsetParent)) {
-    ;({ x: offset.x, y: offset.y } = getBoundingClientRect(
-      offsetParent,
-      offsetParent,
-    ))
-  } else if (!isStaticPositioned(documentElement)) {
-    // Handle element positioned within the html element.
-    ;({ x: offset.x, y: offset.y } = documentElement.getBoundingClientRect())
+    if (isOffsetParentElement) {
+      ;({ x: offset.x, y: offset.y } = getBoundingClientRect(
+        offsetParent,
+        offsetParent,
+      ))
+      // Convert the border-box origin to the padding edge used by positioned descendants.
+      offset.x += offsetParent.clientLeft
+      offset.y += offsetParent.clientTop
+    } else if (!isStaticPositioned(documentElement)) {
+      // Handle element positioned within the html element.
+      ;({ x: offset.x, y: offset.y } = documentElement.getBoundingClientRect())
 
-    // The scrollbar should be on the viewport, not on the HTML element.
-    scroll.scrollLeft -= scroll.scrollLeft
-    scroll.scrollTop -= scroll.scrollTop
+      // The scrollbar should be on the viewport, not on the HTML element.
+      scroll.scrollLeft -= scroll.scrollLeft
+      scroll.scrollTop -= scroll.scrollTop
+    }
   }
 
   return {

@@ -1,12 +1,12 @@
 import { computeCoordinatesByPlacement } from '../computeCoordinatesByPlacement'
 
 const reference = { x: 0, y: 0, width: 100, height: 100 }
-const popper = { x: 0, y: 0, width: 50, height: 50 }
+const floating = { x: 0, y: 0, width: 50, height: 50 }
 
 describe('computeCoordinatesByPlacement', () => {
   it('should compute correct coordinates for bottom placement', () => {
     expect(
-      computeCoordinatesByPlacement({ reference, popper }, 'bottom'),
+      computeCoordinatesByPlacement({ reference, floating }, 'bottom'),
     ).toEqual({
       x: 25,
       y: 100,
@@ -15,34 +15,34 @@ describe('computeCoordinatesByPlacement', () => {
 
   it('should compute correct coordinates for bottom-start placement', () => {
     expect(
-      computeCoordinatesByPlacement({ reference, popper }, 'bottom-start'),
+      computeCoordinatesByPlacement({ reference, floating }, 'bottom-start'),
     ).toEqual({ x: 0, y: 100 })
   })
 
   it('should compute correct coordinates for bottom-end placement', () => {
     expect(
-      computeCoordinatesByPlacement({ reference, popper }, 'bottom-end'),
+      computeCoordinatesByPlacement({ reference, floating }, 'bottom-end'),
     ).toEqual({ x: 50, y: 100 })
   })
 
   it('should compute correct coordinates for top placement', () => {
-    expect(computeCoordinatesByPlacement({ reference, popper }, 'top')).toEqual(
-      {
-        x: 25,
-        y: -50,
-      },
-    )
+    expect(
+      computeCoordinatesByPlacement({ reference, floating }, 'top'),
+    ).toEqual({
+      x: 25,
+      y: -50,
+    })
   })
 
   it('should compute correct coordinates for top-start placement', () => {
     expect(
-      computeCoordinatesByPlacement({ reference, popper }, 'top-start'),
+      computeCoordinatesByPlacement({ reference, floating }, 'top-start'),
     ).toEqual({ x: 0, y: -50 })
   })
 
   it('should compute correct coordinates for top-end placement', () => {
     expect(
-      computeCoordinatesByPlacement({ reference, popper }, 'top-end'),
+      computeCoordinatesByPlacement({ reference, floating }, 'top-end'),
     ).toEqual({
       x: 50,
       y: -50,
@@ -51,7 +51,7 @@ describe('computeCoordinatesByPlacement', () => {
 
   it('should compute correct coordinates for right placement', () => {
     expect(
-      computeCoordinatesByPlacement({ reference, popper }, 'right'),
+      computeCoordinatesByPlacement({ reference, floating }, 'right'),
     ).toEqual({
       x: 100,
       y: 25,
@@ -60,19 +60,19 @@ describe('computeCoordinatesByPlacement', () => {
 
   it('should compute correct coordinates for right-start placement', () => {
     expect(
-      computeCoordinatesByPlacement({ reference, popper }, 'right-start'),
+      computeCoordinatesByPlacement({ reference, floating }, 'right-start'),
     ).toEqual({ x: 100, y: 0 })
   })
 
   it('should compute correct coordinates for right-end placement', () => {
     expect(
-      computeCoordinatesByPlacement({ reference, popper }, 'right-end'),
+      computeCoordinatesByPlacement({ reference, floating }, 'right-end'),
     ).toEqual({ x: 100, y: 50 })
   })
 
   it('should compute correct coordinates for left placement', () => {
     expect(
-      computeCoordinatesByPlacement({ reference, popper }, 'left'),
+      computeCoordinatesByPlacement({ reference, floating }, 'left'),
     ).toEqual({
       x: -50,
       y: 25,
@@ -81,21 +81,24 @@ describe('computeCoordinatesByPlacement', () => {
 
   it('should compute correct coordinates for left-start placement', () => {
     expect(
-      computeCoordinatesByPlacement({ reference, popper }, 'left-start'),
+      computeCoordinatesByPlacement({ reference, floating }, 'left-start'),
     ).toEqual({ x: -50, y: 0 })
   })
 
   it('should compute correct coordinates for left-end placement', () => {
     expect(
-      computeCoordinatesByPlacement({ reference, popper }, 'left-end'),
+      computeCoordinatesByPlacement({ reference, floating }, 'left-end'),
     ).toEqual({ x: -50, y: 50 })
   })
 
   it('should use default bottom placement instead of invalid placement', () => {
     const consoleSpy = vi.spyOn(console, 'error')
     expect(
-      // @ts-expect-error
-      computeCoordinatesByPlacement({ reference, popper }, 'invalid-placement'),
+      computeCoordinatesByPlacement(
+        { reference, floating },
+        // @ts-expect-error
+        'invalid-placement',
+      ),
     ).toEqual({ x: 25, y: 100 })
     expect(consoleSpy).toHaveBeenCalled()
     consoleSpy.mockRestore()

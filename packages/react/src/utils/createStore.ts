@@ -194,72 +194,77 @@ export function createStore<
       return
     }
 
-    isFlushing = true
+    function workloop() {
+      let updateIndex = 0
+      let hasStateChanged = false
 
-    try {
-      while (pendingUpdates.length > 0) {
-        let updateIndex = 0
-        let hasStateChanged = false
+      while (updateIndex < pendingUpdates.length) {
+        const queuedUpdate = pendingUpdates[updateIndex]
+        updateIndex += 1
 
-        while (updateIndex < pendingUpdates.length) {
-          const queuedUpdate = pendingUpdates[updateIndex]
-          updateIndex += 1
+        const previousState = state
 
-          const previousState = state
+        const partial = isFunction(queuedUpdate)
+          ? queuedUpdate(previousState)
+          : queuedUpdate
 
-          const partial = isFunction(queuedUpdate)
-            ? queuedUpdate(previousState)
-            : queuedUpdate
+        const patch: Partial<State> = {}
 
-          const patch: Partial<State> = {}
+        Object.keys(partial).forEach((key: keyof State) => {
+          const value = partial[key]
 
-          Object.keys(partial).forEach((key: keyof State) => {
-            const value = partial[key]
-
-            if (!Object.is(previousState[key], value)) {
-              patch[key] = value
-            }
-          })
-
-          if (Object.keys(patch).length === 0) {
-            continue
+          if (!Object.is(previousState[key], value)) {
+            patch[key] = value
           }
+        })
 
-          const nextState: State = {
-            ...previousState,
-            ...patch,
-          }
-
-          state = nextState
-          hasStateChanged = true
-
-          const observerSnapshot = Array.from(observers)
-
-          observerSnapshot.forEach((observer) => {
-            if (!observers.has(observer)) {
-              return
-            }
-            observer(nextState, previousState)
-          })
-        }
-
-        pendingUpdates.splice(0, updateIndex)
-
-        if (!hasStateChanged) {
+        if (Object.keys(patch).length === 0) {
           continue
         }
 
-        const subscriberSnapshot = Array.from(subscribers)
+        const nextState: State = {
+          ...previousState,
+          ...patch,
+        }
 
-        subscriberSnapshot.forEach((subscriber) => {
-          if (!subscribers.has(subscriber)) {
+        state = nextState
+        hasStateChanged = true
+
+        const observerSnapshot = Array.from(observers)
+
+        observerSnapshot.forEach((observer) => {
+          if (!observers.has(observer)) {
             return
           }
-          subscriber()
+          observer(nextState, previousState)
         })
       }
+
+      pendingUpdates.splice(0, updateIndex)
+
+      if (!hasStateChanged) {
+        return
+      }
+
+      const subscriberSnapshot = Array.from(subscribers)
+
+      subscriberSnapshot.forEach((subscriber) => {
+        if (!subscribers.has(subscriber)) {
+          return
+        }
+        subscriber()
+      })
+
+      if (pendingUpdates.length > 0) {
+        workloop()
+      }
+    }
+
+    try {
+      isFlushing = true
+      workloop()
     } finally {
-      pendingUpdates.length = 0
+      pendingUpdates.splice(0, pendingUpdates.length)
       isFlushing = false
     }
   }

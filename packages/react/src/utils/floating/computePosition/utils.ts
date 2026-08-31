@@ -70,7 +70,7 @@ export function getAxisLength(axis: Axis): Length {
 
 export function getAlignmentSides(
   placement: Placement,
-  rects: { reference: Rect; popper: Rect },
+  rects: { reference: Rect; floating: Rect },
 ): [Side, Side] {
   const alignment = getAlignment(placement)
   const alignmentAxis = getAlignmentAxis(placement)
@@ -85,9 +85,11 @@ export function getAlignmentSides(
         ? 'bottom'
         : 'top'
 
-  if (rects.reference[length] > rects.popper[length]) {
+  if (rects.reference[length] > rects.floating[length]) {
     mainAlignmentSide = getOppositeSide(mainAlignmentSide)
   }
 
   return [mainAlignmentSide, getOppositeSide(mainAlignmentSide)]
 }
+
+export const sides = ['top', 'right', 'bottom', 'left'] as const

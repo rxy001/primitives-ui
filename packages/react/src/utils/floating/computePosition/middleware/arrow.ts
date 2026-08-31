@@ -30,21 +30,23 @@ export function arrow(options: ArrowOptions): Middleware {
       const arrowRect = element.getBoundingClientRect()
       const arrowHalfSize = arrowRect[mainAxisLength] / 2
       const min = 0
-      const max = rects.popper[crossAxisLength] - arrowRect[crossAxisLength]
-      const popperBorderWidth =
+      const max = rects.floating[crossAxisLength] - arrowRect[crossAxisLength]
+      const floatingBorderWidth =
         parseFloat(
           ownerWindow(element).getComputedStyle(element).borderWidth,
         ) || 0
+      const mainAxisCoord = rects.floating[mainAxis]
+      const crossAxisCoord = rects.floating[crossAxis]
 
-      // The position of the arrow is calculated relative to the popper.
-      let mainAxisPosition = -arrowHalfSize - popperBorderWidth
+      // The position of the arrow is calculated relative to the floating.
+      let mainAxisPosition = -arrowHalfSize - floatingBorderWidth
 
-      if (rects.popper[mainAxis] < rects.reference[mainAxis]) {
-        mainAxisPosition += rects.popper[mainAxisLength]
+      if (mainAxisCoord < rects.reference[mainAxis]) {
+        mainAxisPosition += rects.floating[mainAxisLength]
       }
 
       let crossAxisPosition =
-        rects.reference[crossAxis] - rects.popper[crossAxis] - arrowHalfSize
+        rects.reference[crossAxis] - crossAxisCoord - arrowHalfSize
 
       if (!alignment) {
         crossAxisPosition += rects.reference[crossAxisLength] / 2
@@ -58,7 +60,6 @@ export function arrow(options: ArrowOptions): Middleware {
         data: {
           [mainAxis]: mainAxisPosition,
           [crossAxis]: clamp(crossAxisPosition, min, max),
-          minOffset: arrowHalfSize,
         },
       }
     },

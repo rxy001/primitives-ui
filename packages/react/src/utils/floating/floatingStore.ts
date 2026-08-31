@@ -1,11 +1,11 @@
 import type { CHANGE_REASONS, ChangeDetails } from '../createChangeDetails'
 import type { StoreSelector } from '../createStore'
 
-export type StoreContext = {
+export interface StoreContext {
   triggerElements: HTMLElement[]
 }
 
-export type StoreState = {
+export interface StoreState {
   open: boolean
   openProp: boolean | undefined
   triggerId: string | undefined
@@ -19,7 +19,7 @@ type OpenChangeReason = ChangeDetails<
   }
 >
 
-export type FloatingStore = {
+export interface FloatingStore {
   useSelector<Value>(selector: StoreSelector<StoreState, Value>): Value
   getState: () => Readonly<StoreState>
   getContext: () => Readonly<StoreContext>

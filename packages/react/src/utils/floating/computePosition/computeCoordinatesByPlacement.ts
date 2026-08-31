@@ -2,7 +2,7 @@ import type { Placement, Coordinates, Rect } from './types'
 import { getSide, getAlignment, getAlignmentAxis, getAxisLength } from './utils'
 
 export function computeCoordinatesByPlacement(
-  rects: { reference: Rect; popper: Rect },
+  rects: { reference: Rect; floating: Rect },
   placement: Placement,
 ): Coordinates {
   const side = getSide(placement)
@@ -13,18 +13,18 @@ export function computeCoordinatesByPlacement(
   let coordinates: Coordinates
 
   const commonX =
-    rects.reference.x + rects.reference.width / 2 - rects.popper.width / 2
+    rects.reference.x + rects.reference.width / 2 - rects.floating.width / 2
   const commonY =
-    rects.reference.y + rects.reference.height / 2 - rects.popper.height / 2
+    rects.reference.y + rects.reference.height / 2 - rects.floating.height / 2
 
   const commonCrossAxis =
-    rects.reference[crossAxisLength] / 2 - rects.popper[crossAxisLength] / 2
+    rects.reference[crossAxisLength] / 2 - rects.floating[crossAxisLength] / 2
 
   switch (side) {
     case 'top':
       coordinates = {
         x: commonX,
-        y: rects.reference.y - rects.popper.height,
+        y: rects.reference.y - rects.floating.height,
       }
       break
     case 'bottom':
@@ -41,7 +41,7 @@ export function computeCoordinatesByPlacement(
       break
     case 'left':
       coordinates = {
-        x: rects.reference.x - rects.popper.width,
+        x: rects.reference.x - rects.floating.width,
         y: commonY,
       }
       break

@@ -14,6 +14,8 @@ export type Placement =
   | 'right-start'
   | 'right-end'
 
+export type Strategy = 'fixed' | 'absolute'
+
 export interface Coordinates {
   x: number
   y: number
@@ -40,24 +42,34 @@ export interface MiddlewareData {
     index: number
   }
   shift?: Coordinates
-  arrow?: Coordinates & {
-    minOffset: number
-  }
+  arrow?: Coordinates
   offset?: Coordinates
+  hide?: {
+    referenceClippedOffsets?: SideObject
+    referenceClipped?: boolean
+    floatingEscapedOffsets?: SideObject
+    floatingEscaped?: boolean
+  }
+
   [key: string]: any
 }
 
 export interface MiddlewareState {
   placement: Placement
+  strategy: Strategy
   middlewareData: MiddlewareData
   initialPlacement: Placement
   elements: {
     reference: Element
-    popper: Element
+    floating: Element
   }
   rects: {
     reference: Rect
-    popper: Rect
+    floating: Rect
+  }
+  cache: {
+    overflowAncestors: WeakMap<Element, (HTMLElement | Window)[]>
+    offsetParent: WeakMap<Element, Element | Window>
   }
 }
 
@@ -67,6 +79,8 @@ export interface Rect {
   x: number
   y: number
 }
+
+export type SideObject = { [key in Side]: number }
 
 export type Axis = 'x' | 'y'
 

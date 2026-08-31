@@ -8,13 +8,26 @@ import {
 import { getOffsetParent } from './getOffsetParent'
 import { getOverflowAncestors } from './getOverflowAncestors'
 
-export function detectOverflow(state: MiddlewareState) {
-  const { elements, rects } = state
-  const win = ownerWindow(elements.popper)
+interface DetectOverflowOptions {
+  elementType?: 'floating' | 'reference'
+}
 
-  const clippingAncestors = getOverflowAncestors(elements.popper).filter(
-    isHTMLElement,
-  )
+export function detectOverflow(
+  state: MiddlewareState,
+  options?: DetectOverflowOptions,
+) {
+  const { elements, rects, strategy } = state
+
+  const { elementType = 'floating' } = options ?? {}
+  const element = elements[elementType]
+  const elementRect = rects[elementType]
+
+  const win = ownerWindow(element)
+
+  const clippingAncestors = getOverflowAncestors(
+    element,
+    state.cache.overflowAncestors,
+  ).filter(isHTMLElement)
 
   const clippingAncestorRects = clippingAncestors.map((el) =>
     toClientRect(getBoundingClientRect(el, el)),
@@ -54,7 +67,12 @@ export function detectOverflow(state: MiddlewareState) {
   })
 
   const elementClientRect = toClientRect(
-    getRectRelativeToViewport(rects.popper, getOffsetParent(elements.popper)),
+    getRectRelativeToViewport(
+      elementRect,
+      // Both the reference and floating positions are relative to the floating offsetParent.
+      getOffsetParent(elements.floating, state.cache.offsetParent),
+      strategy,
+    ),
   )
 
   // The overflow situation of the element in the four directions (top, bottom, left, right)

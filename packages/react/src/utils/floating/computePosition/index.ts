@@ -1,5 +1,4 @@
 export { computePosition } from './computePosition'
-export { getOverflowAncestors } from './getOverflowAncestors'
 
 export type {
   Placement,

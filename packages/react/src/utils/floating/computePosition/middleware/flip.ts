@@ -43,10 +43,9 @@ export function flip(
 
       overflows = [...overflows, { placement, overflowsToCheck }]
 
-      if (!overflowsToCheck.every((side) => side <= 0)) {
+      if (!overflowsToCheck.every((s) => s <= 0)) {
         const nextIndex = (middlewareData.flip?.index || 0) + 1
         const nextPlacement = placements[nextIndex]
-
         if (nextPlacement) {
           return {
             overrides: {

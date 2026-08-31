@@ -16,9 +16,7 @@ export function offset(options: OffsetOptions = 5): Middleware {
   return {
     name: 'offset',
     fn: (state: MiddlewareState) => {
-      const { placement, rects, middlewareData } = state
-
-      const minOffset = middlewareData.arrow?.minOffset ?? 0
+      const { placement, rects } = state
 
       const side = getSide(placement)
       const alignment = getAlignment(placement)
@@ -28,20 +26,20 @@ export function offset(options: OffsetOptions = 5): Middleware {
       const mainAxisFactor = ['left', 'top'].includes(side) ? -1 : 1
       const crossAxisFactor = alignment === 'end' ? -1 : 1
 
-      const mainAxisOffset = Math.max(offsetValue.mainAxis, minOffset)
+      const mainAxisOffset = offsetValue.mainAxis
       const crossAxisOffset = offsetValue.crossAxis
 
       const coordinates = {
-        [mainAxis]: rects.popper[mainAxis] + mainAxisOffset * mainAxisFactor,
+        [mainAxis]: rects.floating[mainAxis] + mainAxisOffset * mainAxisFactor,
         [crossAxis]:
-          rects.popper[crossAxis] + crossAxisOffset * crossAxisFactor,
+          rects.floating[crossAxis] + crossAxisOffset * crossAxisFactor,
       }
 
       return {
         ...coordinates,
         data: {
-          x: coordinates.x - rects.popper.x,
-          y: coordinates.y - rects.popper.y,
+          x: coordinates.x - rects.floating.x,
+          y: coordinates.y - rects.floating.y,
         },
       }
     },
