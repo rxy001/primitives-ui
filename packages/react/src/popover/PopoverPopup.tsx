@@ -2,19 +2,17 @@
 
 import { useMergeRefs } from '@primitives-ui/hooks'
 import { __DEV__ } from '@primitives-ui/utils'
-import { useMemo, useRef } from 'react'
-import type { UsePopupProps } from '../popup'
-import type { Placement } from '../utils'
+import { useRef } from 'react'
+import type { Placement, UsePopupProps } from '../utils'
 import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
-import { usePopup } from '../popup'
 import {
-  createChangeDetails,
+  usePopup,
   createHook,
   createPrimitive,
   useResolvedId,
   withMetadata,
+  useScrollLock,
 } from '../utils'
-import { useScrollLock } from '../utils'
 import {
   usePopoverPortalContext,
   usePopoverPositionerContext,
@@ -55,7 +53,6 @@ export const usePopoverPopup = createHook<
     const { placement } = positionerContext!
     const open = store.useSelector(popoverSelectors.open)
     const modal = store.useSelector(popoverSelectors.modal)
-    const activeTriggerId = store.useSelector(popoverSelectors.activeTriggerId)
     const popoverTitleId = store.useSelector(popoverSelectors.popoverTitleId)
     const popoverDescriptionId = store.useSelector(
       popoverSelectors.popoverDescriptionId,
@@ -63,14 +60,6 @@ export const usePopoverPopup = createHook<
     const popupRef = useRef<HTMLDivElement>(null)
     const mergedRefs = useMergeRefs(popupRef, props.ref)
     const id = useResolvedId(props.id)
-
-    const activeTrigger = useMemo(
-      () =>
-        store
-          .getContext()
-          .triggerElements.find((element) => element.id === activeTriggerId),
-      [activeTriggerId, store],
-    )
 
     store.useSyncStateWithCleanup('popoverPopupId', id)
 
@@ -85,34 +74,12 @@ export const usePopoverPopup = createHook<
 
     const popupProps = usePopup({
       ...props,
-      modal,
-      enabled: open,
+      store,
       initialFocus,
       returnFocus,
       dismissOnEscapeKeyDown,
       dismissOnFocusOutside,
       dismissOnPointerDownOutside,
-      onPointerDownOutside: (event) => {
-        const context = store.getContext()
-
-        const isPointerDownTrigger = context.triggerElements.some((trigger) => {
-          const target = event.originalEvent.target as HTMLElement
-
-          return trigger.contains(target)
-        })
-
-        if (isPointerDownTrigger) {
-          event.preventDefault()
-        }
-      },
-      onDismiss: (event) => {
-        store.close(
-          createChangeDetails(event.reason, event.originalEvent, {
-            dismissSource: event.source,
-          }),
-        )
-      },
-      trigger: activeTrigger,
     })
 
     useScrollLock(popupRef, open && (preventScroll ?? modal))

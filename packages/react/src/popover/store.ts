@@ -1,41 +1,44 @@
-import type { PopupDismissSource } from '../popup'
-import type { BoundStore, Store, StoreScope } from '../utils'
-import type { CHANGE_REASONS, ChangeDetails } from '../utils'
-import { createStore, createUseStore } from '../utils'
+import type {
+  PopupDismissSource,
+  PopupOpenChangeReason,
+  PopupStoreContext,
+  PopupStoreState,
+  CHANGE_REASONS,
+  ChangeDetails,
+  BoundStore,
+  Store,
+  StoreScope,
+} from '../utils'
+import {
+  createPopupStoreActions,
+  createPopupStoreContext,
+  createPopupStoreState,
+  createStore,
+  createUseStore,
+} from '../utils'
 
-export interface PopoverStoreState {
-  open: boolean
-  modal: boolean
+export interface PopoverStoreState extends PopupStoreState {
   popoverTitleId: string | undefined
   popoverPopupId: string | undefined
   popoverDescriptionId: string | undefined
-  triggerId: string | undefined
-  triggerIdProp: string | undefined
-  openProp: boolean | undefined
 }
 
 export function createPopoverStoreState(
   initialState?: Partial<PopoverStoreState>,
 ): PopoverStoreState {
   return {
-    open: false,
-    modal: false,
+    ...createPopupStoreState(),
     popoverTitleId: undefined,
     popoverPopupId: undefined,
     popoverDescriptionId: undefined,
-    triggerId: undefined,
-    triggerIdProp: undefined,
-    openProp: undefined,
     ...initialState,
   }
 }
 
 export type PopoverOpenChangeReason =
   | CHANGE_REASONS['closePress']
-  | CHANGE_REASONS['escapeKey']
-  | CHANGE_REASONS['focusOutside']
-  | CHANGE_REASONS['pointerDownOutside']
   | CHANGE_REASONS['triggerPress']
+  | PopupOpenChangeReason
 
 export type PopoverOpenChangeDetails = ChangeDetails<
   PopoverOpenChangeReason,
@@ -45,17 +48,11 @@ export type PopoverOpenChangeDetails = ChangeDetails<
   }
 >
 
-export interface PopoverStoreContext {
-  triggerElements: HTMLElement[]
-  onOpenChangeProp?:
-    | ((open: boolean, details: PopoverOpenChangeDetails) => void)
-    | undefined
-}
+export interface PopoverStoreContext extends PopupStoreContext<PopoverOpenChangeDetails> {}
 
 export function createPopoverStoreContext(): PopoverStoreContext {
   return {
-    triggerElements: [],
-    onOpenChangeProp: undefined,
+    ...createPopupStoreContext<PopoverOpenChangeDetails>(),
   }
 }
 
@@ -75,51 +72,11 @@ export const popoverSelectors = {
 
 export function createPopoverStoreActions() {
   return (scope: StoreScope<PopoverStoreState, PopoverStoreContext>) => {
-    function setOpen(nextOpen: boolean, details: PopoverOpenChangeDetails) {
-      const context = scope.getContext()
-      const state = scope.getState()
-
-      if (!state.open && !nextOpen) {
-        return
-      }
-
-      context.onOpenChangeProp?.(nextOpen, details)
-
-      if (details.isCanceled) return
-
-      if (scope.isValueControlled('openProp')) {
-        if (state.open && nextOpen) {
-          scope.setState({
-            triggerId: details.trigger?.id,
-          })
-          return
-        }
-
-        const unobserve = scope.observe((currentState, previousState) => {
-          if (currentState.openProp !== previousState.openProp) {
-            scope.setState({
-              triggerId: nextOpen ? details.trigger?.id : undefined,
-            })
-            unobserve()
-          }
-        })
-
-        return
-      }
-
-      scope.setState({
-        open: nextOpen,
-        triggerId: nextOpen ? details.trigger?.id : undefined,
-      })
-    }
+    const popupActions =
+      createPopupStoreActions<PopoverOpenChangeDetails>()(scope)
 
     return {
-      open(details: PopoverOpenChangeDetails) {
-        setOpen(true, details)
-      },
-      close(details: PopoverOpenChangeDetails) {
-        setOpen(false, details)
-      },
+      ...popupActions,
     }
   }
 }
@@ -142,7 +99,7 @@ export const usePopoverStore = createUseStore(() => ({
   actions: createPopoverStoreActions(),
 }))
 
-interface InitialState {
+interface PopoverStoreInitialState {
   modal?: boolean
   open?: boolean
   defaultOpen?: boolean
@@ -150,7 +107,7 @@ interface InitialState {
   defaultTriggerId?: string | undefined
 }
 
-export const createPopoverStore = (initialState?: InitialState) =>
+export const createPopoverStore = (initialState?: PopoverStoreInitialState) =>
   createStore({
     state: createPopoverStoreState({
       openProp: initialState?.open,

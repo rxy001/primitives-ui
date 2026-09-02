@@ -1,15 +1,27 @@
-import type { PopupDismissSource } from '../popup/PopupManager'
-import type { BoundStore, Store, StoreScope } from '../utils'
-import type { ChangeDetails, CHANGE_REASONS } from '../utils'
-import { createStore, createUseStore } from '../utils'
+import type {
+  PopupDismissSource,
+  PopupStoreContext,
+  PopupStoreState,
+  PopupOpenChangeReason,
+  ChangeDetails,
+  BoundStore,
+  CHANGE_REASONS,
+  Store,
+  StoreScope,
+} from '../utils'
+import {
+  createPopupStoreActions,
+  createPopupStoreContext,
+  createPopupStoreState,
+  createStore,
+  createUseStore,
+} from '../utils'
 
 export type ModalOpenChangeReason =
   | CHANGE_REASONS['closePress']
-  | CHANGE_REASONS['escapeKey']
-  | CHANGE_REASONS['focusOutside']
-  | CHANGE_REASONS['pointerDownOutside']
   | CHANGE_REASONS['triggerPress']
   | CHANGE_REASONS['ancestorClose']
+  | PopupOpenChangeReason
 
 export type ModalOpenChangeDetails = ChangeDetails<
   ModalOpenChangeReason,
@@ -19,44 +31,29 @@ export type ModalOpenChangeDetails = ChangeDetails<
   }
 >
 
-export interface ModalStoreState {
-  open: boolean
-  modal: boolean
+export interface ModalStoreState extends PopupStoreState {
   modalTitleId: string | undefined
   modalPopupId: string | undefined
   modalDescriptionId: string | undefined
-  triggerIdProp: string | undefined
-  triggerId: string | undefined
-  openProp: boolean | undefined
 }
 
 export function createModalStoreState(
   initialState?: Partial<ModalStoreState>,
 ): ModalStoreState {
   return {
-    open: false,
-    modal: true,
+    ...createPopupStoreState(),
     modalTitleId: undefined,
     modalPopupId: undefined,
     modalDescriptionId: undefined,
-    triggerId: undefined,
-    triggerIdProp: undefined,
-    openProp: undefined,
     ...initialState,
   }
 }
 
-export interface ModalStoreContext {
-  triggerElements: HTMLElement[]
-  onOpenChangeProp?:
-    | ((open: boolean, details: ModalOpenChangeDetails) => void)
-    | undefined
-}
+export interface ModalStoreContext extends PopupStoreContext<ModalOpenChangeDetails> {}
 
 export function createModalStoreContext(): ModalStoreContext {
   return {
-    triggerElements: [],
-    onOpenChangeProp: undefined,
+    ...createPopupStoreContext<ModalOpenChangeDetails>(),
   }
 }
 
@@ -74,39 +71,11 @@ export const modalSelectors = {
 
 export function createModalStoreActions() {
   return (scope: StoreScope<ModalStoreState, ModalStoreContext>) => {
-    function setOpen(nextOpen: boolean, details: ModalOpenChangeDetails) {
-      const context = scope.getContext()
-      context.onOpenChangeProp?.(nextOpen, details)
-
-      if (details.isCanceled) return
-
-      if (scope.isValueControlled('openProp')) {
-        // observe may update within the same React render phase
-        const unobserve = scope.observe((currentState, previousState) => {
-          if (currentState.openProp !== previousState.openProp) {
-            scope.setState({
-              triggerId: nextOpen ? details.trigger?.id : undefined,
-            })
-            unobserve()
-          }
-        })
-
-        return
-      }
-
-      scope.setState({
-        open: nextOpen,
-        triggerId: nextOpen ? details.trigger?.id : undefined,
-      })
-    }
+    const popupActions =
+      createPopupStoreActions<ModalOpenChangeDetails>()(scope)
 
     return {
-      open(details: ModalOpenChangeDetails) {
-        setOpen(true, details)
-      },
-      close(details: ModalOpenChangeDetails) {
-        setOpen(false, details)
-      },
+      ...popupActions,
     }
   }
 }
@@ -129,7 +98,7 @@ export const useModalStore = createUseStore(() => ({
   actions: createModalStoreActions(),
 }))
 
-interface InitialState {
+interface ModalStoreInitialState {
   modal?: boolean
   open?: boolean
   defaultOpen?: boolean
@@ -138,7 +107,7 @@ interface InitialState {
 }
 
 // initialState should use synchronously‑passed props to prevent unnecessary renders.
-export const createModalStore = (initialState?: InitialState) =>
+export const createModalStore = (initialState?: ModalStoreInitialState) =>
   createStore({
     state: createModalStoreState({
       openProp: initialState?.open,

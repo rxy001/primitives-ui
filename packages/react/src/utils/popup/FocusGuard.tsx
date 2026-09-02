@@ -1,4 +1,4 @@
-import { visuallyHidden } from '../utils'
+import { visuallyHidden } from '../visuallyHidden'
 
 export function FocusGuard(props: FocusGuardProps) {
   return (

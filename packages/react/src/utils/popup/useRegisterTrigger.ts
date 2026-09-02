@@ -1,18 +1,18 @@
 import { useEvent } from '@primitives-ui/hooks'
 import { useRef } from 'react'
-import type { FloatingStore } from './floatingStore'
-import { selectors } from './floatingStore'
+import type { PopupStore } from './store'
+import { popupSelectors } from './store'
 
 type UseRegisterTriggerProps = {
-  store: FloatingStore
+  store: PopupStore
 }
 
 export function useRegisterTrigger(props: UseRegisterTriggerProps) {
   const { store } = props
   const triggerRef = useRef<HTMLElement>(null)
 
-  const open = store.useSelector(selectors.open)
-  const activeTriggerId = store.useSelector(selectors.activeTriggerId)
+  const open = store.useSelector(popupSelectors.open)
+  const activeTriggerId = store.useSelector(popupSelectors.activeTriggerId)
 
   const register = useEvent((element: HTMLElement | null) => {
     const context = store.getContext()

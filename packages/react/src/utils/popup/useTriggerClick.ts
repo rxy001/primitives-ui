@@ -1,9 +1,9 @@
-import type { FloatingStore } from './floatingStore'
+import type { PopupStore } from './store'
 import { createChangeDetails } from '../createChangeDetails'
-import { selectors } from './floatingStore'
+import { popupSelectors } from './store'
 
 type UseTriggerClickProps = {
-  store: FloatingStore
+  store: PopupStore
   onClick?: React.MouseEventHandler
 }
 
@@ -12,8 +12,8 @@ export function useTriggerClick<P extends UseTriggerClickProps>({
   onClick,
   ...props
 }: P) {
-  const open = store.useSelector(selectors.open)
-  const activeTriggerId = store.useSelector(selectors.activeTriggerId)
+  const open = store.useSelector(popupSelectors.open)
+  const activeTriggerId = store.useSelector(popupSelectors.activeTriggerId)
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     onClick?.(event)

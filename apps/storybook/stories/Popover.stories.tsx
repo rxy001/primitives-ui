@@ -1,6 +1,5 @@
 import type { Meta } from '@storybook/react-vite'
 import { Dialog, Popover } from '@primitives-ui/react'
-import { useRef } from 'react'
 import { dialogClassNames, popoverClassNames } from './styles'
 
 const meta = {
@@ -10,18 +9,12 @@ const meta = {
 export default meta
 
 export function Default() {
-  const container = useRef(null)
-
   return (
     <Popover.Root>
-      <div ref={container} className='relative w-200 h-200 border-20'>
-        <Popover.Trigger
-          className={`${popoverClassNames.trigger} absolute left-40 top-10`}
-        >
-          Open
-        </Popover.Trigger>
-      </div>
-      <Popover.Portal container={container}>
+      <Popover.Trigger className={popoverClassNames.trigger}>
+        Open
+      </Popover.Trigger>
+      <Popover.Portal>
         <Popover.Positioner>
           <Popover.Popup className={popoverClassNames.popup}>
             <Popover.Arrow className={popoverClassNames.arrow} />

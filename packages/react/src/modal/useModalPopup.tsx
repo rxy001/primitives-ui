@@ -2,18 +2,17 @@
 
 import { useMergeRefs } from '@primitives-ui/hooks'
 import { __DEV__ } from '@primitives-ui/utils'
-import { useMemo, useRef } from 'react'
-import type { UsePopupProps } from '../popup'
+import { useRef } from 'react'
+import type { UsePopupProps } from '../utils'
 import type { HookProps, HTMLElements } from '../utils/types'
 import type { ModalRootContextValue } from './ModalContext'
-import { usePopup } from '../popup'
 import {
-  createChangeDetails,
   createHook,
   useResolvedId,
   withMetadata,
+  useScrollLock,
+  usePopup,
 } from '../utils'
-import { useScrollLock } from '../utils'
 import { useModalPortalContext, useModalRootContext } from './ModalContext'
 import { modalSelectors } from './store'
 
@@ -56,7 +55,6 @@ export const useModalPopup = createHook<
 
     const open = store.useSelector(modalSelectors.open)
     const modal = store.useSelector(modalSelectors.modal)
-    const activeTriggerId = store.useSelector(modalSelectors.activeTriggerId)
     const modalTitleId = store.useSelector(modalSelectors.modalTitleId)
     const modalDescriptionId = store.useSelector(
       modalSelectors.modalDescriptionId,
@@ -64,14 +62,6 @@ export const useModalPopup = createHook<
     const popupRef = useRef<HTMLDivElement>(null)
     const mergedRefs = useMergeRefs(popupRef, props.ref)
     const id = useResolvedId(props.id)
-
-    const activeTrigger = useMemo(() => {
-      const context = store.getContext()
-
-      return context.triggerElements.find(
-        (element) => element.id === activeTriggerId,
-      )
-    }, [activeTriggerId, store])
 
     store.useSyncStateWithCleanup('modalPopupId', id)
 
@@ -86,21 +76,12 @@ export const useModalPopup = createHook<
 
     const popupProps = usePopup({
       ...props,
-      modal,
-      enabled: open,
+      store,
       initialFocus,
       returnFocus,
       dismissOnEscapeKeyDown,
       dismissOnFocusOutside,
       dismissOnPointerDownOutside,
-      onDismiss: (event) => {
-        store.close(
-          createChangeDetails(event.reason, event.originalEvent, {
-            dismissSource: event.source,
-          }),
-        )
-      },
-      trigger: activeTrigger,
     })
 
     useScrollLock(popupRef, open && (preventScroll ?? modal))

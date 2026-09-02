@@ -26,7 +26,7 @@ export const usePopoverPositioner = createHook<
 
   const floatingProps = useFloating({
     store,
-    arrow: arrowRef,
+    arrow: arrowRef.current,
     ...props,
   })
 
