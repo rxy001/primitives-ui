@@ -1,4 +1,3 @@
-import type { CHANGE_REASONS, ChangeDetails } from '../createChangeDetails'
 import type { StoreSelector } from '../createStore'
 
 interface StoreContext {
@@ -12,19 +11,10 @@ interface StoreState {
   triggerIdProp: string | undefined
 }
 
-type OpenChangeDetails = ChangeDetails<
-  CHANGE_REASONS['triggerPress'],
-  {
-    trigger?: HTMLElement | undefined
-  }
->
-
 export interface FloatingStore {
   useSelector<Value>(selector: StoreSelector<StoreState, Value>): Value
   getState: () => Readonly<StoreState>
   getContext: () => Readonly<StoreContext>
-  open(details: OpenChangeDetails): void
-  close(details: OpenChangeDetails): void
 }
 
 export const selectors = {

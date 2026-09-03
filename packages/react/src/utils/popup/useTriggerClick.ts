@@ -1,9 +1,10 @@
-import type { PopupStore } from './store'
+import type { CHANGE_REASONS } from '../createChangeDetails'
+import type { PopupOpenChangeDetails, PopupStore } from './store'
 import { createChangeDetails } from '../createChangeDetails'
 import { popupSelectors } from './store'
 
 type UseTriggerClickProps = {
-  store: PopupStore
+  store: PopupStore<PopupOpenChangeDetails<CHANGE_REASONS['triggerPress']>>
   onClick?: React.MouseEventHandler
 }
 

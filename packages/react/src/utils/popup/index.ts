@@ -24,7 +24,6 @@ export type {
   PopupStoreActions,
   PopupStoreContext,
   PopupStoreState,
-  PopupOpenChangeDetails,
   PopupDismissSource,
   PopupOpenChangeReason,
 } from './store'

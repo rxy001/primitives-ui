@@ -7,6 +7,7 @@ export const CHANGE_REASONS = {
   pointerDownOutside: 'pointer-down-outside',
   focusOutside: 'focus-outside',
   ancestorClose: 'ancestor-close',
+  triggerHover: 'trigger-hover',
 } as const
 
 export type CHANGE_REASONS = typeof CHANGE_REASONS
@@ -18,6 +19,7 @@ interface ChangeReasonEventMap {
   [CHANGE_REASONS.pointerDownOutside]: PointerEvent
   [CHANGE_REASONS.focusOutside]: FocusEvent
   [CHANGE_REASONS.ancestorClose]: null
+  [CHANGE_REASONS.triggerHover]: PointerEvent
 }
 
 export type ChangeReason = keyof ChangeReasonEventMap

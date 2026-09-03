@@ -1,25 +1,14 @@
-import { useEffect, useMemo, useRef } from 'react'
-import { useEvent } from './useEvent'
+import { Timeout } from '@primitives-ui/utils'
+import { useEffect, useRef } from 'react'
 
 export function useTimeout() {
-  const timerRef = useRef<NodeJS.Timeout>(null)
+  const timeoutRef = useRef<Timeout>(null)
 
-  const clear = useEvent(() => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current)
-      timerRef.current = null
-    }
-  })
+  if (!timeoutRef.current) {
+    timeoutRef.current = Timeout.create()
+  }
 
-  const start = useEvent((fn: (...args: any[]) => void, delay: number) => {
-    clear()
-    timerRef.current = setTimeout(() => {
-      timerRef.current = null
-      fn()
-    }, delay)
-  })
+  useEffect(() => timeoutRef.current?.clear)
 
-  useEffect(() => clear, [clear])
-
-  return useMemo(() => ({ start, clear }), [start, clear])
+  return timeoutRef.current
 }
