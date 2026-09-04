@@ -1,9 +1,10 @@
-import { addEventListener } from '@primitives-ui/utils'
+import { addEventListener, isFunction } from '@primitives-ui/utils'
 import type { OrderedRegistryEntry } from '../utils'
+import type { PopupDismissSource } from './store'
 import {
   createOrderedRegistry,
-  createDocumentManager,
   OrderedRegistry,
+  createDocumentManager,
 } from '../utils'
 
 export const ESCAPE_KEY = 'escape-key' as const
@@ -29,8 +30,6 @@ export type PopupDismissInteraction =
       originalEvent: FocusEvent
     }
 
-export type PopupDismissSource = 'self' | 'ancestor'
-
 export type PopupDismissRequest<
   Source extends PopupDismissSource = PopupDismissSource,
 > = PopupDismissInteraction & {
@@ -41,14 +40,14 @@ type PopupDismissAction = () => void
 
 export interface PopupEntry extends OrderedRegistryEntry<PopupEntry> {
   modalRef: React.RefObject<boolean>
-  triggerRef: React.RefObject<HTMLElement | null>
+  activeTriggerRef: React.RefObject<HTMLElement | null>
   pause: () => void
   resume: () => void
-  isFocusInside(target: EventTarget | null): boolean
+  isTargetInsideFocusScope(target: EventTarget | null): boolean
+  isTargetInsideAnyTrigger(target: EventTarget | null): boolean
   requestDismiss(
     request: PopupDismissRequest<'self'>,
   ): PopupDismissAction | void
-
   forceDismiss(request: PopupDismissRequest<'ancestor'>): PopupDismissAction
 }
 
@@ -66,18 +65,16 @@ interface PendingFocusTransition {
   // The focusout event owns the transition. React capture handlers enrich it
   // before the queued microtask evaluates which logical branches were exited.
   originalEvent: FocusEvent
-  eligibleEntries: PopupEntries
-  eligibleEntrySet: PopupEntrySet
-  destinationInsideEntrySet: Set<PopupEntry>
+  candidateEntries: PopupEntries
+  markedDestinationEntries: PopupEntry[]
 }
 
-// `*Entries` preserves registry order. `*EntrySet` is membership-only.
 type PopupEntries = readonly PopupEntry[]
-type PopupEntrySet = ReadonlySet<PopupEntry>
 
 export class PopupManager {
   readonly #registry: OrderedRegistry<PopupEntry>
   readonly #document: Document
+  readonly #markedInsideEntriesByEvent = new WeakMap<Event, Set<PopupEntry>>()
   #isPointerDown = false
   #pointerDownGeneration = 0
   #keyDownGeneration = 0
@@ -131,7 +128,20 @@ export class PopupManager {
 
   isTopmost = (entry: PopupEntry) => this.#registry.getTopmost() === entry
 
-  markFocusDestinationInside = (entry: PopupEntry, event: FocusEvent) => {
+  markEventAsInside = (entry: PopupEntry, event: Event) => {
+    // React events bubble through the React tree across createPortal() even
+    // when DOM containment cannot associate the event target with the Popup.
+    let markedInsideEntries = this.#markedInsideEntriesByEvent.get(event)
+
+    if (!markedInsideEntries) {
+      markedInsideEntries = new Set()
+      this.#markedInsideEntriesByEvent.set(event, markedInsideEntries)
+    }
+
+    markedInsideEntries.add(entry)
+  }
+
+  markFocusTargetAsInside = (entry: PopupEntry, event: FocusEvent) => {
     const transition = this.#pendingFocusTransition
 
     // A React Portal is not a DOM descendant of its Popup. Match the target's
@@ -139,12 +149,12 @@ export class PopupManager {
     if (
       !transition ||
       transition.originalEvent.relatedTarget !== event.target ||
-      !transition.eligibleEntrySet.has(entry)
+      !transition.candidateEntries.includes(entry)
     ) {
       return
     }
 
-    transition.destinationInsideEntrySet.add(entry)
+    transition.markedDestinationEntries.push(entry)
   }
 
   #isRegistered = (entry: PopupEntry) =>
@@ -167,7 +177,11 @@ export class PopupManager {
           return
         }
 
-        const targetGroups = resolveEscapeTargetGroups(event, registryEntries)
+        const targetGroups = resolveEscapeTargetGroups(
+          event,
+          registryEntries,
+          this.#markedInsideEntriesByEvent.get(event),
+        )
         // Evaluate recently registered independent roots first.
         targetGroups.forEach((targetGroup) => {
           const groupEntries = getGroupEntries(targetGroup)
@@ -178,7 +192,7 @@ export class PopupManager {
               originalEvent: event,
             },
             targetGroup,
-            new Set(groupEntries),
+            groupEntries,
           )
         })
       },
@@ -214,17 +228,19 @@ export class PopupManager {
           return
         }
 
-        const targetGroups = resolvePointerDownTargetGroups(
-          event,
-          registryEntries,
-        )
+        const targetGroups = resolvePointerDownTargetGroups(registryEntries)
 
         targetGroups.forEach((targetGroup) => {
           const groupEntries = getGroupEntries(targetGroup)
-          const insideEntrySet = getEventInsideEntrySet(groupEntries, event)
-          const pointerOutsideEntrySet = new Set(
-            groupEntries.filter((entry) => !insideEntrySet.has(entry)),
+          const insideEntries = this.#getPointerInsideEntries(
+            groupEntries,
+            event,
           )
+          const pointerOutsideEntries = groupEntries.filter(
+            (entry) => !insideEntries.includes(entry),
+          )
+
+          if (pointerOutsideEntries.length === 0) return
 
           this.#dispatchDismissGroup(
             {
@@ -232,7 +248,7 @@ export class PopupManager {
               originalEvent: event,
             },
             targetGroup,
-            pointerOutsideEntrySet,
+            pointerOutsideEntries,
           )
         })
       },
@@ -249,15 +265,14 @@ export class PopupManager {
       return
     }
 
-    const eligibleEntries = getEligibleFocusOutsideEntries([
-      ...this.#registry.getEntries(),
-    ])
+    const activeEntries = getActiveEntries(this.#registry.getEntries()).filter(
+      (entry) => !entry.modalRef.current,
+    )
 
     const transition: PendingFocusTransition = {
       originalEvent: event,
-      eligibleEntries,
-      eligibleEntrySet: new Set(eligibleEntries),
-      destinationInsideEntrySet: new Set(),
+      candidateEntries: activeEntries,
+      markedDestinationEntries: [],
     }
 
     // React onBlurCapture and onFocusCapture run later in the same focus
@@ -276,36 +291,39 @@ export class PopupManager {
   }
 
   #dispatchFocusTransition = (transition: PendingFocusTransition) => {
-    const { originalEvent, eligibleEntries, destinationInsideEntrySet } =
+    const { originalEvent, candidateEntries, markedDestinationEntries } =
       transition
 
-    // DOM containment handles regular descendants. Event marks handle a
-    // source rendered through React.createPortal().
-    const sourceEntrySet = new Set([
-      ...getFocusInsideEntrySet(eligibleEntries, originalEvent.target),
-      ...getEventInsideEntrySet(eligibleEntries, originalEvent),
-    ])
+    // Entries that logically contained the element losing focus.
+    const sourceEntries = [
+      ...new Set([
+        ...getFocusTargetEntries(candidateEntries, originalEvent.target),
+        ...this.#getEventInsideEntries(candidateEntries, originalEvent),
+      ]),
+    ]
 
-    if (sourceEntrySet.size === 0) return
+    if (sourceEntries.length === 0) return
 
-    // Destination Portal ownership is written directly by onFocusCapture, so
-    // the Manager does not need a document-level focusin listener.
-    const destinationEntrySet = new Set([
-      ...getFocusInsideEntrySet(eligibleEntries, originalEvent.relatedTarget),
-      ...getEntryAndAncestorSet(eligibleEntries, destinationInsideEntrySet),
-    ])
+    // Entries that logically contain the element receiving focus.
+    const destinationEntries = [
+      ...new Set([
+        ...getFocusTargetEntries(candidateEntries, originalEvent.relatedTarget),
+        ...getEntriesWithAncestors(candidateEntries, markedDestinationEntries),
+      ]),
+    ]
 
-    const focusOutsideEntrySet = new Set(
-      eligibleEntries.filter(
-        (entry) => sourceEntrySet.has(entry) && !destinationEntrySet.has(entry),
-      ),
+    // Only entries in the source but not the destination were exited by this
+    // focus transition.
+    const focusOutsideEntries = candidateEntries.filter(
+      (entry) =>
+        sourceEntries.includes(entry) && !destinationEntries.includes(entry),
     )
 
-    if (focusOutsideEntrySet.size === 0) return
+    if (focusOutsideEntries.length === 0) return
 
     const targetGroups = resolveFocusOutsideTargetGroups(
-      eligibleEntries,
-      focusOutsideEntrySet,
+      candidateEntries,
+      focusOutsideEntries,
     )
 
     targetGroups.forEach((targetGroup) => {
@@ -315,7 +333,7 @@ export class PopupManager {
           originalEvent,
         },
         targetGroup,
-        focusOutsideEntrySet,
+        focusOutsideEntries,
       )
     })
   }
@@ -323,7 +341,7 @@ export class PopupManager {
   #dispatchDismissGroup = (
     interaction: PopupDismissInteraction,
     targetGroup: PopupEntryGroup,
-    requestDismissEntrySet: PopupEntrySet,
+    requestDismissEntries: PopupEntries,
   ) => {
     const groupEntries = getGroupEntries(targetGroup)
     const childEntriesByParentEntry = createChildEntriesByParentEntry(
@@ -344,7 +362,7 @@ export class PopupManager {
         )
       } else if (!this.#isRegistered(entry)) {
         currentWillDismiss = true
-      } else if (requestDismissEntrySet.has(entry)) {
+      } else if (requestDismissEntries.includes(entry)) {
         const dismissAction = entry.requestDismiss({
           ...interaction,
           source: 'self',
@@ -352,7 +370,7 @@ export class PopupManager {
 
         const wasSynchronouslyUnregistered = !this.#isRegistered(entry)
         currentWillDismiss =
-          dismissAction !== null || wasSynchronouslyUnregistered
+          isFunction(dismissAction) || wasSynchronouslyUnregistered
 
         if (dismissAction) {
           dismissActionByEntry.set(entry, dismissAction)
@@ -368,14 +386,52 @@ export class PopupManager {
 
     visitEntry(targetGroup.targetEntry, false)
 
-    // Registry order is descendant-first, so commits unmount children before
-    // their ancestors after all preventable decisions have completed.
     groupEntries.forEach((entry) => {
       const dismissAction = dismissActionByEntry.get(entry)
       if (dismissAction && this.#isRegistered(entry)) {
         dismissAction()
       }
     })
+  }
+
+  #getEventInsideEntries = (
+    entries: PopupEntries,
+    event: Event,
+  ): PopupEntries => {
+    const matchedEntries = entries.filter(
+      (entry) =>
+        entry.elementRef.current !== null &&
+        this.#isEventInsideEntry(entry, event),
+    )
+
+    return getEntriesWithAncestors(entries, matchedEntries)
+  }
+
+  #getPointerInsideEntries = (
+    entries: PopupEntries,
+    event: PointerEvent,
+  ): PopupEntries => {
+    const matchedEntries = entries.filter((entry) => {
+      const isEventInsidePopup =
+        entry.elementRef.current !== null &&
+        this.#isEventInsideEntry(entry, event)
+      const isTargetInsideTrigger = entry.isTargetInsideAnyTrigger(event.target)
+
+      return isEventInsidePopup || isTargetInsideTrigger
+    })
+
+    return getEntriesWithAncestors(entries, matchedEntries)
+  }
+
+  #isEventInsideEntry = (entry: PopupEntry, event: Event) => {
+    if (this.#markedInsideEntriesByEvent.get(event)?.has(entry)) {
+      return true
+    }
+
+    const node = entry.elementRef.current
+    if (!node) return false
+
+    return node.contains(event.target as HTMLElement)
   }
 
   #attach = () => {
@@ -397,34 +453,6 @@ export class PopupManager {
       true,
     )
   }
-}
-
-const insideEntrySetByEvent = new WeakMap<Event, Set<PopupEntry>>()
-
-export function markEventInsidePopup(entry: PopupEntry, event: Event) {
-  // React events bubble through the React tree across createPortal() even when
-  // DOM containment cannot associate the event target with the Popup.
-  let insideEntrySet = insideEntrySetByEvent.get(event)
-
-  if (!insideEntrySet) {
-    insideEntrySet = new Set()
-    insideEntrySetByEvent.set(event, insideEntrySet)
-  }
-
-  insideEntrySet.add(entry)
-}
-
-export function isEventInsidePopup(entry: PopupEntry, event: Event) {
-  if (insideEntrySetByEvent.get(event)?.has(entry)) {
-    return true
-  }
-
-  const node = entry.elementRef.current
-  if (!node) return false
-
-  const target = event.target as HTMLElement
-
-  return node.contains(target)
 }
 
 function isPrimaryPointerDown(event: PointerEvent) {
@@ -463,12 +491,10 @@ function getRootNonModalEntries(entries: PopupEntries): PopupEntries {
 }
 
 function getRootEntries(entries: PopupEntries): PopupEntries {
-  const entrySet = new Set(entries)
-
   return entries.filter((entry) => {
     const parentEntry = entry.parent
 
-    return !parentEntry || !entrySet.has(parentEntry)
+    return !parentEntry || !entries.includes(parentEntry)
   })
 }
 
@@ -487,15 +513,18 @@ function getActiveEntries(entries: PopupEntries): PopupEntries {
 function resolveEscapeTargetGroups(
   event: KeyboardEvent,
   entries: PopupEntries,
+  markedInsideEntries: ReadonlySet<PopupEntry> | undefined,
 ): readonly PopupEntryGroup[] {
   const activeEntries = getActiveEntries(entries)
 
   const target = event.target as HTMLElement
+
   const triggerEntry = activeEntries.find((entry) => {
-    const trigger = entry.triggerRef.current
+    const trigger = entry.activeTriggerRef.current
 
     return trigger?.contains(target) ?? false
   })
+
   if (triggerEntry) {
     return [
       {
@@ -505,9 +534,8 @@ function resolveEscapeTargetGroups(
     ]
   }
 
-  const markedInsideEntrySet = insideEntrySetByEvent.get(event)
-  const markedEntry = markedInsideEntrySet
-    ? activeEntries.find((entry) => markedInsideEntrySet.has(entry))
+  const markedEntry = markedInsideEntries
+    ? activeEntries.find((entry) => markedInsideEntries.has(entry))
     : undefined
   if (markedEntry) {
     return [
@@ -540,14 +568,10 @@ function resolveEscapeTargetGroups(
 }
 
 function resolvePointerDownTargetGroups(
-  event: PointerEvent,
   entries: PopupEntries,
 ): readonly PopupEntryGroup[] {
   const activeEntries = getActiveEntries(entries)
-
-  const rootEntries = getRootEntries(activeEntries).filter(
-    (entry) => !entry.triggerRef.current?.contains(event.target as HTMLElement),
-  )
+  const rootEntries = getRootEntries(activeEntries)
 
   return rootEntries.map((targetEntry) => ({
     targetEntry,
@@ -555,15 +579,9 @@ function resolvePointerDownTargetGroups(
   }))
 }
 
-function getEligibleFocusOutsideEntries(entries: PopupEntries): PopupEntries {
-  // Modal focus is contained by guards and must not be dismissed merely
-  // because a transient focusout appears to leave its DOM subtree.
-  return getActiveEntries(entries).filter((entry) => !entry.modalRef.current)
-}
-
 function resolveFocusOutsideTargetGroups(
   entries: PopupEntries,
-  focusOutsideEntrySet: PopupEntrySet,
+  focusOutsideEntries: PopupEntries,
 ): readonly PopupEntryGroup[] {
   const rootEntries = getRootEntries(entries)
 
@@ -574,71 +592,50 @@ function resolveFocusOutsideTargetGroups(
     }))
     .filter(
       (targetGroup) =>
-        focusOutsideEntrySet.has(targetGroup.targetEntry) ||
+        focusOutsideEntries.includes(targetGroup.targetEntry) ||
         targetGroup.descendantEntries.some((entry) =>
-          focusOutsideEntrySet.has(entry),
+          focusOutsideEntries.includes(entry),
         ),
     )
 }
 
-function getEventInsideEntrySet(
-  entries: PopupEntries,
-  event: Event,
-): PopupEntrySet {
-  const directlyInsideEntrySet = new Set<PopupEntry>()
-
-  entries.forEach((entry) => {
-    if (!entry.elementRef.current || !isEventInsidePopup(entry, event)) {
-      return
-    }
-
-    directlyInsideEntrySet.add(entry)
-  })
-
-  return getEntryAndAncestorSet(entries, directlyInsideEntrySet)
-}
-
-function getFocusInsideEntrySet(
+function getFocusTargetEntries(
   entries: PopupEntries,
   target: EventTarget | null,
-): PopupEntrySet {
-  const directlyInsideEntrySet = new Set<PopupEntry>()
+): PopupEntries {
+  const matchedEntries = entries.filter((entry) =>
+    entry.isTargetInsideFocusScope(target),
+  )
 
-  entries.forEach((entry) => {
-    if (!entry.isFocusInside(target)) return
-
-    directlyInsideEntrySet.add(entry)
-  })
-
-  return getEntryAndAncestorSet(entries, directlyInsideEntrySet)
+  // Focus inside a portaled child Popup is also logically inside each of its
+  // ancestor Popups, even though their DOM trees do not contain the target.
+  return getEntriesWithAncestors(entries, matchedEntries)
 }
 
-function getEntryAndAncestorSet(
+function getEntriesWithAncestors(
   entries: PopupEntries,
-  directlyInsideEntrySet: PopupEntrySet,
-): PopupEntrySet {
-  const entrySet = new Set(entries)
-  const insideEntrySet = new Set<PopupEntry>()
+  matchedEntries: PopupEntries,
+): PopupEntries {
+  const allEntries: PopupEntry[] = []
 
-  directlyInsideEntrySet.forEach((entry) => {
+  matchedEntries.forEach((entry) => {
     let current: PopupEntry | undefined = entry
 
     // A portaled child Popup is logically inside every registered ancestor,
     // even though their DOM trees do not contain one another.
-    while (current && entrySet.has(current)) {
-      insideEntrySet.add(current)
+    while (current && entries.includes(current)) {
+      allEntries.push(current)
       current = current.parent
     }
   })
 
-  return insideEntrySet
+  return allEntries
 }
 
 function createChildEntriesByParentEntry(
   targetEntry: PopupEntry,
   entries: PopupEntries,
 ): ReadonlyMap<PopupEntry, PopupEntries> {
-  const entrySet = new Set(entries)
   const childEntriesByParentEntry = new Map<PopupEntry, PopupEntry[]>()
 
   for (const entry of entries) {
@@ -650,7 +647,7 @@ function createChildEntriesByParentEntry(
 
     // A filtered group may omit intermediate ancestors (for example, paused
     // or modal entries). Connect to the nearest ancestor still in this group.
-    while (parent && !entrySet.has(parent)) {
+    while (parent && !entries.includes(parent)) {
       parent = parent.parent
     }
 

@@ -1,5 +1,9 @@
 export { usePopup } from './usePopup'
 
+export { useClick } from './useClick'
+
+export { useRegisterTrigger } from './useRegisterTrigger'
+
 export type {
   PopupState,
   DismissReason,
@@ -9,4 +13,18 @@ export type {
   EscapeKeyDownEvent,
   FocusOutsideEvent,
 } from './usePopup'
-export type { PopupDismissSource } from './PopupManager'
+
+export {
+  createPopupStoreActions,
+  createPopupStoreContext,
+  createPopupStoreState,
+} from './store'
+
+export type {
+  PopupStoreActions,
+  PopupStoreContext,
+  PopupStoreState,
+  PopupOpenChangeDetails,
+  PopupDismissSource,
+  PopupOpenChangeReason,
+} from './store'

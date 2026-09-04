@@ -31,6 +31,7 @@
     "@types/react": "catalog:dev",
     "@types/react-dom": "catalog:dev",
     "storybook": "10.3.6",
+    "storybook-addon-rtl": "3.0.2",
     "tailwindcss": "4.3.0",
     "vite": "8.0.12"
   }

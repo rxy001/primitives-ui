@@ -1,6 +1,7 @@
 ---
 name: storybook-design-system
 description: Style Storybook primitives in apps/storybook/stories with shadcn/ui and Tailwind CSS.
+disable-model-invocation: true
 ---
 
 # Storybook Design System

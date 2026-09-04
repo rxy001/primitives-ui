@@ -44,6 +44,7 @@ export const useModalRoot = (
   const open = store.useSelector(modalSelectors.open)
 
   useIsoLayoutEffect(() => {
+    // Closes together with the parent modal
     if (parentContext?.store && open) {
       return parentContext.store.observe((currentState, previousState) => {
         const state = store.getState()
@@ -64,7 +65,7 @@ export const useModalRoot = (
     const context = store.getContext()
     const state = store.getState()
 
-    // Handle default opening: treat the first registered Trigger as the active trigger.
+    // Treat the first registered trigger as the active trigger when opened by default
     if (modalSelectors.open(state) && !modalSelectors.activeTriggerId(state)) {
       store.setState({
         triggerId: context.triggerElements[0]?.id,

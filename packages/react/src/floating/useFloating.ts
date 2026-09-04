@@ -1,13 +1,12 @@
 import { useIsoLayoutEffect, useMergeRefs } from '@primitives-ui/hooks'
 import { ownerWindow, addEventListener, chain } from '@primitives-ui/utils'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import type { HookProps } from '../types'
+import type { HookProps, HTMLElements } from '../utils/types'
 import type { ComputePositionOptions, Placement } from './computePosition'
-import type { FloatingStore } from './floatingStore'
-import { createHook } from '../createHook'
-import { withMetadata } from '../metadata'
+import type { FloatingStore } from './store'
+import { createHook, withMetadata } from '../utils'
 import { computePosition } from './computePosition'
-import { selectors } from './floatingStore'
+import { selectors } from './store'
 
 const DEFAULT_POSITION = {
   top: -9999,
@@ -69,7 +68,7 @@ export const useFloating = createHook<'div', FloatingOwnProps, FloatingState>(
         shift,
         hide,
         strategy,
-        arrow: arrow ? { element: arrow.current } : undefined,
+        arrow: arrow ? { element: arrow } : undefined,
       })
 
       setVisibility(
@@ -237,14 +236,17 @@ interface FloatingOwnProps {
 
   strategy?: ComputePositionOptions['strategy']
 
-  arrow?: React.RefObject<HTMLElement | null>
+  arrow?: HTMLElement | null
 }
+
+export type UseFloatingProps<Element extends HTMLElements = 'div'> = HookProps<
+  Element,
+  FloatingOwnProps
+>
 
 export interface FloatingState {
   placement: Placement
 }
-
-export type UseFloatingProps = HookProps<'div', FloatingOwnProps>
 
 interface Position {
   top: number

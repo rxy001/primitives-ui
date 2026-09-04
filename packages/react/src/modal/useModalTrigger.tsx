@@ -7,13 +7,8 @@ import type { HookProps, HTMLElements } from '../utils/types'
 import type { ModalRootContextValue } from './ModalContext'
 import type { ModalStore } from './store'
 import { useButton } from '../button'
-import {
-  createHook,
-  withMetadata,
-  useRegisterTrigger,
-  useTriggerClick,
-  useResolvedId,
-} from '../utils'
+import { useRegisterTrigger, useClick } from '../popup'
+import { createHook, withMetadata, useResolvedId } from '../utils'
 import { ModalRootContext } from './ModalContext'
 import { modalSelectors, useModalStore } from './store'
 
@@ -44,7 +39,7 @@ export const useModalTrigger = createHook<
   const modalPopupId = store.useSelector(modalSelectors.modalPopupId)
   const mergedRefs = useMergeRefs(props.ref, registerTrigger)
 
-  props = useTriggerClick({
+  props = useClick({
     ...props,
     store,
   })

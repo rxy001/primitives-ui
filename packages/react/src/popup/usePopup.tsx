@@ -23,40 +23,51 @@ import type {
   FOCUS_OUTSIDE,
   POINTER_DOWN_OUTSIDE,
   PopupDismissRequest,
-  PopupDismissSource,
   PopupEntry,
 } from './PopupManager'
+import type { PopupStore, PopupDismissSource } from './store'
 import {
-  createHook,
-  focus,
   withMetadata,
   resolveRef,
   markOutsideElementsAsHidden,
+  focus,
   createPreventableEvent,
+  createChangeDetails,
+  createHook,
 } from '../utils'
 import { FocusGuard } from './FocusGuard'
 import { PopupProvider, usePopupContext } from './PopupContext'
-import { markEventInsidePopup, PopupManager } from './PopupManager'
-import { getPopupManager } from './PopupManager'
+import { getPopupManager, PopupManager } from './PopupManager'
+import { popupSelectors } from './store'
 
-export const usePopup = createHook<'div', PopupOwnProps, PopupState, true>(
+export const usePopup = createHook<'div', PopupOwnProps, PopupState>(
   ({
     initialFocus,
     returnFocus,
     onEscapeKeyDown,
     onPointerDownOutside,
-    onDismiss,
     onFocusOutside,
-    modal = true,
-    enabled = false,
+    store,
     dismissOnFocusOutside = true,
     dismissOnEscapeKeyDown = true,
     dismissOnPointerDownOutside = true,
-    trigger: triggerProp = null,
     ...props
   }) => {
     const [paused, setPaused] = useState(false)
     const [anchorHost, setAnchorHost] = useState<HTMLElement | null>(null)
+
+    const open = store.useSelector(popupSelectors.open)
+    const modal = store.useSelector(popupSelectors.modal)
+    const activeTriggerId = store.useSelector(popupSelectors.activeTriggerId)
+
+    const activeTrigger = useMemo(
+      () =>
+        store
+          .getContext()
+          .triggerElements.find((element) => element.id === activeTriggerId) ??
+        null,
+      [activeTriggerId, store],
+    )
 
     const initialFocusRef = useLatest(initialFocus)
     const returnFocusRef = useLatest(returnFocus)
@@ -70,29 +81,30 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState, true>(
     const pausedRef = useLatest(paused)
     const modalRef = useLatest(modal)
     const popupManagerRef = useRef<PopupManager>(null)
-    const previousStateRef = useRef({ enabled, modal })
-    const triggerRef = useRef<HTMLElement>(null)
+    const activeTriggerRef = useLatest(activeTrigger)
 
     if (__DEV__) {
+      const previousStateRef = useRef({ open, modal })
+
       useEffect(() => {
         const previousState = previousStateRef.current
 
-        if (previousState.enabled && enabled && previousState.modal !== modal) {
+        if (previousState.open && open && previousState.modal !== modal) {
           console.error(
-            'Warning: The `modal` option passed to usePopup changed while the popup was enabled. ' +
-              'Changing `modal` while enabled is not supported. Disable the popup before changing this option.',
+            'Warning: The `modal` option passed to usePopup changed while the popup was open. ' +
+              'Changing `modal` while open is not supported. Disable the popup before changing this option.',
           )
         }
 
-        previousStateRef.current = { enabled, modal }
-      }, [enabled, modal])
+        previousStateRef.current = { open, modal }
+      }, [open, modal])
     }
 
     const mergedRefs = useMergeRefs(popupRef, props.ref)
 
     const focusFirst = useEvent(() => {
       const popup = popupRef.current
-      if (!enabled || !popup) return false
+      if (!open || !popup) return false
 
       const first = tabbable(popup)[0]
       if (!first) return false
@@ -103,7 +115,7 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState, true>(
 
     const focusLast = useEvent(() => {
       const popup = popupRef.current
-      if (!enabled || !popup) return false
+      if (!open || !popup) return false
 
       const candidates = tabbable(popup)
       const last = candidates[candidates.length - 1]
@@ -198,7 +210,7 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState, true>(
     const { onPointerDownCapture } = props
     const handlePointerDownCapture = useEvent(
       (event: React.PointerEvent<HTMLDivElement>) => {
-        markEventInsidePopup(entry, event.nativeEvent)
+        popupManagerRef.current?.markEventAsInside(entry, event.nativeEvent)
         onPointerDownCapture?.(event)
       },
     )
@@ -206,7 +218,7 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState, true>(
     const { onFocusCapture } = props
     const handleFocusCapture = useEvent(
       (event: React.FocusEvent<HTMLDivElement>) => {
-        popupManagerRef.current?.markFocusDestinationInside(
+        popupManagerRef.current?.markFocusTargetAsInside(
           entry,
           event.nativeEvent,
         )
@@ -217,7 +229,7 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState, true>(
     const { onBlurCapture } = props
     const handleBlurCapture = useEvent(
       (event: React.FocusEvent<HTMLDivElement>) => {
-        markEventInsidePopup(entry, event.nativeEvent)
+        popupManagerRef.current?.markEventAsInside(entry, event.nativeEvent)
         onBlurCapture?.(event)
       },
     )
@@ -225,7 +237,7 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState, true>(
     const { onKeyDownCapture } = props
     const handleKeyDownCapture = useEvent(
       (event: React.KeyboardEvent<HTMLDivElement>) => {
-        markEventInsidePopup(entry, event.nativeEvent)
+        popupManagerRef.current?.markEventAsInside(entry, event.nativeEvent)
         onKeyDownCapture?.(event)
       },
     )
@@ -240,18 +252,28 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState, true>(
       setPaused(false)
     })
 
-    const isFocusInside = useEvent((target: EventTarget | null) => {
-      if (!target || typeof (target as Node).nodeType !== 'number') return false
+    const isTargetInsideFocusScope = useEvent((target: EventTarget | null) => {
+      if (!target) return false
 
-      const node = target as Node
+      const node = target as HTMLElement
 
       return (
-        popupRef.current?.contains(node) === true ||
-        triggerRef.current?.contains(node) === true ||
+        popupRef.current?.contains(node) ||
+        activeTriggerRef.current?.contains(node) ||
         node === anchorRef.current ||
         node === beforeGuardRef.current ||
         node === afterGuardRef.current
       )
+    })
+
+    const isTargetInsideAnyTrigger = useEvent((target: EventTarget | null) => {
+      if (!target) return false
+
+      const node = target as HTMLElement
+
+      return store
+        .getContext()
+        .triggerElements.some((trigger) => trigger.contains(node))
     })
 
     const preventCurrentFocusReturn = useEvent(() => {
@@ -265,12 +287,10 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState, true>(
     const parentEntry = usePopupContext()?.entry
 
     const requestDismiss = useEvent((request: PopupDismissRequest<'self'>) => {
-      let event = null
-
       switch (request.reason) {
         case 'escape-key': {
           if (!dismissOnEscapeKeyDown) return
-          event = createPreventableEvent(request.originalEvent, {
+          const event = createPreventableEvent(request.originalEvent, {
             reason: request.reason,
             source: request.source,
           })
@@ -281,7 +301,7 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState, true>(
 
         case 'pointer-down-outside': {
           if (!dismissOnPointerDownOutside) return
-          event = createPreventableEvent(request.originalEvent, {
+          const event = createPreventableEvent(request.originalEvent, {
             reason: request.reason,
             source: request.source,
           })
@@ -294,7 +314,7 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState, true>(
 
         case 'focus-outside': {
           if (!dismissOnFocusOutside) return
-          event = createPreventableEvent(request.originalEvent, {
+          const event = createPreventableEvent(request.originalEvent, {
             reason: request.reason,
             source: request.source,
           })
@@ -309,23 +329,26 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState, true>(
       }
 
       return () => {
-        onDismiss?.(event)
+        store.close(
+          createChangeDetails(request.reason, request.originalEvent, {
+            dismissSource: request.source,
+          }),
+        )
       }
     })
 
     const forceDismiss = useEvent(
       (request: PopupDismissRequest<'ancestor'>) => {
-        const event = createPreventableEvent(request.originalEvent, {
-          reason: request.reason,
-          source: request.source,
-        }) as EscapeKeyDownEvent | PointerDownOutsideEvent | FocusOutsideEvent
-
         if (request.reason === 'focus-outside') {
           preventCurrentFocusReturn()
         }
 
         return () => {
-          onDismiss?.(event)
+          store.close(
+            createChangeDetails(request.reason, request.originalEvent, {
+              dismissSource: request.source,
+            }),
+          )
         }
       },
     )
@@ -333,8 +356,9 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState, true>(
     const entry = useMemo<PopupEntry>(
       () => ({
         modalRef,
-        triggerRef,
-        isFocusInside,
+        activeTriggerRef,
+        isTargetInsideFocusScope,
+        isTargetInsideAnyTrigger,
         requestDismiss,
         forceDismiss,
         elementRef: popupRef,
@@ -346,45 +370,43 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState, true>(
         handlePause,
         forceDismiss,
         handleResume,
-        isFocusInside,
+        isTargetInsideFocusScope,
+        isTargetInsideAnyTrigger,
         parentEntry,
         modalRef,
         requestDismiss,
+        activeTriggerRef,
       ],
     )
 
     useIsoLayoutEffect(() => {
-      if (enabled) {
-        triggerRef.current = resolveTrigger(triggerProp)
-
+      if (open) {
         if (focusSessionRef.current) {
-          focusSessionRef.current.returnTarget = resolveTrigger(
-            triggerRef.current,
-          )
+          focusSessionRef.current.returnTarget = activeTrigger
         }
       }
-    }, [enabled, triggerProp])
+    }, [open, activeTrigger])
 
     useIsoLayoutEffect(() => {
-      if (enabled && popupRef.current) {
+      if (open && popupRef.current) {
         const popupManager = getPopupManager(ownerDocument(popupRef.current))
         popupManagerRef.current = popupManager
 
         return popupManager.register(entry)
       }
-    }, [enabled])
+    }, [open])
 
     // Create a focus session and Restore focus when it becomes inactive.
     useIsoLayoutEffect(() => {
       const popup = popupRef.current
 
-      if (!enabled || !popup) return
+      if (!open || !popup) return
 
       const doc = ownerDocument(popup)
       const previouslyFocusedElement = getFocusableElement(doc.activeElement)
 
       const session = {
-        returnTarget: triggerRef.current || previouslyFocusedElement,
+        returnTarget: activeTriggerRef.current || previouslyFocusedElement,
         preventReturnFocus: false,
       }
 
@@ -450,12 +472,12 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState, true>(
           }
         })
       }
-    }, [enabled])
+    }, [open])
 
-    // Focus on the initial element on enabled.
+    // Focus on the initial element on open.
     useIsoLayoutEffect(() => {
       const popup = popupRef.current
-      if (!enabled || !popup) return
+      if (!open || !popup) return
 
       const session = focusSessionRef.current
       const doc = ownerDocument(popup)
@@ -494,20 +516,18 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState, true>(
 
         focus(initialFocusElement)
       })
-    }, [enabled])
+    }, [open])
 
     // Add an Anchor under Trigger for focus restore to Scope in non-modal mode.
     useIsoLayoutEffect(() => {
       const popup = popupRef.current
       const session = focusSessionRef.current
 
-      if (!enabled || modal || !popup || !session) {
+      if (!open || modal || !popup || !session) {
         return
       }
 
-      const trigger = triggerRef.current
-
-      if (!trigger || !trigger.parentElement) return
+      if (!activeTrigger || !activeTrigger.parentElement) return
 
       const doc = ownerDocument(popup)
 
@@ -516,7 +536,7 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState, true>(
       host.setAttribute('aria-hidden', 'true')
       host.style.display = 'contents'
 
-      trigger.after(host)
+      activeTrigger.after(host)
       setAnchorHost(host)
 
       let destroyed = false
@@ -531,41 +551,41 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState, true>(
       }
 
       const observer = new MutationObserver(() => {
-        if (!trigger.isConnected || !trigger.parentElement) {
-          // trigger removed
+        if (!activeTrigger.isConnected || !activeTrigger.parentElement) {
+          // activeTrigger removed
           destroy()
         } else if (
-          host.parentElement !== trigger.parentElement ||
-          trigger.nextSibling !== host
+          host.parentElement !== activeTrigger.parentElement ||
+          activeTrigger.nextSibling !== host
         ) {
-          // trigger moved
-          trigger.after(host)
+          // activeTrigger moved
+          activeTrigger.after(host)
         }
       })
 
-      observer.observe(trigger.getRootNode(), {
+      observer.observe(activeTrigger.getRootNode(), {
         childList: true,
         subtree: true,
       })
 
       return destroy
-    }, [enabled, modal, triggerProp])
+    }, [open, modal, activeTrigger])
 
-    // Hide everything outside the floating tree from assistive tech while enabled.
+    // Hide everything outside the floating tree from assistive tech while open.
     useIsoLayoutEffect(() => {
       const popup = popupRef.current
 
-      if (!enabled || paused || !popup || !modal) {
+      if (!open || paused || !popup || !modal) {
         return
       }
 
       return markOutsideElementsAsHidden(popup)
-    }, [enabled, paused, modal])
+    }, [open, paused, modal])
 
     // Handle accidental focus falling on the <body> element.
     useEffect(() => {
       const popup = popupRef.current
-      if (!popup || !enabled) return
+      if (!popup || !open) return
 
       const doc = ownerDocument(popup)
       return chain(
@@ -593,7 +613,7 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState, true>(
                 candidates[candidates.length - 1] ||
                 popup
               if (nextTabbable) {
-                nextTabbable.focus()
+                focus(nextTabbable)
               }
             }
           })
@@ -615,11 +635,11 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState, true>(
           true,
         ),
       )
-    }, [enabled, pausedRef, modalRef])
+    }, [open, pausedRef, modalRef])
 
     useEffect(() => {
       const popup = popupRef.current
-      if (!popup || !enabled || modal) return
+      if (!popup || !open || modal) return
 
       const doc = ownerDocument(popup)
 
@@ -648,7 +668,7 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState, true>(
         removeEventListeners()
         resetDirection()
       }
-    }, [enabled, modal, pausedRef])
+    }, [open, modal, pausedRef])
 
     props = {
       tabIndex: -1,
@@ -666,7 +686,7 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState, true>(
       state: {},
       provider: (element: React.ReactNode) => (
         <>
-          {enabled ? (
+          {open ? (
             <FocusGuard
               data-primitives-ui-focus-guard=''
               ref={beforeGuardRef}
@@ -675,7 +695,7 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState, true>(
             />
           ) : null}
           <PopupProvider value={context}>{element}</PopupProvider>
-          {enabled ? (
+          {open ? (
             <FocusGuard
               data-primitives-ui-focus-guard=''
               ref={afterGuardRef}
@@ -724,25 +744,7 @@ export type FocusOutsideEvent = PreventableEvent<
 >
 
 interface PopupOwnProps {
-  /**
-   * Whether the popup prevents interaction with content outside it. This value
-   * must remain stable while the popup is enabled.
-   * @defaultValue `true`
-   */
-  modal?: boolean
-
-  /**
-   * Whether focus management is active.
-   * @defaultValue `false`
-   */
-  enabled?: boolean
-
-  /**
-   * The element that activated the popup. It is used as the preferred target
-   * when focus is restored and as an anchor when focus is not looped.
-   * @defaultValue `null`
-   */
-  trigger?: Trigger
+  store: PopupStore
 
   /**
    * The element to focus when the popup becomes active. Pass `false` to keep
@@ -795,13 +797,6 @@ interface PopupOwnProps {
   onPointerDownOutside?: (event: PointerDownOutsideEvent) => void
 
   onFocusOutside?: (event: FocusOutsideEvent) => void
-
-  /**
-   * Called when a non-prevented interaction should dismiss the popup.
-   */
-  onDismiss?: (
-    event: EscapeKeyDownEvent | PointerDownOutsideEvent | FocusOutsideEvent,
-  ) => void
 }
 
 export interface PopupState {}
@@ -833,26 +828,4 @@ function isVisible(element: HTMLElement): boolean {
 
 function getFocusableElement(element: Element | null): FocusableElement | null {
   return element && isFocusable(element) ? (element as FocusableElement) : null
-}
-
-type Trigger =
-  | null
-  | HTMLElement
-  | (() => HTMLElement | null | void)
-  | React.RefObject<HTMLElement | null>
-
-export function resolveTrigger(value: Trigger | undefined): HTMLElement | null {
-  let trigger = isFunction(value) ? value() : value
-
-  if (trigger == null) return null
-
-  if ('current' in trigger) {
-    trigger = trigger.current
-  }
-
-  if (!trigger?.isConnected) {
-    return null
-  }
-
-  return trigger
 }

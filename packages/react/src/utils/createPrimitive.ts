@@ -41,7 +41,7 @@ export function createPrimitive<
 
   const mergedProps = mergeProps(elementProps, stateProps) as HTMLProps<Element>
 
-  let element
+  let element: React.ReactNode
 
   if (isFunction(render)) {
     element = render(mergedProps, state)
