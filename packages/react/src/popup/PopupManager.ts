@@ -5,15 +5,16 @@ import {
   createOrderedRegistry,
   OrderedRegistry,
   createDocumentManager,
+  CHANGE_REASONS,
 } from '../utils'
 
-export const ESCAPE_KEY = 'escape-key' as const
+export const ESCAPE_KEY = CHANGE_REASONS.escapeKey
 export type ESCAPE_KEY = typeof ESCAPE_KEY
 
-export const POINTER_DOWN_OUTSIDE = 'pointer-down-outside' as const
+export const POINTER_DOWN_OUTSIDE = CHANGE_REASONS.pointerDownOutside
 export type POINTER_DOWN_OUTSIDE = typeof POINTER_DOWN_OUTSIDE
 
-export const FOCUS_OUTSIDE = 'focus-outside' as const
+export const FOCUS_OUTSIDE = CHANGE_REASONS.focusOutside
 export type FOCUS_OUTSIDE = typeof FOCUS_OUTSIDE
 
 export type PopupDismissInteraction =

@@ -18,13 +18,7 @@ import { createPortal } from 'react-dom'
 import { isFocusable, tabbable } from 'tabbable'
 import type { PreventableEvent } from '../utils'
 import type { HookProps, HTMLElements } from '../utils/types'
-import type {
-  ESCAPE_KEY,
-  FOCUS_OUTSIDE,
-  POINTER_DOWN_OUTSIDE,
-  PopupDismissRequest,
-  PopupEntry,
-} from './PopupManager'
+import type { PopupDismissRequest, PopupEntry } from './PopupManager'
 import type { PopupStore, PopupDismissSource } from './store'
 import {
   withMetadata,
@@ -37,6 +31,7 @@ import {
 } from '../utils'
 import { FocusGuard } from './FocusGuard'
 import { PopupProvider, usePopupContext } from './PopupContext'
+import { ESCAPE_KEY, FOCUS_OUTSIDE, POINTER_DOWN_OUTSIDE } from './PopupManager'
 import { getPopupManager, PopupManager } from './PopupManager'
 import { popupSelectors } from './store'
 
@@ -288,7 +283,7 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState>(
 
     const requestDismiss = useEvent((request: PopupDismissRequest<'self'>) => {
       switch (request.reason) {
-        case 'escape-key': {
+        case ESCAPE_KEY: {
           if (!dismissOnEscapeKeyDown) return
           const event = createPreventableEvent(request.originalEvent, {
             reason: request.reason,
@@ -299,7 +294,7 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState>(
           break
         }
 
-        case 'pointer-down-outside': {
+        case POINTER_DOWN_OUTSIDE: {
           if (!dismissOnPointerDownOutside) return
           const event = createPreventableEvent(request.originalEvent, {
             reason: request.reason,
@@ -312,7 +307,7 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState>(
           break
         }
 
-        case 'focus-outside': {
+        case FOCUS_OUTSIDE: {
           if (!dismissOnFocusOutside) return
           const event = createPreventableEvent(request.originalEvent, {
             reason: request.reason,
@@ -339,7 +334,7 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState>(
 
     const forceDismiss = useEvent(
       (request: PopupDismissRequest<'ancestor'>) => {
-        if (request.reason === 'focus-outside') {
+        if (request.reason === FOCUS_OUTSIDE) {
           preventCurrentFocusReturn()
         }
 

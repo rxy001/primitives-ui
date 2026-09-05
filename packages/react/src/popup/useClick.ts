@@ -1,9 +1,10 @@
-import type { PopupStore } from './store'
+import type { PopupOpenChangeDetails, PopupStore } from './store'
+import { CHANGE_REASONS } from '../utils'
 import { createChangeDetails } from '../utils'
 import { popupSelectors } from './store'
 
 type UseClickProps = {
-  store: PopupStore
+  store: PopupStore<PopupOpenChangeDetails<CHANGE_REASONS['triggerPress']>>
   onClick?: React.MouseEventHandler
 }
 
@@ -20,9 +21,13 @@ export function useClick<P extends UseClickProps>({
 
     if (event.defaultPrevented) return
 
-    const details = createChangeDetails('trigger-press', event.nativeEvent, {
-      trigger: event.currentTarget,
-    })
+    const details = createChangeDetails(
+      CHANGE_REASONS.triggerPress,
+      event.nativeEvent,
+      {
+        trigger: event.currentTarget,
+      },
+    )
 
     if (!open) {
       store.open(details)

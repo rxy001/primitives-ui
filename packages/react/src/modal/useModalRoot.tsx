@@ -5,7 +5,7 @@ import { __DEV__ } from '@primitives-ui/utils'
 import { useContext, useMemo } from 'react'
 import type { ModalRootContextValue } from './ModalContext'
 import type { ModalOpenChangeDetails, ModalStore } from './store'
-import { withMetadata, createChangeDetails } from '../utils'
+import { withMetadata, createChangeDetails, CHANGE_REASONS } from '../utils'
 import { ModalRootContext, ModalRootProvider } from './ModalContext'
 import { modalSelectors, useModalStore } from './store'
 
@@ -55,7 +55,7 @@ export const useModalRoot = (
           modalSelectors.open(currentState) !==
           modalSelectors.open(previousState)
         ) {
-          store.close(createChangeDetails('ancestor-close', null))
+          store.close(createChangeDetails(CHANGE_REASONS.ancestorClose, null))
         }
       })
     }

@@ -32,31 +32,27 @@ export type PopupOpenChangeReason =
   | CHANGE_REASONS['escapeKey']
   | CHANGE_REASONS['pointerDownOutside']
   | CHANGE_REASONS['focusOutside']
-  | CHANGE_REASONS['triggerPress']
 
-export type PopupOpenChangeDetails = ChangeDetails<
-  PopupOpenChangeReason,
+export type PopupOpenChangeDetails<
+  Reason extends string = PopupOpenChangeReason,
+> = ChangeDetails<
+  Reason,
   {
     trigger?: HTMLElement | undefined
     dismissSource?: PopupDismissSource
   }
 >
 
-type PopupChangeDetailsBase = ChangeDetails<
-  string,
-  {
-    trigger?: HTMLElement | undefined
-    dismissSource?: PopupDismissSource
-  }
->
-
-export interface PopupStoreContext<Details extends PopupChangeDetailsBase> {
+export interface PopupStoreContext<
+  Details extends PopupOpenChangeDetails<string>,
+> {
   triggerElements: HTMLElement[]
   onOpenChangeProp?: ((open: boolean, details: Details) => void) | undefined
+  sharedContext?: {}
 }
 
 export function createPopupStoreContext<
-  Details extends PopupChangeDetailsBase,
+  Details extends PopupOpenChangeDetails<string>,
 >(): PopupStoreContext<Details> {
   return {
     triggerElements: [],
@@ -75,7 +71,7 @@ export const popupSelectors = {
 }
 
 export function createPopupStoreActions<
-  Details extends PopupChangeDetailsBase,
+  Details extends PopupOpenChangeDetails<string>,
 >() {
   return (scope: StoreScope<PopupStoreState, PopupStoreContext<Details>>) => {
     function setOpen(nextOpen: boolean, details: Details) {
@@ -131,10 +127,12 @@ export type PopupStoreActions = ReturnType<
   ReturnType<typeof createPopupStoreActions>
 >
 
-export type PopupStore = {
+export type PopupStore<
+  Details extends PopupOpenChangeDetails<string> = PopupOpenChangeDetails,
+> = {
   useSelector<Value>(selector: StoreSelector<PopupStoreState, Value>): Value
   getState: () => Readonly<PopupStoreState>
-  getContext: () => Readonly<PopupStoreContext<PopupOpenChangeDetails>>
-  open(details: PopupOpenChangeDetails): void
-  close(details: PopupOpenChangeDetails): void
+  getContext: () => Readonly<PopupStoreContext<Details>>
+  open(details: Details): void
+  close(details: Details): void
 }

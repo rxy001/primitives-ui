@@ -5,7 +5,7 @@ import type { ButtonProps, ButtonState } from '../button'
 import type { HookProps, HTMLElements } from '../utils/types'
 import type { ModalRootContextValue } from './ModalContext'
 import { useButton } from '../button'
-import { createChangeDetails, createHook } from '../utils'
+import { CHANGE_REASONS, createChangeDetails, createHook } from '../utils'
 import { useModalRootContext } from './ModalContext'
 
 export const useModalClose = createHook<
@@ -33,7 +33,9 @@ export const useModalClose = createHook<
 
     if (event.defaultPrevented) return
 
-    store.close(createChangeDetails('close-press', event.nativeEvent))
+    store.close(
+      createChangeDetails(CHANGE_REASONS.closePress, event.nativeEvent),
+    )
   }
 
   props = {

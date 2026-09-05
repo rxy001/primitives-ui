@@ -3,7 +3,12 @@
 import type { ButtonProps, ButtonState } from '../button'
 import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
 import { useButton } from '../button'
-import { createChangeDetails, createHook, createPrimitive } from '../utils'
+import {
+  CHANGE_REASONS,
+  createChangeDetails,
+  createHook,
+  createPrimitive,
+} from '../utils'
 import { usePopoverRootContext } from './PopoverContext'
 
 export const usePopoverClose = createHook<
@@ -19,7 +24,9 @@ export const usePopoverClose = createHook<
 
     if (event.defaultPrevented) return
 
-    store.close(createChangeDetails('close-press', event.nativeEvent))
+    store.close(
+      createChangeDetails(CHANGE_REASONS.closePress, event.nativeEvent),
+    )
   }
 
   props = {
