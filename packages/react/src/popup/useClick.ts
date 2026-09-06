@@ -6,20 +6,22 @@ import { popupSelectors } from './store'
 type UseClickProps = {
   store: PopupStore<PopupOpenChangeDetails<CHANGE_REASONS['triggerPress']>>
   onClick?: React.MouseEventHandler
+  disable?: boolean
 }
 
 export function useClick<P extends UseClickProps>({
   store,
+  disable,
   onClick,
   ...props
 }: P) {
   const open = store.useSelector(popupSelectors.open)
   const activeTriggerId = store.useSelector(popupSelectors.activeTriggerId)
 
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     onClick?.(event)
 
-    if (event.defaultPrevented) return
+    if (event.defaultPrevented || disable) return
 
     const details = createChangeDetails(
       CHANGE_REASONS.triggerPress,
@@ -34,9 +36,9 @@ export function useClick<P extends UseClickProps>({
       return
     }
 
-    const isMountedByThisTrigger = activeTriggerId === event.currentTarget.id
+    const isOpenByThisTrigger = activeTriggerId === event.currentTarget.id
 
-    if (!isMountedByThisTrigger) {
+    if (!isOpenByThisTrigger) {
       store.open(details)
       return
     }

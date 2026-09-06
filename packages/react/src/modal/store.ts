@@ -99,7 +99,7 @@ export const useModalStore = createUseStore(() => ({
   actions: createModalStoreActions(),
 }))
 
-interface ModalStoreInitialState {
+export interface ModalStoreInitialState {
   modal?: boolean
   open?: boolean
   defaultOpen?: boolean

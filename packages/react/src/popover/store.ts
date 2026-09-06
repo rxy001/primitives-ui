@@ -100,7 +100,7 @@ export const usePopoverStore = createUseStore(() => ({
   actions: createPopoverStoreActions(),
 }))
 
-interface PopoverStoreInitialState {
+export interface PopoverStoreInitialState {
   modal?: boolean
   open?: boolean
   defaultOpen?: boolean

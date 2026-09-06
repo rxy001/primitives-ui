@@ -36,7 +36,7 @@ export const usePopoverTrigger = createHook<
 
   const id = useResolvedId(props.id)
 
-  const [isMountedByThisTrigger, registerTrigger] = useRegisterTrigger({
+  const [isOpenByThisTrigger, registerTrigger] = useRegisterTrigger({
     store,
   })
   const popoverPopupId = store.useSelector(popoverSelectors.popoverPopupId)
@@ -49,8 +49,8 @@ export const usePopoverTrigger = createHook<
 
   props = {
     'aria-haspopup': 'dialog',
-    'aria-expanded': isMountedByThisTrigger,
-    'aria-controls': (isMountedByThisTrigger && popoverPopupId) || undefined,
+    'aria-expanded': isOpenByThisTrigger,
+    'aria-controls': (isOpenByThisTrigger && popoverPopupId) || undefined,
     ...props,
     id,
     ref: mergedRefs,
@@ -64,7 +64,7 @@ export const usePopoverTrigger = createHook<
 
   return withMetadata(buttonProps, {
     state: {
-      open: isMountedByThisTrigger,
+      open: isOpenByThisTrigger,
     },
   })
 })

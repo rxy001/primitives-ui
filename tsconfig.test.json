@@ -1,4 +1,7 @@
 {
   "extends": ["./tsconfig.base.json"],
-  "include": ["./vitest.config.ts", "./vitest.shared.ts", "./test/**/*.ts"]
+  "include": ["./vitest.config.ts", "./vitest.shared.ts", "./test/**/*.ts"],
+  "compilerOptions": {
+    "types": ["vitest/globals", "node"]
+  }
 }

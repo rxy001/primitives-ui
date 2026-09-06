@@ -32,8 +32,7 @@ export function useRegisterTrigger(props: UseRegisterTriggerProps) {
     triggerRef.current = element
   })
 
-  const isMountedByThisTrigger =
-    open && activeTriggerId === triggerRef.current?.id
+  const isOpenByThisTrigger = open && activeTriggerId === triggerRef.current?.id
 
-  return [isMountedByThisTrigger, register] as const
+  return [isOpenByThisTrigger, register] as const
 }

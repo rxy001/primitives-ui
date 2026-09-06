@@ -33,7 +33,7 @@ export const useModalTrigger = createHook<
 
   const id = useResolvedId(props.id)
 
-  const [isMountedByThisTrigger, registerTrigger] = useRegisterTrigger({
+  const [isOpenByThisTrigger, registerTrigger] = useRegisterTrigger({
     store,
   })
   const modalPopupId = store.useSelector(modalSelectors.modalPopupId)
@@ -46,8 +46,8 @@ export const useModalTrigger = createHook<
 
   props = {
     'aria-haspopup': 'dialog',
-    'aria-expanded': isMountedByThisTrigger,
-    'aria-controls': (isMountedByThisTrigger && modalPopupId) || undefined,
+    'aria-expanded': isOpenByThisTrigger,
+    'aria-controls': (isOpenByThisTrigger && modalPopupId) || undefined,
     ...props,
     id,
     ref: mergedRefs,
@@ -61,7 +61,7 @@ export const useModalTrigger = createHook<
 
   return withMetadata(buttonProps, {
     state: {
-      open: isMountedByThisTrigger,
+      open: isOpenByThisTrigger,
     },
   })
 })

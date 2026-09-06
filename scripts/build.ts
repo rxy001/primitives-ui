@@ -25,6 +25,9 @@ async function build() {
         target: ['ES2022'],
       },
     },
+    define: {
+      'process.env.NODE_ENV': 'process.env.NODE_ENV',
+    },
     dts: {
       enabled: true,
       tsconfig: './tsconfig.build.json',

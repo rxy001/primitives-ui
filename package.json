@@ -17,7 +17,7 @@
     "format:check": "pnpm format --check",
     "format:fix": "pnpm format --write",
     "prepublish:packages": "pnpm build:packages",
-    "publish:packages": "pnpm --filter @primitives-ui/utils publish --access public && pnpm --filter @primitives-ui/react publish --access public",
+    "publish:packages": "pnpm --filter @primitives-ui/utils publish --access public && pnpm --filter @primitives-ui/hooks publish --access public && pnpm --filter @primitives-ui/react publish --access public",
     "typecheck": "turbo typecheck",
     "test": "VITEST_ENV=chromium vitest run",
     "test:jsdom": "vitest run --project '*:jsdom'",
