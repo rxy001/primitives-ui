@@ -69,6 +69,7 @@ export const useModalPopup = createHook<
       role: 'dialog',
       'aria-labelledby': modalTitleId || undefined,
       'aria-describedby': modalDescriptionId || undefined,
+      hidden: !open,
       ...props,
       id,
       ref: mergedRefs,

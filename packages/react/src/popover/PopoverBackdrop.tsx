@@ -16,9 +16,9 @@ export const usePopoverBackdrop = createHook<
   const open = store.useSelector(popoverSelectors.open)
 
   props = {
-    ...props,
+    hidden: !open,
     'aria-hidden': true,
-    role: 'presentation',
+    ...props,
   }
 
   return withMetadata(props, {

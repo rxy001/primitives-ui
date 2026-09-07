@@ -20,6 +20,7 @@ import type { PreventableEvent } from '../utils'
 import type { HookProps, HTMLElements } from '../utils/types'
 import type { PopupDismissRequest, PopupEntry } from './PopupManager'
 import type { PopupStore, PopupDismissSource } from './store'
+import { usePortalContext } from '../portal/PortalContext'
 import {
   withMetadata,
   resolveRef,
@@ -48,6 +49,7 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState>(
     dismissOnPointerDownOutside = true,
     ...props
   }) => {
+    const portalContext = usePortalContext()
     const [paused, setPaused] = useState(false)
     const [anchorHost, setAnchorHost] = useState<HTMLElement | null>(null)
 
@@ -574,7 +576,21 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState>(
         return
       }
 
-      return markOutsideElementsAsHidden(popup)
+      const portalNodes =
+        portalContext?.portalNode?.querySelectorAll(
+          '[data-primitives-ui-portal]',
+        ) || []
+
+      return markOutsideElementsAsHidden(
+        popup,
+        [
+          beforeGuardRef.current,
+          afterGuardRef.current,
+          anchorRef.current,
+          popupRef.current,
+          ...Array.from(portalNodes),
+        ].filter((v) => !!v),
+      )
     }, [open, paused, modal])
 
     // Handle accidental focus falling on the <body> element.

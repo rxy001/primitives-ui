@@ -29,14 +29,12 @@ export const usePopoverPortal = createHook<
   )
 
   const portalProps = usePortal({
-    hidden: !open,
     ...props,
     children: (
       <>
         {open && modal && (
           <div
             onPointerDown={handlePointerDown}
-            role='presentation'
             aria-hidden='true'
             style={pointerEventBlockerStyle}
           />

@@ -50,13 +50,17 @@ function restoreElementState(element: Element, state: HiddenElementState) {
   }
 }
 
-export function markOutsideElementsAsHidden(element: Element) {
+export function markOutsideElementsAsHidden(
+  element: Element,
+  ignoredElements: Element[] = [],
+) {
   const hiddenElements = new Set<Element>()
   const root = element.getRootNode()
   let current: Node = element
 
   while (current !== root) {
     if (current.nodeType === 1) {
+      // A previous call may have hidden the new target or one of its ancestors.
       restoreManagedElement(current as Element)
     }
 
@@ -65,7 +69,7 @@ export function markOutsideElementsAsHidden(element: Element) {
     if (!parent) break
 
     Array.from(parent.children).forEach((sibling) => {
-      if (sibling !== current) {
+      if (sibling !== current && !ignoredElements.includes(sibling)) {
         hideElement(sibling)
         hiddenElements.add(sibling)
       }
@@ -78,5 +82,6 @@ export function markOutsideElementsAsHidden(element: Element) {
     for (const hiddenElement of hiddenElements) {
       restoreElement(hiddenElement)
     }
+    hiddenElements.clear()
   }
 }

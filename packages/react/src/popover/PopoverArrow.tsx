@@ -34,6 +34,7 @@ export const usePopoverArrow = createHook<
   const mergeRefs = useMergeRefs(props.ref, arrowRef)
 
   props = {
+    'aria-hidden': true,
     ...props,
     style: {
       ...props.style,
@@ -41,8 +42,6 @@ export const usePopoverArrow = createHook<
       top: 'var(--arrow-y, -9999px)',
     },
     ref: mergeRefs,
-    'aria-hidden': true,
-    role: 'presentation',
   }
 
   return withMetadata(props, {

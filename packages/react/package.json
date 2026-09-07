@@ -59,7 +59,7 @@
       },
       "./alertdialog": {
         "types": "./build/alertdialog/index.d.ts",
-        "import": "./build/dialertdialogalog/index.js"
+        "import": "./build/alertdialog/index.js"
       },
       "./popover": {
         "types": "./build/popover/index.d.ts",

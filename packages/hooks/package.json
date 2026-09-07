@@ -68,12 +68,9 @@
   },
   "devDependencies": {
     "@types/react": "catalog:dev",
-    "@types/react-dom": "catalog:dev",
-    "react": "catalog:dev",
-    "react-dom": "catalog:dev"
+    "react": "catalog:dev"
   },
   "peerDependencies": {
-    "react": "catalog:peer",
-    "react-dom": "catalog:peer"
+    "react": "catalog:peer"
   }
 }

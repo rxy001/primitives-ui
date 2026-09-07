@@ -29,22 +29,19 @@ export const usePortal = createHook<'div', PortalOwnProps, PortalState, true>(
 
       setContainer(
         resolveRef(
-          resolvedContainer ?? portalContext?.parentPortalNode ?? document.body,
+          resolvedContainer ?? portalContext?.portalNode ?? document.body,
         ),
       )
-    }, [containerProp, portalContext?.parentPortalNode])
+    }, [containerProp, portalContext?.portalNode])
 
     props = {
-      ...props,
-      ref: mergedRefs,
       'data-primitives-ui-portal': '',
       role: 'presentation',
+      ...props,
+      ref: mergedRefs,
     }
 
-    const context = useMemo(
-      () => ({ parentPortalNode: portalNode }),
-      [portalNode],
-    )
+    const context = useMemo(() => ({ portalNode: portalNode }), [portalNode])
 
     return withMetadata(props, {
       state: {},

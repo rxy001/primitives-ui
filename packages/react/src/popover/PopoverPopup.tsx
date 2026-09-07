@@ -65,6 +65,7 @@ export const usePopoverPopup = createHook<
     store.useSyncStateWithCleanup('popoverPopupId', id)
 
     props = {
+      hidden: !open,
       role: 'dialog',
       'aria-labelledby': popoverTitleId || undefined,
       'aria-describedby': popoverDescriptionId || undefined,

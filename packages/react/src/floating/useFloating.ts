@@ -189,8 +189,12 @@ export const useFloating = createHook<'div', FloatingOwnProps, FloatingState>(
           position: strategy,
           visibility,
           ...position,
-          '--arrow-x': `${arrowPosition?.left}px`,
-          '--arrow-y': `${arrowPosition?.top}px`,
+          '--arrow-x': arrowPosition?.left
+            ? `${arrowPosition?.left}px`
+            : undefined,
+          '--arrow-y': arrowPosition?.top
+            ? `${arrowPosition?.top}px`
+            : undefined,
         },
       },
       {

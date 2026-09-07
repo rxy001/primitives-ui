@@ -32,6 +32,30 @@ export function Default() {
   )
 }
 
+export function DefaultOpen() {
+  return (
+    <Popover.Root defaultOpen>
+      <Popover.Trigger className={popoverClassNames.trigger}>
+        Open
+      </Popover.Trigger>
+      <Popover.Portal>
+        <Popover.Positioner>
+          <Popover.Popup className={popoverClassNames.popup}>
+            <Popover.Arrow className={popoverClassNames.arrow} />
+            <Popover.Title className={popoverClassNames.title}>
+              Popover Title
+            </Popover.Title>
+            <Popover.Description className={popoverClassNames.description}>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
+              eiusmod tempor incididunt ut labore et dolore magna aliqua.
+            </Popover.Description>
+          </Popover.Popup>
+        </Popover.Positioner>
+      </Popover.Portal>
+    </Popover.Root>
+  )
+}
+
 export function OpenFromDialog() {
   return (
     <Dialog.Root>

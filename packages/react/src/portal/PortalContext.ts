@@ -1,7 +1,7 @@
 import { createContext } from '@primitives-ui/utils'
 
 interface PortalContextValue {
-  parentPortalNode?: HTMLElement | null
+  portalNode?: HTMLElement | null
 }
 
 export const [PortalProvider, usePortalContext] =

@@ -29,9 +29,9 @@ export const useModalBackdrop = createHook<
   const open = store.useSelector(modalSelectors.open)
 
   props = {
-    ...props,
+    hidden: !open,
     'aria-hidden': true,
-    role: 'presentation',
+    ...props,
   }
 
   return withMetadata(props, {

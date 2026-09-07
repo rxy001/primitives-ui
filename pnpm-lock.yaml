@@ -139,15 +139,9 @@ importers:
       '@types/react':
         specifier: catalog:dev
         version: 19.2.17
-      '@types/react-dom':
-        specifier: catalog:dev
-        version: 19.2.3(@types/react@19.2.17)
       react:
         specifier: catalog:dev
         version: 19.2.7
-      react-dom:
-        specifier: catalog:dev
-        version: 19.2.7(react@19.2.7)
 
   packages/react:
     dependencies:
@@ -191,15 +185,9 @@ importers:
       '@types/react':
         specifier: catalog:dev
         version: 19.2.17
-      '@types/react-dom':
-        specifier: catalog:dev
-        version: 19.2.3(@types/react@19.2.17)
       react:
         specifier: catalog:dev
         version: 19.2.7
-      react-dom:
-        specifier: catalog:dev
-        version: 19.2.7(react@19.2.7)
 
 packages:
 
