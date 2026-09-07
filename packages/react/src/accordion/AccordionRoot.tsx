@@ -50,7 +50,7 @@ export function useAccordionRoot<
     }
   })
 
-  const state = useMemo<AccordionRootState>(
+  const state = useMemo<AccordionRootState<Value>>(
     () => ({
       value,
       disabled,
@@ -58,7 +58,7 @@ export function useAccordionRoot<
     [disabled, value],
   )
 
-  const rootContext = useMemo<AccordionRootContextValue>(
+  const rootContext = useMemo<AccordionRootContextValue<Value>>(
     () => ({
       value,
       disabled,
@@ -78,12 +78,12 @@ export function useAccordionRoot<
   })
 }
 
-export function AccordionRoot({
+export function AccordionRoot<Value = any>({
   render,
   keepMounted = false,
   ...ohter
-}: AccordionRootProps) {
-  const props = useAccordionRoot(ohter)
+}: AccordionRootProps<Value>) {
+  const props = useAccordionRoot<Value>(ohter)
 
   const context = useMemo<AccordionPanelDefaultsContextValue>(
     () => ({ keepMounted }),

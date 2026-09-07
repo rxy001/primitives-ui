@@ -6,7 +6,7 @@ export interface AccordionRootContextValue<Value = any> {
   value: Value[]
   disabled: boolean
   handleValueChange: (value: Value, nextOpen: boolean) => void
-  state: AccordionRootState
+  state: AccordionRootState<Value>
 }
 
 export const [AccordionRootProvider, useAccordionRootContext] =
