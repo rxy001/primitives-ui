@@ -21,6 +21,9 @@ describe('change details types', () => {
         case 'ancestor-close':
           expectTypeOf(details.event).toEqualTypeOf<null>()
           break
+        case 'trigger-hover':
+          expectTypeOf(details.event).toEqualTypeOf<MouseEvent>()
+          break
         case 'trigger-press':
         case 'close-press':
           expectTypeOf(details.event).toEqualTypeOf<

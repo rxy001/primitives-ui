@@ -4,6 +4,7 @@ import type {
   StoreScope,
   StoreSelector,
 } from '../utils'
+import type { Directory } from '../utils/types'
 
 export interface PopupStoreState {
   modal: boolean
@@ -48,7 +49,7 @@ export interface PopupStoreContext<
 > {
   triggerElements: HTMLElement[]
   onOpenChangeProp?: ((open: boolean, details: Details) => void) | undefined
-  sharedContext?: {}
+  sharedContext: Directory
 }
 
 export function createPopupStoreContext<
@@ -57,6 +58,7 @@ export function createPopupStoreContext<
   return {
     triggerElements: [],
     onOpenChangeProp: undefined,
+    sharedContext: {},
   }
 }
 
@@ -84,6 +86,7 @@ export function createPopupStoreActions<
 
       context.onOpenChangeProp?.(nextOpen, details)
 
+      // Reject synchronous open by explicitly calling cancel.
       if (details.isCanceled) return
 
       if (scope.isValueControlled('openProp')) {

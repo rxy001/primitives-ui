@@ -2,6 +2,8 @@ export { usePopup } from './usePopup'
 
 export { useClick } from './useClick'
 
+export { useHover } from './useHover'
+
 export { useRegisterTrigger } from './useRegisterTrigger'
 
 export type {
@@ -24,7 +26,6 @@ export type {
   PopupStoreActions,
   PopupStoreContext,
   PopupStoreState,
-  PopupOpenChangeDetails,
   PopupDismissSource,
   PopupOpenChangeReason,
 } from './store'
