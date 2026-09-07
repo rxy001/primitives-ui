@@ -1,7 +1,12 @@
 'use client'
 
 import type { ModalTriggerState } from '../modal'
-import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
+import type {
+  HTMLProps,
+  HookProps,
+  HTMLElements,
+  RenderProp,
+} from '../utils/types'
 import type { DialogStore } from './store'
 import { useModalTrigger } from '../modal'
 import { createHook, createPrimitive } from '../utils'
@@ -36,5 +41,5 @@ export type UseDialogTriggerProps<Element extends HTMLElements = 'button'> =
   HookProps<Element, DialogTriggerOwnProps>
 
 export interface DialogTriggerProps extends UseDialogTriggerProps {
-  render?: RenderProp<DialogTriggerState>
+  render?: RenderProp<DialogTriggerState, HTMLProps<'button'>>
 }

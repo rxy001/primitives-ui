@@ -2,7 +2,12 @@
 
 import { useIsoLayoutEffect } from '@primitives-ui/hooks'
 import type { CollapsibleTriggerState } from '../collapsible'
-import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
+import type {
+  HTMLProps,
+  HookProps,
+  HTMLElements,
+  RenderProp,
+} from '../utils/types'
 import type { AccordionItemState } from './AccordionItem'
 import { useCollapsibleTrigger } from '../collapsible'
 import { createHook, createPrimitive, withMetadata } from '../utils'
@@ -56,5 +61,5 @@ export type UseAccordionTriggerProps<Element extends HTMLElements = 'button'> =
   HookProps<Element, AccordionTriggerOwnProps>
 
 export interface AccordionTriggerProps extends UseAccordionTriggerProps {
-  render?: RenderProp<AccordionTriggerState>
+  render?: RenderProp<AccordionTriggerState, HTMLProps<'button'>>
 }

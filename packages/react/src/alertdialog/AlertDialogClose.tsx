@@ -1,7 +1,12 @@
 'use client'
 
 import type { UseModalCloseProps, ModalCloseState } from '../modal'
-import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
+import type {
+  HTMLProps,
+  HookProps,
+  HTMLElements,
+  RenderProp,
+} from '../utils/types'
 import { useModalClose } from '../modal'
 import { createHook, createPrimitive } from '../utils'
 
@@ -38,5 +43,5 @@ export interface AlertDialogCloseProps extends UseAlertDialogCloseProps {
   /**
    * A function or JSX element that replaces the component's rendered element.
    */
-  render?: RenderProp<AlertDialogCloseState>
+  render?: RenderProp<AlertDialogCloseState, HTMLProps<'button'>>
 }

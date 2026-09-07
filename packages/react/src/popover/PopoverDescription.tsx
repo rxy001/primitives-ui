@@ -2,7 +2,12 @@
 
 import { __DEV__ } from '@primitives-ui/utils'
 import { useEffect } from 'react'
-import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
+import type {
+  HTMLProps,
+  HookProps,
+  HTMLElements,
+  RenderProp,
+} from '../utils/types'
 import {
   createHook,
   createPrimitive,
@@ -69,5 +74,5 @@ export type UsePopoverDescriptionProps<Element extends HTMLElements = 'p'> =
   HookProps<Element, PopoverDescriptionOwnProps>
 
 export interface PopoverDescriptionProps extends UsePopoverDescriptionProps {
-  render?: RenderProp<PopoverDescriptionState>
+  render?: RenderProp<PopoverDescriptionState, HTMLProps<'p'>>
 }

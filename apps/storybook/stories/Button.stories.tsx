@@ -33,8 +33,8 @@ export const LinkButton: Story = {
   args: {
     children: 'Link Button',
     nativeButton: false,
-    render: (props) => (
-      <a href='https://google.com' target='_blank' {...props}>
+    render: (
+      <a href='https://google.com' target='_blank'>
         Link Button
       </a>
     ),

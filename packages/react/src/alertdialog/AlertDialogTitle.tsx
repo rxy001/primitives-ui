@@ -2,7 +2,12 @@
 
 import { __DEV__ } from '@primitives-ui/utils'
 import type { ModalTitleState } from '../modal'
-import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
+import type {
+  HTMLProps,
+  HookProps,
+  HTMLElements,
+  RenderProp,
+} from '../utils/types'
 import { useModalTitle } from '../modal'
 import { createHook, createPrimitive } from '../utils'
 
@@ -33,5 +38,5 @@ export interface AlertDialogTitleProps extends UseAlertDialogTitleProps {
   /**
    * A function or JSX element that replaces the component's rendered element.
    */
-  render?: RenderProp<AlertDialogTitleState>
+  render?: RenderProp<AlertDialogTitleState, HTMLProps<'h2'>>
 }

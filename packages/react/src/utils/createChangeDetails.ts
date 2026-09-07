@@ -27,14 +27,16 @@ type ReasonToEvent<Reason extends ChangeReason> = ChangeReasonEventMap[Reason]
 export type ChangeDetails<
   Reason extends string,
   CustomProperties extends Directory = {},
-> = {
-  readonly reason: Reason
-  readonly event: Reason extends ChangeReason
-    ? ReasonToEvent<Reason>
-    : Event | null
-  cancel: () => void
-  readonly isCanceled: boolean
-} & CustomProperties
+> = Reason extends string
+  ? {
+      readonly reason: Reason
+      readonly event: Reason extends ChangeReason
+        ? ReasonToEvent<Reason>
+        : Event | null
+      cancel: () => void
+      readonly isCanceled: boolean
+    } & CustomProperties
+  : never
 
 export function createChangeDetails<
   Reason extends ChangeReason,

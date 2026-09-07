@@ -3,7 +3,12 @@
 import { useMergeRefs } from '@primitives-ui/hooks'
 import { useContext } from 'react'
 import type { ButtonState } from '../button'
-import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
+import type {
+  HTMLProps,
+  HookProps,
+  HTMLElements,
+  RenderProp,
+} from '../utils/types'
 import type { PopoverStore } from './store'
 import { useButton } from '../button'
 import { useClick, useRegisterTrigger } from '../popup'
@@ -94,5 +99,5 @@ export type UsePopoverTriggerProps<Element extends HTMLElements = 'button'> =
   HookProps<Element, PopoverTriggerOwnProps>
 
 export interface PopoverTriggerProps extends UsePopoverTriggerProps {
-  render?: RenderProp<PopoverTriggerState>
+  render?: RenderProp<PopoverTriggerState, HTMLProps<'button'>>
 }

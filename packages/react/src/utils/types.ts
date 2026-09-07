@@ -7,12 +7,9 @@ export type HTMLProps<Element extends HTMLElements> =
     [index: `data-${string}`]: unknown
   }
 
-export type RenderProp<
-  State = undefined,
-  Props = React.HTMLAttributes<any> & {
-    ref?: React.Ref<any>
-  },
-> = ((props: Props, state: State) => React.ReactNode) | React.JSX.Element
+export type RenderProp<State = undefined, Props = HTMLProps<'div'>> =
+  | ((props: Props, state: State) => React.ReactNode)
+  | React.JSX.Element
 
 export type Directory<T = any> = Record<string, T>
 

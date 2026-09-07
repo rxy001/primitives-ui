@@ -3,7 +3,12 @@
 import { useEvent } from '@primitives-ui/hooks'
 import { useIsoLayoutEffect } from '@primitives-ui/hooks'
 import { useState } from 'react'
-import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
+import type {
+  HTMLProps,
+  HookProps,
+  HTMLElements,
+  RenderProp,
+} from '../utils/types'
 import type { ImageLoadingStatus } from './AvatarContext'
 import type { AvatarRootState } from './AvatarRoot'
 import {
@@ -139,5 +144,5 @@ export type UseAvatarImageProps<Element extends HTMLElements = 'img'> =
   HookProps<Element, AvatarImageOwnProps>
 
 export interface AvatarImageProps extends UseAvatarImageProps {
-  render?: RenderProp<AvatarImageState>
+  render?: RenderProp<AvatarImageState, HTMLProps<'img'>>
 }

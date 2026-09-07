@@ -3,7 +3,12 @@
 import { useMergeRefs } from '@primitives-ui/hooks'
 import { useRef } from 'react'
 import type { CommandState } from '../command'
-import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
+import type {
+  HTMLProps,
+  HookProps,
+  HTMLElements,
+  RenderProp,
+} from '../utils/types'
 import { useCommand } from '../command'
 import { createHook, createPrimitive, useTagName } from '../utils'
 
@@ -39,7 +44,7 @@ export function Button({ render, ...other }: ButtonProps) {
 Button.displayName = 'Button'
 
 export interface ButtonProps extends UseButtonProps {
-  render?: RenderProp<ButtonState>
+  render?: RenderProp<ButtonState, HTMLProps<'button'>>
 }
 
 interface ButtonOwnProps {

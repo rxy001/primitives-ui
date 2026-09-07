@@ -1,6 +1,11 @@
 'use client'
 
-import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
+import type {
+  HTMLProps,
+  HookProps,
+  HTMLElements,
+  RenderProp,
+} from '../utils/types'
 import type { AccordionItemState } from './AccordionItem'
 import { createHook, createPrimitive, withMetadata } from '../utils'
 import { useAccordionItemContext } from './AccordionContext'
@@ -39,5 +44,5 @@ export type UseAccordionHeaderProps<Element extends HTMLElements = 'h3'> =
   HookProps<Element, AccordionHeaderOwnProps>
 
 export interface AccordionHeaderProps extends UseAccordionHeaderProps {
-  render?: RenderProp<AccordionHeaderState>
+  render?: RenderProp<AccordionHeaderState, HTMLProps<'h3'>>
 }

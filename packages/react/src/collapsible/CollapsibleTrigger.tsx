@@ -1,7 +1,12 @@
 'use client'
 
 import type { ButtonState } from '../button'
-import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
+import type {
+  HTMLProps,
+  HookProps,
+  HTMLElements,
+  RenderProp,
+} from '../utils/types'
 import type { CollapsibleRootState } from './CollapsibleRoot'
 import { useButton } from '../button'
 import { withMetadata, createHook, createPrimitive } from '../utils'
@@ -65,5 +70,5 @@ export type UseCollapsibleTriggerProps<
 > = HookProps<Element, CollapsibleTriggerOwnProps>
 
 export interface CollapsibleTriggerProps extends UseCollapsibleTriggerProps {
-  render?: RenderProp<CollapsibleTriggerState>
+  render?: RenderProp<CollapsibleTriggerState, HTMLProps<'button'>>
 }

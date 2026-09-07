@@ -1,7 +1,12 @@
 'use client'
 
 import type { ButtonProps, ButtonState } from '../button'
-import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
+import type {
+  HTMLProps,
+  HookProps,
+  HTMLElements,
+  RenderProp,
+} from '../utils/types'
 import { useButton } from '../button'
 import {
   CHANGE_REASONS,
@@ -65,5 +70,5 @@ export type UsePopoverCloseProps<Element extends HTMLElements = 'button'> =
   HookProps<Element, PopoverCloseOwnProps>
 
 export interface PopoverCloseProps extends UsePopoverCloseProps {
-  render?: RenderProp<PopoverCloseState>
+  render?: RenderProp<PopoverCloseState, HTMLProps<'button'>>
 }
