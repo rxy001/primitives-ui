@@ -1,8 +1,6 @@
 'use client'
 
-import { useMergeRefs } from '@primitives-ui/hooks'
 import { __DEV__ } from '@primitives-ui/utils'
-import { useRef } from 'react'
 import type { UsePopupProps } from '../popup'
 import type { HookProps, HTMLElements } from '../utils/types'
 import type { ModalRootContextValue } from './ModalContext'
@@ -59,8 +57,7 @@ export const useModalPopup = createHook<
     const modalDescriptionId = store.useSelector(
       modalSelectors.modalDescriptionId,
     )
-    const popupRef = useRef<HTMLDivElement>(null)
-    const mergedRefs = useMergeRefs(popupRef, props.ref)
+    const popupRef = store.getContext().popupRef
     const id = useResolvedId(props.id)
 
     store.useSyncStateWithCleanup('modalPopupId', id)
@@ -72,7 +69,6 @@ export const useModalPopup = createHook<
       hidden: !open,
       ...props,
       id,
-      ref: mergedRefs,
     }
 
     const popupProps = usePopup({

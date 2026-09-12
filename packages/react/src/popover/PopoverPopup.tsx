@@ -1,8 +1,6 @@
 'use client'
 
-import { useMergeRefs } from '@primitives-ui/hooks'
 import { __DEV__ } from '@primitives-ui/utils'
-import { useRef } from 'react'
 import type { Placement } from '../floating'
 import type { UsePopupProps } from '../popup'
 import type { HookProps, HTMLElements, RenderProp } from '../utils/types'
@@ -58,8 +56,7 @@ export const usePopoverPopup = createHook<
     const popoverDescriptionId = store.useSelector(
       popoverSelectors.popoverDescriptionId,
     )
-    const popupRef = useRef<HTMLDivElement>(null)
-    const mergedRefs = useMergeRefs(popupRef, props.ref)
+    const popupRef = store.getContext().popupRef
     const id = useResolvedId(props.id)
 
     store.useSyncStateWithCleanup('popoverPopupId', id)
@@ -71,7 +68,6 @@ export const usePopoverPopup = createHook<
       'aria-describedby': popoverDescriptionId || undefined,
       ...props,
       id,
-      ref: mergedRefs,
     }
 
     const popupProps = usePopup({

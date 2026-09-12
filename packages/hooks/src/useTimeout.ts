@@ -8,7 +8,7 @@ export function useTimeout() {
     timeoutRef.current = Timeout.create()
   }
 
-  useEffect(() => timeoutRef.current?.clear)
+  useEffect(() => timeoutRef.current?.clear, [])
 
   return timeoutRef.current
 }

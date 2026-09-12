@@ -27,7 +27,8 @@
     "./avatar": "./src/avatar/index.ts",
     "./dialog": "./src/dialog/index.ts",
     "./alertdialog": "./src/alertdialog/index.ts",
-    "./popover": "./src/popover/index.ts"
+    "./popover": "./src/popover/index.ts",
+    "./tooltip": "./src/tooltip/index.ts"
   },
   "publishConfig": {
     "main": "./build/index.js",
@@ -64,6 +65,10 @@
       "./popover": {
         "types": "./build/popover/index.d.ts",
         "import": "./build/popover/index.js"
+      },
+      "./tooltip": {
+        "types": "./build/tooltip/index.d.ts",
+        "import": "./build/tooltip/index.js"
       }
     }
   },

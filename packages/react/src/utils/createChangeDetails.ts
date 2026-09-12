@@ -2,6 +2,9 @@ import type { Directory } from './types'
 
 export const CHANGE_REASONS = {
   triggerPress: 'trigger-press',
+  triggerHover: 'trigger-hover',
+  triggerFocus: 'trigger-focus',
+  triggerBlur: 'trigger-blur',
   closePress: 'close-press',
   escapeKey: 'escape-key',
   pointerDownOutside: 'pointer-down-outside',
@@ -18,6 +21,9 @@ interface ChangeReasonEventMap {
   [CHANGE_REASONS.pointerDownOutside]: PointerEvent
   [CHANGE_REASONS.focusOutside]: FocusEvent
   [CHANGE_REASONS.ancestorClose]: null
+  [CHANGE_REASONS.triggerHover]: MouseEvent
+  [CHANGE_REASONS.triggerFocus]: FocusEvent
+  [CHANGE_REASONS.triggerBlur]: FocusEvent
 }
 
 export type ChangeReason = keyof ChangeReasonEventMap

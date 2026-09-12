@@ -1,9 +1,11 @@
+import { createRef } from 'react'
 import type {
   ChangeDetails,
   CHANGE_REASONS,
   StoreScope,
   StoreSelector,
 } from '../utils'
+import type { Directory } from '../utils/types'
 
 export interface PopupStoreState {
   modal: boolean
@@ -48,7 +50,8 @@ export interface PopupStoreContext<
 > {
   triggerElements: HTMLElement[]
   onOpenChangeProp?: ((open: boolean, details: Details) => void) | undefined
-  sharedContext?: {}
+  sharedContext: Directory
+  popupRef: React.RefObject<HTMLElement | null>
 }
 
 export function createPopupStoreContext<
@@ -56,13 +59,15 @@ export function createPopupStoreContext<
 >(): PopupStoreContext<Details> {
   return {
     triggerElements: [],
+    popupRef: createRef(),
     onOpenChangeProp: undefined,
+    sharedContext: {},
   }
 }
 
 export const popupSelectors = {
   open: (state: PopupStoreState) => state.openProp ?? state.open,
-  openOpen: (state: PopupStoreState) => state.openProp,
+  openProp: (state: PopupStoreState) => state.openProp,
   modal: (state: PopupStoreState) => state.modal,
   triggerIdProp: (state: PopupStoreState) => state.triggerIdProp,
   triggerId: (state: PopupStoreState) => state.triggerId,
@@ -84,6 +89,7 @@ export function createPopupStoreActions<
 
       context.onOpenChangeProp?.(nextOpen, details)
 
+      // Reject synchronous open by explicitly calling cancel.
       if (details.isCanceled) return
 
       if (scope.isValueControlled('openProp')) {

@@ -68,7 +68,7 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState>(
 
     const initialFocusRef = useLatest(initialFocus)
     const returnFocusRef = useLatest(returnFocus)
-    const popupRef = useRef<HTMLElement>(null)
+    const popupRef = store.getContext().popupRef
     const focusSessionRef = useRef<FocusSession>(null)
     const anchorRef = useRef<HTMLElement>(null)
     const beforeGuardRef = useRef<HTMLElement>(null)
@@ -373,6 +373,7 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState>(
         modalRef,
         requestDismiss,
         activeTriggerRef,
+        popupRef,
       ],
     )
 
@@ -646,7 +647,7 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState>(
           true,
         ),
       )
-    }, [open, pausedRef, modalRef])
+    }, [open, pausedRef, modalRef, popupRef])
 
     useEffect(() => {
       const popup = popupRef.current
@@ -679,7 +680,7 @@ export const usePopup = createHook<'div', PopupOwnProps, PopupState>(
         removeEventListeners()
         resetDirection()
       }
-    }, [open, modal, pausedRef])
+    }, [open, modal, pausedRef, popupRef])
 
     props = {
       tabIndex: -1,

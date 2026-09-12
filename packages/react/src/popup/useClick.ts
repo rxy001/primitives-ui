@@ -21,7 +21,7 @@ export function useClick<P extends UseClickProps>({
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     onClick?.(event)
 
-    if (event.defaultPrevented || disable) return
+    if (disable) return
 
     const details = createChangeDetails(
       CHANGE_REASONS.triggerPress,
@@ -48,6 +48,7 @@ export function useClick<P extends UseClickProps>({
 
   return {
     ...props,
+    disable,
     onClick: handleClick,
   }
 }
