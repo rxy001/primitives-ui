@@ -19,7 +19,7 @@ export const useCommand = createHook<'button', CommandOwnProps, CommandState>(
     ...props
   }: UseCommandProps) => {
     const activeRef = useRef(false)
-    const { disabled = false } = props
+    const { disabled = false, autoFocus } = props
 
     const { onKeyDown } = props
     const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
@@ -90,14 +90,21 @@ export const useCommand = createHook<'button', CommandOwnProps, CommandState>(
       onPointerDown: handlePointerDown,
     }
 
-    const focusableProps = useFocusableWhenDisabled({
-      focusableWhenDisabled,
+    const focusRingProps = useFocusRing({
       ...props,
+      // Decide ring visibility before normalizing disabled for the DOM.
+      // Intentionally focusable disabled controls still need a focus ring.
+      disabled: disabled && !focusableWhenDisabled,
+      autoFocus: autoFocus && (!disabled || focusableWhenDisabled),
     })
 
-    const focusRingProps = useFocusRing(focusableProps)
+    const focusableProps = useFocusableWhenDisabled({
+      ...focusRingProps,
+      disabled,
+      focusableWhenDisabled,
+    })
 
-    return withMetadata(focusRingProps, {
+    return withMetadata(focusableProps, {
       state: {
         disabled,
       },

@@ -4,7 +4,7 @@ import type { PopupDismissSource } from './store'
 import {
   createOrderedRegistry,
   OrderedRegistry,
-  createDocumentManager,
+  createDocumentCache,
   CHANGE_REASONS,
 } from '../utils'
 
@@ -52,7 +52,7 @@ export interface PopupEntry extends OrderedRegistryEntry<PopupEntry> {
   forceDismiss(request: PopupDismissRequest<'ancestor'>): PopupDismissAction
 }
 
-export const getPopupManager = createDocumentManager(
+export const getPopupManager = createDocumentCache(
   (document: Document) => new PopupManager(document),
 )
 

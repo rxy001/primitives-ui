@@ -3,107 +3,131 @@ import {
   useMergeRefs,
   useIsoLayoutEffect,
 } from '@primitives-ui/hooks'
-import { addEventListener, ownerDocument } from '@primitives-ui/utils'
+import {
+  addEventListener,
+  ownerDocument,
+  getEventTarget,
+} from '@primitives-ui/utils'
 import { useEffect, useRef, useState } from 'react'
 import { isFocusable } from 'tabbable'
+import { createDocumentCache } from './createDocumentCache'
 import { hasFocus } from './hasFocus'
 import { withMetadata } from './metadata'
 
-let hasInstalledGlobalEventListeners = false
+const getIsKeyboardModality = createDocumentCache((document) => {
+  // Treat keyboard as default modality for each document.
+  let isKeyboardModality = true
 
-// Treat keyboard as default modality.
-let isKeyboardModality = true
+  function onMouseDown(event: MouseEvent) {
+    const active = document.activeElement
+    const target = getEventTarget(event)
 
-function onGlobalMouseDown(event: MouseEvent) {
-  const { target } = event
-  if (!(target instanceof HTMLElement)) return
+    // Preserve keyboard modality when clicking the focused element or its descendants.
+    if (
+      isKeyboardModality &&
+      active !== document.body &&
+      active !== document.documentElement &&
+      active?.contains(target)
+    ) {
+      return
+    }
 
-  const { activeElement } = ownerDocument(target)
-  // If the user clicks the element that already has keyboard focus, keep
-  // keyboard modality so the focus ring remains visible (e.g. tabbing to a
-  // button then clicking it should not remove the ring).
-  if (target === activeElement && isKeyboardModality) return
-  isKeyboardModality = false
-}
+    isKeyboardModality = false
+  }
 
-function onGlobalKeyDown(event: KeyboardEvent) {
-  if (event.metaKey || event.ctrlKey || event.altKey) return
-  isKeyboardModality = true
-}
+  function onKeyDown(event: KeyboardEvent) {
+    if (event.metaKey || event.ctrlKey || event.altKey) return
+    isKeyboardModality = true
+  }
+
+  // Intentionally keep listeners for the lifetime of this document.
+  addEventListener(document, 'mousedown', onMouseDown, true)
+  addEventListener(document, 'keydown', onKeyDown, true)
+
+  return () => isKeyboardModality
+})
 
 export function useFocusRing<T extends UseFocusRingProps>(props: T) {
   const ref = useRef<HTMLElement>(null)
+  const previousElement = useRef<HTMLElement>(null)
   const mergedRefs = useMergeRefs(ref, props.ref)
   const [focusVisible, setFocusVisible] = useState(false)
 
-  // When the focusable element is disabled, it doesn't trigger a blur event
-  // so we can't set focusVisible to false there. Instead, we have to do it
-  // here by checking the element's disabled attribute.
+  // Disabling a focused element may not fire a blur event.
+  // Clear the focus ring when the disabled prop becomes true.
   useEffect(() => {
     if (props.disabled && focusVisible) {
       setFocusVisible(false)
     }
   }, [props.disabled, focusVisible])
 
-  // Handles both native autofocus and programmatic autoFocus on mount:
+  // React may autofocus a new DOM node before attaching its ref, so
+  // onFocusCapture can run while ref.current is null. Use the supplied element.
+  // The layout effect below also reconciles focus when the DOM node changes.
+  const shouldShowFocusRing = useEvent(
+    (element: HTMLElement) =>
+      getIsKeyboardModality(ownerDocument(element))() ||
+      isAlwaysFocusVisible(element),
+  )
+
+  // Reconcile node changes before paint without recomputing the ring on ordinary
+  // renders. Removing a focused node does not reliably reach React's onBlur.
   useIsoLayoutEffect(() => {
     const element = ref.current
-    if (!element) return
-    // Case 1 — native autofocus: the browser focuses the element before React
-    // effects run, so onFocusCapture never fires for it. Check synchronously
-    // before the first paint to avoid a visible flash.
-    //   1a. Initial page load — isKeyboardModality starts as `true`, ring shown. ✓
-    //   1b. Dynamically rendered (e.g. Dialog opened by mouse) — ring suppressed. ✓
-    if (hasFocus(element)) {
-      if (isKeyboardModality) setFocusVisible(true)
+    if (element === previousElement.current) return
+    previousElement.current = element
+    if (!element) {
+      setFocusVisible(false)
       return
     }
-    // Case 2 — programmatic autoFocus: focus is deferred to a microtask so
-    // all refs and effects are ready first (e.g. tabIndex set, Dialog fully
-    // open). The actual focus call triggers onFocusCapture, which sets
-    // focusVisible based on modality at that point.
+    // Install document listeners even when the element is not focused.
+    // Input that occurred before initialization is not recorded.
+    getIsKeyboardModality(ownerDocument(element))
+    setFocusVisible(hasFocus(element) && shouldShowFocusRing(element))
+  })
+
+  useIsoLayoutEffect(() => {
+    const element = ref.current
+    if (!element || hasFocus(element)) return
+    // Defer the autoFocus attempt until the current synchronous work completes.
+    // Recheck focusability then; the focus handler determines ring visibility.
     if (!props.autoFocus) return
+
+    const document = ownerDocument(element)
+    const activeElement = document.activeElement
+    let cancelled = false
+
     queueMicrotask(() => {
+      // Ignore attempts invalidated by effect cleanup or DOM node replacement.
+      if (cancelled || ref.current !== element) return
+      // React's native autoFocus runs before parent layout effects. This deferred
+      // attempt runs after them, so preserve any focus they have moved elsewhere.
+      if (document.activeElement !== activeElement) return
+
       if (hasFocus(element)) return
       if (!isFocusable(element)) return
+
       element.focus()
     })
+
+    return () => {
+      cancelled = true
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  useEffect(() => {
-    if (hasInstalledGlobalEventListeners) return
-    // Intentionally not unmount global events.
-    addEventListener(
-      ownerDocument(ref.current),
-      'mousedown',
-      onGlobalMouseDown,
-      true,
-    )
-    addEventListener(
-      ownerDocument(ref.current),
-      'keydown',
-      onGlobalKeyDown,
-      true,
-    )
-    hasInstalledGlobalEventListeners = true
-  }, [])
-
   const handleFocusVisible = (element: HTMLElement) => {
-    // Some extensions (e.g. Password) dispatch keydown events on autofill
-    // and immediately move focus away. Verify the element still has focus.
+    // Focus may have moved since this update was scheduled.
     if (!hasFocus(element)) return
     setFocusVisible(true)
   }
 
-  // Handles the case where an element is focused via mouse (focusVisible = false)
-  // and the user then presses a key. Without this, the focus ring would never
-  // appear until the element is re-focused via keyboard.
+  // Show a hidden ring when keyboard interaction begins on the focused element.
+  // This also handles switching from mouse to keyboard without refocusing.
   //
-  // Uses queueBeforeEvent instead of setting focusVisible directly because some
-  // keys cause the element to immediately lose focus (e.g. Enter on <a href>
-  // triggers navigation). If focusout fires before the next animation frame,
-  // the callback is cancelled and the ring is not shown.
+  // Defer the update because the key's action may move focus elsewhere.
+  // If focusout reaches the element before the next animation frame, run the
+  // check synchronously instead. Both paths verify focus before showing the ring.
   const { onKeyDownCapture } = props
   const handleKeyDownCapture = useEvent(
     (event: React.KeyboardEvent<HTMLElement>) => {
@@ -128,7 +152,7 @@ export function useFocusRing<T extends UseFocusRingProps>(props: T) {
         return
       }
       const element = event.currentTarget
-      if (isKeyboardModality || isAlwaysFocusVisible(element)) {
+      if (shouldShowFocusRing(element)) {
         queueBeforeEvent(element, 'focusout', () => handleFocusVisible(element))
       } else {
         setFocusVisible(false)
@@ -139,7 +163,6 @@ export function useFocusRing<T extends UseFocusRingProps>(props: T) {
   const { onBlur } = props
   const handleBlur = useEvent((event: React.FocusEvent<HTMLElement>) => {
     onBlur?.(event)
-    if (event.defaultPrevented) return
     if (!isFocusEventOutside(event)) return
     setFocusVisible(false)
   })
@@ -166,15 +189,16 @@ function isFocusEventOutside(event: React.FocusEvent): boolean {
 }
 
 /**
- * Schedules `callback` on the next animation frame, but fires it immediately
- * (and synchronously) if `type` is dispatched on `element` first.
+ * Runs `callback` on the next animation frame, or synchronously if a matching
+ * event reaches the element's capture listener first (including descendant events).
+ * Returns a function that cancels the pending frame and removes the listener.
  */
 function queueBeforeEvent(
   element: HTMLElement,
   type: string,
   callback: () => void,
 ): () => void {
-  const cancelTimer = (() => {
+  const cancelRAF = (() => {
     const id = requestAnimationFrame(() => {
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
       element.removeEventListener(type, callSync, true)
@@ -183,12 +207,12 @@ function queueBeforeEvent(
     return () => cancelAnimationFrame(id)
   })()
   const callSync = () => {
-    cancelTimer()
+    cancelRAF()
     callback()
   }
   element.addEventListener(type, callSync, { once: true, capture: true })
   return () => {
-    cancelTimer()
+    cancelRAF()
     element.removeEventListener(type, callSync, true)
   }
 }
@@ -217,8 +241,6 @@ function isAlwaysFocusVisible(element: HTMLElement) {
     return alwaysFocusVisibleInputTypes.includes(type)
   }
   if (element.isContentEditable) return true
-  const role = element.getAttribute('role')
-  if (role === 'combobox' && element.dataset.name) return true
   return false
 }
 
